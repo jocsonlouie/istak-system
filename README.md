@@ -2,13 +2,13 @@
 
 <p align="center">
    <a href="https://assumptaclinic.com/" target="_blank">
-      <img src="https://assumptaclinic.com/wp-content/uploads/2022/08/assumpta-logo-1-e1661166678137.png" alt="assumpta-logo" width="120px" height="auto">
+      <img src="https://assumptaclinic.com/wp-content/uploads/2022/08/assumpta-logo-1-e1661166678137.png" alt="assumpta-logo" width="280px" height="auto">
    </a>
 </p>
 
 <h1 align="center">
    <a href="https://assumptaclinic.com/" target="_blank" align="center">
-      ISTAK Inventory Management System | Assumpta Dog & Cat Clinic 
+      ISTAK Inventory Management System <br> Assumpta Dog & Cat Clinic 
    </a>
 </h1>
 
