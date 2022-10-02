@@ -1,47 +1,61 @@
 {
-  "name": "istak-system",
-  "version": "0.1.0",
-  "private": true,
+  "name": "istak-assumpta-dog-and-cat-clinic",
+  "description": "Production ready carefully crafted most comprehensive admin template",
+  "license": "MIT",
+  "version": "1.0.3",
+  "author": {
+    "name": "ThemeSelection",
+    "url": "https://themeselection.com/"
+  },
+  "bugs": {
+    "url": "https://github.com/themeselection/materio-vuetify-vuejs-admin-template-free/issues"
+  },
+  "private": false,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/themeselection/materio-vuetify-vuejs-admin-template-free"
+  },
+  "homepage": "https://themeselection.com/demo/materio-vuetify-vuejs-admin-template-free/demo/",
+  "keywords": [
+    "free template",
+    "vuejs admin",
+    "free admin template",
+    "free vuejs theme",
+    "free vuejs admin",
+    "free vuejs template"
+  ],
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
-    "core-js": "^3.8.3",
-    "register-service-worker": "^1.7.2",
-    "vue": "^3.2.13",
-    "vue-router": "^4.0.3"
+    "@mdi/js": "^5.9.55",
+    "@vue/composition-api": "^1.3.3",
+    "@vuetify/cli-plugin-utils": "^0.0.9",
+    "apexcharts": "^3.27.3",
+    "core-js": "^3.6.5",
+    "vue": "^2.6.11",
+    "vue-apexcharts": "^1.6.2",
+    "vue-router": "^3.2.0",
+    "vuetify": "^2.4.0",
+    "vuex": "^3.4.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.12.16",
-    "@babel/eslint-parser": "^7.12.16",
-    "@vue/cli-plugin-babel": "~5.0.0",
-    "@vue/cli-plugin-eslint": "~5.0.0",
-    "@vue/cli-plugin-pwa": "~5.0.0",
-    "@vue/cli-plugin-router": "~5.0.0",
-    "@vue/cli-service": "~5.0.0",
-    "eslint": "^7.32.0",
-    "eslint-plugin-vue": "^8.0.3"
-  },
-  "eslintConfig": {
-    "root": true,
-    "env": {
-      "node": true
-    },
-    "extends": [
-      "plugin:vue/vue3-essential",
-      "eslint:recommended"
-    ],
-    "parserOptions": {
-      "parser": "@babel/eslint-parser"
-    },
-    "rules": {}
-  },
-  "browserslist": [
-    "> 1%",
-    "last 2 versions",
-    "not dead",
-    "not ie 11"
-  ]
+    "@vue/cli-plugin-babel": "~4.5.0",
+    "@vue/cli-plugin-eslint": "~4.5.0",
+    "@vue/cli-plugin-router": "~4.5.0",
+    "@vue/cli-plugin-vuex": "~4.5.0",
+    "@vue/cli-service": "~4.5.0",
+    "@vue/eslint-config-airbnb": "^5.0.2",
+    "babel-eslint": "^10.1.0",
+    "eslint": "^6.7.2",
+    "eslint-plugin-import": "^2.20.2",
+    "eslint-plugin-vue": "^6.2.2",
+    "sass": "~1.32.0",
+    "sass-loader": "^10.0.0",
+    "vue-cli-plugin-vuetify": "~2.4.2",
+    "vue-template-compiler": "^2.6.11",
+    "vuetify-loader": "^1.7.0"
+  }
 }

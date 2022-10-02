@@ -1,30 +1,35 @@
 <template>
-  <nav>
-    <router-link to="/">Home</router-link> |
-    <router-link to="/about">About</router-link>
-  </nav>
-  <router-view/>
+  <component :is="resolveLayout">
+    <router-view></router-view>
+  </component>
 </template>
 
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-}
+<script>
+import { computed } from '@vue/composition-api'
+import { useRouter } from '@/utils'
+import LayoutBlank from '@/layouts/Blank.vue'
+import LayoutContent from '@/layouts/Content.vue'
 
-nav {
-  padding: 30px;
-}
+export default {
+  components: {
+    LayoutBlank,
+    LayoutContent,
+  },
+  setup() {
+    const { route } = useRouter()
 
-nav a {
-  font-weight: bold;
-  color: #2c3e50;
-}
+    const resolveLayout = computed(() => {
+      // Handles initial route
+      if (route.value.name === null) return null
 
-nav a.router-link-exact-active {
-  color: #42b983;
+      if (route.value.meta.layout === 'blank') return 'layout-blank'
+
+      return 'layout-content'
+    })
+
+    return {
+      resolveLayout,
+    }
+  },
 }
-</style>
+</script>
