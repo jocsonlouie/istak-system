@@ -122,15 +122,4 @@ export default {
     }
   }
 }
-
-// You can remove below style
-// Upgrade Banner
-.app-navigation-menu {
-  .upgrade-banner {
-    position: absolute;
-    bottom: 13px;
-    left: 50%;
-    transform: translateX(-50%);
-  }
-}
 </style>
