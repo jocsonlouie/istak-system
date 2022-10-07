@@ -8,7 +8,7 @@
       Item {{ itemStatus }} Successfully!
       
     </v-alert>
-    <v-data-table :headers="headers" :items="items" sort-by="calories" class="elevation-1">
+    <v-data-table :headers="headers" :items="items" sort-by="itemname" class="elevation-1">
     <template v-slot:top>
       <v-toolbar flat>
         <v-toolbar-title>My CRUD</v-toolbar-title>
@@ -36,20 +36,20 @@
                   </v-text-field>
 
 
-                  <v-text-field v-model="dataAdd.barcode" :rules="barcodeRules" label="Barcode" clearable>
+                  <v-text-field v-model="dataAdd.barcode"  label="Barcode" clearable>
                   </v-text-field>
 
 
-                  <v-text-field v-model="dataAdd.storebox" :rules="storeBoxRules" label="Storebox" clearable>
+                  <v-text-field v-model="dataAdd.storebox"  label="Storebox" clearable>
                   </v-text-field>
 
 
-                  <v-text-field v-model.number="dataAdd.total" :rules="tStocksRules" label="Total Stocks" type="number"
+                  <v-text-field v-model.number="dataAdd.total"  label="Total Stocks" type="number"
                     clearable></v-text-field>
 
 
 
-                  <v-text-field v-model.number="dataAdd.display" :rules="dStocksRules" label="Display Stocks"
+                  <v-text-field v-model.number="dataAdd.display"  label="Display Stocks"
                     type="number" clearable></v-text-field>
 
                 </v-form>
@@ -107,10 +107,13 @@
     mdiPencil,
     mdiDelete
   } from '@mdi/js'
+
   import vaccinesColRef from '@/fb';
   import {
-    addDoc
+    addDoc, getDocs
   } from '@firebase/firestore';
+
+
   export default {
     data: () => ({
       editic: mdiPencil,
@@ -180,6 +183,9 @@
       successAlert: false,
       itemStatus: '',
 
+      //edit item
+      
+
     }),
 
     computed: {
@@ -199,53 +205,40 @@
 
     created() {
       this.initialize()
+      //this.fetchItems();
     },
 
     methods: {
-      initialize() {
-        this.items = [{
-            itemname: 'Anti-Rabbies',
-            barcode: 'ABC123456789',
-            storebox: 'A-125',
-            total: 150,
-            display: 30,
-          },
-          {
-            itemname: 'Anti-Rabbies',
-            barcode: 'ABC123456789',
-            storebox: 'A-125',
-            total: 150,
-            display: 30,
-          },
-          {
-            itemname: 'Anti-Rabbies',
-            barcode: 'ABC123456789',
-            storebox: 'A-125',
-            total: 150,
-            display: 30,
-          },
-          {
-            itemname: 'Anti-Rabbies',
-            barcode: 'ABC123456789',
-            storebox: 'A-125',
-            total: 150,
-            display: 30,
-          },
-          {
-            itemname: 'Anti-Rabbies',
-            barcode: 'ABC123456789',
-            storebox: 'A-125',
-            total: 150,
-            display: 30,
-          },
-          {
-            itemname: 'Anti-Rabbies',
-            barcode: 'ABC123456789',
-            storebox: 'A-125',
-            total: 150,
-            display: 30,
-          },
-        ]
+      async fetchItems(){
+        let itemsSnapshot = await getDocs(vaccinesColRef);
+        let items = [];
+        itemsSnapshot.forEach((item) => {
+          let itemData = item.data();
+          itemData.id = item.id;
+          items.push(itemData);
+        });
+        console.log(items);
+        this.items = items;
+      },
+      async initialize() {
+        let itemsSnapshot = await getDocs(vaccinesColRef);
+        let items = [];
+        itemsSnapshot.forEach((item) => {
+          let itemData = item.data();
+          itemData.id = item.id;
+          items.push(itemData);
+        });
+        console.log(items);
+        this.items = items;
+
+        // this.items = [{
+        //     itemname: 'Anti-Rabbies',
+        //     barcode: 'ABC123456789',
+        //     storebox: 'A-125',
+        //     total: 150,
+        //     display: 30,
+        //   },
+        // ]
       },
 
       editItem(item) {
