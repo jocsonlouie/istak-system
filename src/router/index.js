@@ -43,6 +43,11 @@ const routes = [
     component: () => import('@/views/form-layouts/FormLayouts.vue'),
   },
   {
+    path: '/inventory-list',
+    name: 'InventoryList',
+    component: () => import('@/views/SampleInventory.vue'),
+  },
+  {
     path: '/pages/account-settings',
     name: 'pages-account-settings',
     component: () => import('@/views/pages/account-settings/AccountSettings.vue'),
