@@ -113,11 +113,6 @@
                 alert("Document created successfully");
                 await this.reset();
 
-
-
-
-
-
             }
         },
 
