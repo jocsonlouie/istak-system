@@ -1,13 +1,22 @@
 <template>
   <div class="sample-iv">
     <!-- Success Alert -->
-    <v-alert dense v-model="successAlert" text type="success" dismissible>
+    <v-snackbar v-model="snackbar" :timeout="timeout" top color="primary" outlined rounded="pill">
+      <v-icon color="primary">{{ successIcon }}</v-icon>
+      
       Item {{ itemStatus }} Successfully!
+      <template v-slot:action="{ attrs2 }" >
+        
+        <v-spacer></v-spacer>
+        <v-btn color="primary" text v-bind="attrs2"  @click="snackbar = false">
+          Dismiss
+        </v-btn>
+      </template>
+    </v-snackbar>
 
-    </v-alert>
     <!-- Data Table -->
     <v-data-table :headers="headers" :items="items" sort-by="itemname" class="elevation-1 pt-3">
-      
+
       <template v-slot:top>
         <v-toolbar flat>
           <!-- Table Top Functions -->
@@ -24,7 +33,8 @@
             </template>
             <v-card>
               <v-card-title class="d-flex justify-center ">
-                <v-chip color="primary" class="d-flex justify-center font-weight-bold text-h6 pa-5">{{ formTitle }}</v-chip>
+                <v-chip color="primary" class="d-flex justify-center font-weight-bold text-h6 pa-5">{{ formTitle }}
+                </v-chip>
               </v-card-title>
 
               <v-card-text>
@@ -64,10 +74,11 @@
           <!-- Delete Item Modal -->
           <v-dialog v-model="dialogDelete" max-width="500px">
             <v-card class="pa-5 d-flex flex-column justify-center">
-              <v-chip color="error lighten-1" class="d-flex justify-center font-weight-bold text-h6 pa-5">Delete Item</v-chip>
+              <v-chip color="error lighten-1" class="d-flex justify-center font-weight-bold text-h6 pa-5">Delete Item
+              </v-chip>
               <v-card-title class="-d-flex justify-center">Are you sure you want to delete this item?</v-card-title>
-                <p class="text-center font-weight-bold text-h5">{{ dataItem.itemname }}</p>
-              <v-card-actions class="mb-n5" >
+              <p class="text-center font-weight-bold text-h5">{{ dataItem.itemname }}</p>
+              <v-card-actions class="mb-n5">
                 <v-spacer></v-spacer>
                 <v-btn color="secondary" @click="closeDelete">Cancel</v-btn>
                 <v-btn color="primary" @click="deleteItemConfirm">YES</v-btn>
@@ -81,10 +92,10 @@
       <!-- Table Data Edit & Delete Buttons -->
       <template v-slot:item.actions="{ item }">
         <v-icon small class="mr-2" @click="editItem(item)">
-          {{ editic }}
+          {{ editIcon }}
         </v-icon>
         <v-icon small @click="deleteItem(item)">
-          {{ deleteic }}
+          {{ deleteIcon }}
         </v-icon>
       </template>
       <!-- Reset Button if No Data -->
@@ -101,25 +112,27 @@
   // icons
   import {
     mdiPencil,
-    mdiDelete
+    mdiDelete,
+    mdiCheckboxMarkedCircleOutline
   } from '@mdi/js'
 
   // crud imports
-  import vaccinesColRef from '@/fb';
+  import inventoryColRef from '@/fb';
   import {
     addDoc,
-    getDocs,
     setDoc,
     doc,
-    deleteDoc
+    deleteDoc, onSnapshot
   } from '@firebase/firestore';
+
 
 
   export default {
     data: () => ({
       // icon data
-      editic: mdiPencil,
-      deleteic: mdiDelete,
+      editIcon: mdiPencil,
+      deleteIcon: mdiDelete,
+      successIcon: mdiCheckboxMarkedCircleOutline,
 
       // modal data
       dialog: false,
@@ -189,13 +202,14 @@
         v => !!v || 'Item Name is required',
       ],
 
-      //alert
-      successAlert: false,
-      itemStatus: '',
-
       //edit item
       itemId: null,
       docRef: null,
+
+      //snackbar
+      snackbar: false,
+      timeout: 3000,
+      itemStatus: '',
 
     }),
 
@@ -223,14 +237,24 @@
 
     methods: {
       async initialize() {
-        let itemsSnapshot = await getDocs(vaccinesColRef);
-        let items = [];
-        itemsSnapshot.forEach((item) => {
-          let itemData = item.data();
-          itemData.id = item.id;
-          items.push(itemData);
+        // let itemsSnapshot = await getDocs(inventoryColRef);
+        // let items = [];
+        // itemsSnapshot.forEach((item) => {
+        //   let itemData = item.data();
+        //   itemData.id = item.id;
+        //   items.push(itemData);
+        // });
+        // this.items = items;
+
+      onSnapshot(inventoryColRef, (snapshot) => {
+        let items = []
+        snapshot.forEach((doc) => {
+          items.push({ ...doc.data(), id: doc.id })
         });
         this.items = items;
+      })
+
+      
       },
 
       // edit function
@@ -239,7 +263,7 @@
         if (this.itemIndex > -1) {
           this.dataItem = Object.assign({}, item)
           this.itemId = this.dataItem.id;
-          this.docRef = doc(vaccinesColRef, this.itemId);
+          this.docRef = doc(inventoryColRef, this.itemId);
 
         }
         this.dialog = true
@@ -249,7 +273,7 @@
       async deleteItem(item) {
         this.dataItem = Object.assign({}, item);
         this.itemId = this.dataItem.id;
-        this.docRef = doc(vaccinesColRef, this.itemId);
+        this.docRef = doc(inventoryColRef, this.itemId);
         this.dialogDelete = true;
       },
 
@@ -258,8 +282,9 @@
         await deleteDoc(this.docRef);
         this.closeDelete();
         this.itemStatus = 'Deleted';
-        this.successAlert = true;
-        this.$router.go;
+        this.snackbar = true;
+        this.resetForm();
+        //this.$router.go;
       },
 
       // close function for edit and add
@@ -284,18 +309,18 @@
       async save() {
         if (this.itemIndex > -1) {
           // edit function
-          await setDoc(this.docRef, this.dataItem);     
-          this.close();  
+          await setDoc(this.docRef, this.dataItem);
+          this.close();
           this.itemStatus = 'Updated';
-          this.successAlert = true;
-          this.$router.go();
+          this.snackbar = true;
+          //this.$router.go();
 
         } else {
           // add function
-          const addedDoc = await addDoc(vaccinesColRef, this.$data.dataItem);
+          const addedDoc = await addDoc(inventoryColRef, this.$data.dataItem);
           this.close();
           this.itemStatus = 'Added';
-          this.successAlert = true;
+          this.snackbar = true;
           this.resetForm();
           //this.$router.go();
         }

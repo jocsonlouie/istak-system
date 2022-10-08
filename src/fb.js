@@ -30,6 +30,6 @@ const db = getFirestore(app);
 //db.settings({ ignoreUndefinedProperties: true});
 //db.settings({ timestampsInSnapshots: true });
 
-const vaccinesColRef = collection(db, "vaccines") 
+const inventoryColRef = collection(db, "inventory") 
 
-export default vaccinesColRef;
+export default inventoryColRef;
