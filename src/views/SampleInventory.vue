@@ -1,145 +1,154 @@
 <template>
-  <div class="sample-iv" >
-    <v-alert
-      dense v-model="successAlert"
-      text
-      type="success" dismissible
-    >
+  <div class="sample-iv">
+    <!-- Success Alert -->
+    <v-alert dense v-model="successAlert" text type="success" dismissible>
       Item {{ itemStatus }} Successfully!
-      
+
     </v-alert>
-    <v-data-table :headers="headers" :items="items" sort-by="itemname" class="elevation-1">
-    <template v-slot:top>
-      <v-toolbar flat>
-        <v-toolbar-title>My CRUD</v-toolbar-title>
-        <v-divider class="mx-4" inset vertical></v-divider>
-        <v-spacer></v-spacer>
-
-        <v-dialog v-model="dialog" max-width="500px">
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on">
-              New Item
-            </v-btn>
-          </template>
-          <v-card>
-            <v-card-title>
-              <span class="text-h5">{{ formTitle }}</span>
-            </v-card-title>
-
-            <v-card-text>
-              <v-container>
+    <!-- Data Table -->
+    <v-data-table :headers="headers" :items="items" sort-by="itemname" class="elevation-1 pt-3">
+      
+      <template v-slot:top>
+        <v-toolbar flat>
+          <!-- Table Top Functions -->
 
 
-                <v-form ref="form">
+          <v-spacer></v-spacer>
 
-                  <v-text-field v-model="dataAdd.itemname" :rules="itemNameRules" label="Item Name" clearable required>
-                  </v-text-field>
-
-
-                  <v-text-field v-model="dataAdd.barcode"  label="Barcode" clearable>
-                  </v-text-field>
-
-
-                  <v-text-field v-model="dataAdd.storebox"  label="Storebox" clearable>
-                  </v-text-field>
-
-
-                  <v-text-field v-model.number="dataAdd.total"  label="Total Stocks" type="number"
-                    clearable></v-text-field>
-
-
-
-                  <v-text-field v-model.number="dataAdd.display"  label="Display Stocks"
-                    type="number" clearable></v-text-field>
-
-                </v-form>
-
-
-
-              </v-container>
-            </v-card-text>
-
-            <v-card-actions>
-              <v-spacer></v-spacer>
-              <v-btn color="blue darken-1" text @click="close">
-                Cancel
+          <!-- Add & Edit Item Modal -->
+          <v-dialog v-model="dialog" max-width="500px">
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on">
+                New Item
               </v-btn>
-              <v-btn color="blue darken-1" text @click="addItem">
-                Add Item
-              </v-btn>
-            </v-card-actions>
-          </v-card>
-        </v-dialog>
-        <v-dialog v-model="dialogDelete" max-width="500px">
-          <v-card>
-            <v-card-title class="text-h5">Are you sure you want to delete this item?</v-card-title>
-            <v-card-actions>
-              <v-spacer></v-spacer>
-              <v-btn color="blue darken-1" text @click="closeDelete">Cancel</v-btn>
-              <v-btn color="blue darken-1" text @click="deleteItemConfirm">OK</v-btn>
-              <v-spacer></v-spacer>
-            </v-card-actions>
-          </v-card>
-        </v-dialog>
-      </v-toolbar>
-    </template>
-    <template v-slot:item.actions="{ item }">
-      <v-icon small class="mr-2" @click="editItem(item)">
-        <!-- mdi-pencil -->
-        {{ editic }}
-      </v-icon>
-      <v-icon small @click="deleteItem(item)">
-        <!-- mdi-delete -->
-        {{ deleteic }}
-      </v-icon>
-    </template>
-    <template v-slot:no-data>
-      <v-btn color="primary" @click="initialize">
-        Reset
-      </v-btn>
-    </template>
-  </v-data-table>
+            </template>
+            <v-card>
+              <v-card-title class="d-flex justify-center ">
+                <v-chip color="primary" class="d-flex justify-center font-weight-bold text-h6 pa-5">{{ formTitle }}</v-chip>
+              </v-card-title>
+
+              <v-card-text>
+                <v-container>
+                  <v-form ref="form">
+                    <v-text-field v-model="dataItem.itemname" :rules="itemNameRules" label="Item Name" clearable
+                      required>
+                    </v-text-field>
+
+                    <v-text-field v-model="dataItem.barcode" label="Barcode" clearable>
+                    </v-text-field>
+
+                    <v-text-field v-model="dataItem.storebox" label="Storebox" clearable>
+                    </v-text-field>
+
+                    <v-text-field v-model.number="dataItem.total" label="Total Stocks" type="number" clearable>
+                    </v-text-field>
+
+                    <v-text-field v-model.number="dataItem.display" label="Display Stocks" type="number" clearable>
+                    </v-text-field>
+
+                  </v-form>
+                </v-container>
+              </v-card-text>
+
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn color="secondary" @click="close">
+                  Cancel
+                </v-btn>
+                <v-btn color="primary" @click="save">
+                  Save</v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
+
+          <!-- Delete Item Modal -->
+          <v-dialog v-model="dialogDelete" max-width="500px">
+            <v-card class="pa-5 d-flex flex-column justify-center">
+              <v-chip color="error lighten-1" class="d-flex justify-center font-weight-bold text-h6 pa-5">Delete Item</v-chip>
+              <v-card-title class="-d-flex justify-center">Are you sure you want to delete this item?</v-card-title>
+                <p class="text-center font-weight-bold text-h5">{{ dataItem.itemname }}</p>
+              <v-card-actions class="mb-n5" >
+                <v-spacer></v-spacer>
+                <v-btn color="secondary" @click="closeDelete">Cancel</v-btn>
+                <v-btn color="primary" @click="deleteItemConfirm">YES</v-btn>
+                <v-spacer></v-spacer>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
+        </v-toolbar>
+      </template>
+
+      <!-- Table Data Edit & Delete Buttons -->
+      <template v-slot:item.actions="{ item }">
+        <v-icon small class="mr-2" @click="editItem(item)">
+          {{ editic }}
+        </v-icon>
+        <v-icon small @click="deleteItem(item)">
+          {{ deleteic }}
+        </v-icon>
+      </template>
+      <!-- Reset Button if No Data -->
+      <template v-slot:no-data>
+        <v-btn color="primary" @click="initialize">
+          Reset
+        </v-btn>
+      </template>
+    </v-data-table>
   </div>
-  
+
 </template>
 <script>
+  // icons
   import {
     mdiPencil,
     mdiDelete
   } from '@mdi/js'
 
+  // crud imports
   import vaccinesColRef from '@/fb';
   import {
-    addDoc, getDocs
+    addDoc,
+    getDocs,
+    setDoc,
+    doc,
+    deleteDoc
   } from '@firebase/firestore';
 
 
   export default {
     data: () => ({
+      // icon data
       editic: mdiPencil,
       deleteic: mdiDelete,
+
+      // modal data
       dialog: false,
       dialogDelete: false,
+
+      // table header data
       headers: [{
           text: 'Item Name',
           align: 'start',
-          sortable: false,
           value: 'itemname',
         },
         {
           text: 'Barcode',
+          sortable: false,
           value: 'barcode'
         },
         {
           text: 'Storebox',
+          sortable: false,
           value: 'storebox'
         },
         {
           text: 'Total Stocks',
+          sortable: false,
           value: 'total'
         },
         {
           text: 'Display Stocks',
+          sortable: false,
           value: 'display'
         },
         {
@@ -148,9 +157,10 @@
           sortable: false
         },
       ],
+      // table data
       items: [],
-      editedIndex: -1,
-      editedItem: {
+      itemIndex: -1,
+      currentItem: {
         itemname: '',
         barcode: '',
         storebox: '',
@@ -166,7 +176,7 @@
       },
 
       // add item
-      dataAdd: {
+      dataItem: {
         itemname: '',
         barcode: '',
         storebox: '',
@@ -184,13 +194,15 @@
       itemStatus: '',
 
       //edit item
-      
+      itemId: null,
+      docRef: null,
 
     }),
 
     computed: {
+      // to change modal to add or edit
       formTitle() {
-        return this.editedIndex === -1 ? 'New Item' : 'Edit Item'
+        return this.itemIndex === -1 ? 'New Item' : 'Edit Item'
       },
     },
 
@@ -204,22 +216,12 @@
     },
 
     created() {
-      this.initialize()
-      //this.fetchItems();
+      // to fetch data
+      this.initialize();
+
     },
 
     methods: {
-      async fetchItems(){
-        let itemsSnapshot = await getDocs(vaccinesColRef);
-        let items = [];
-        itemsSnapshot.forEach((item) => {
-          let itemData = item.data();
-          itemData.id = item.id;
-          items.push(itemData);
-        });
-        console.log(items);
-        this.items = items;
-      },
       async initialize() {
         let itemsSnapshot = await getDocs(vaccinesColRef);
         let items = [];
@@ -228,60 +230,77 @@
           itemData.id = item.id;
           items.push(itemData);
         });
-        console.log(items);
         this.items = items;
-
-        // this.items = [{
-        //     itemname: 'Anti-Rabbies',
-        //     barcode: 'ABC123456789',
-        //     storebox: 'A-125',
-        //     total: 150,
-        //     display: 30,
-        //   },
-        // ]
       },
 
-      editItem(item) {
-        this.editedIndex = this.items.indexOf(item)
-        this.editedItem = Object.assign({}, item)
+      // edit function
+      async editItem(item) {
+        this.itemIndex = this.items.indexOf(item)
+        if (this.itemIndex > -1) {
+          this.dataItem = Object.assign({}, item)
+          this.itemId = this.dataItem.id;
+          this.docRef = doc(vaccinesColRef, this.itemId);
+
+        }
         this.dialog = true
       },
 
-      deleteItem(item) {
-        this.editedIndex = this.items.indexOf(item)
-        this.editedItem = Object.assign({}, item)
-        this.dialogDelete = true
+      // delete function
+      async deleteItem(item) {
+        this.dataItem = Object.assign({}, item);
+        this.itemId = this.dataItem.id;
+        this.docRef = doc(vaccinesColRef, this.itemId);
+        this.dialogDelete = true;
       },
 
-      deleteItemConfirm() {
-        this.items.splice(this.editedIndex, 1)
-        this.closeDelete()
+      async deleteItemConfirm() {
+        this.items.splice(this.itemIndex, 1);
+        await deleteDoc(this.docRef);
+        this.closeDelete();
+        this.itemStatus = 'Deleted';
+        this.successAlert = true;
+        this.$router.go;
       },
 
+      // close function for edit and add
       close() {
         this.dialog = false
         this.$nextTick(() => {
-          this.editedItem = Object.assign({}, this.defaultItem)
-          this.editedIndex = -1
+          this.currentItem = Object.assign({}, this.defaultItem)
+          this.itemIndex = -1
         })
       },
 
+      // close function for delete
       closeDelete() {
         this.dialogDelete = false
         this.$nextTick(() => {
-          this.editedItem = Object.assign({}, this.defaultItem)
-          this.editedIndex = -1
+          this.currentItem = Object.assign({}, this.defaultItem)
+          this.itemIndex = -1
         })
       },
 
-      // save() {
-      //   if (this.editedIndex > -1) {
-      //     Object.assign(this.items[this.editedIndex], this.editedItem)
-      //   } else {
-      //     this.items.push(this.editedItem)
-      //   }
-      //   this.close()
-      // },
+      // function for edit and add
+      async save() {
+        if (this.itemIndex > -1) {
+          // edit function
+          await setDoc(this.docRef, this.dataItem);     
+          this.close();  
+          this.itemStatus = 'Updated';
+          this.successAlert = true;
+          this.$router.go();
+
+        } else {
+          // add function
+          const addedDoc = await addDoc(vaccinesColRef, this.$data.dataItem);
+          this.close();
+          this.itemStatus = 'Added';
+          this.successAlert = true;
+          this.resetForm();
+          //this.$router.go();
+        }
+        //this.close()
+      },
 
       validate() {
         this.$refs.form.validate();
@@ -293,15 +312,6 @@
         this.$refs.form.resetValidation();
       },
 
-      async addItem() {
-        const addedDoc = await addDoc(vaccinesColRef, this.$data.dataAdd);
-        await this.close();
-        this.itemStatus = 'Added';
-        this.successAlert = true;
-        await this.resetForm(); 
-        
-
-      }
     },
   }
 </script>
