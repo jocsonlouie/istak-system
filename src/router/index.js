@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
+import { getAuth, onAuthStateChanged } from "@firebase/auth";
 
 Vue.use(VueRouter)
 
@@ -15,7 +16,11 @@ const routes = [
   {
     path: '/dashboard',
     name: 'dashboard',
+    meta: {
+      requiresAuth: true,
+    },
     component: () => import('@/views/dashboard/Dashboard.vue'),
+
   },
   {
     path: '/typography',
@@ -87,5 +92,26 @@ const router = new VueRouter({
   base: process.env.BASE_URL,
   routes,
 })
+
+const getCurrentUser = () => {
+  return new Promise((resolve, reject) => {
+    const removeListener = onAuthStateChanged(getAuth(), (user) => {
+      removeListener();
+      resolve(user);
+    }, reject)
+  });
+}
+router.beforeEach(async (to, from, next) => {
+  if (to.matched.some((record) => record.meta.requiresAuth)) {
+    if (await getCurrentUser()) {
+      next();
+    } else {
+      alert("No Access!");
+      next("/");
+    }
+  } else {
+    next();
+  }
+});
 
 export default router

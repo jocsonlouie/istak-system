@@ -1,9 +1,11 @@
+
 <template>
   <v-menu offset-y left nudge-bottom="14" min-width="230" content-class="user-profile-menu-content">
     <template v-slot:activator="{ on, attrs }">
       <v-badge bottom color="success" overlap offset-x="12" offset-y="12" class="ms-4" dot>
         <v-avatar size="40px" v-bind="attrs" v-on="on">
-          <v-img :src="require('@/assets/images/avatars/1.png')"></v-img>
+          <v-img :src="userPhoto" v-if="userPhoto"></v-img>
+          <v-img src="https://assumptaclinic.com/wp-content/uploads/2022/10/profile-icon-default.jpeg" v-else></v-img>
         </v-avatar>
       </v-badge>
     </template>
@@ -11,14 +13,16 @@
       <div class="pb-3 pt-2">
         <v-badge bottom color="success" overlap offset-x="12" offset-y="12" class="ms-4" dot>
           <v-avatar size="40px">
-            <v-img :src="require('@/assets/images/avatars/1.png')"></v-img>
+            <v-img :src="userPhoto" v-if="userPhoto"></v-img>
+            <v-img src="https://assumptaclinic.com/wp-content/uploads/2022/10/profile-icon-default.jpeg" v-else></v-img>
           </v-avatar>
         </v-badge>
         <div class="d-inline-flex flex-column justify-center ms-3" style="vertical-align:middle">
           <span class="text--primary font-weight-semibold mb-n1">
-            John Doe
+            <div v-if="userDisplayName"> {{ userDisplayName }}</div>
+            <div v-else> Clinic</div>
           </span>
-          <small class="text--disabled text-capitalize">Admin</small>
+          <!-- <small class="text--disabled text-capitalize">Admin</small> -->
         </div>
       </div>
 
@@ -55,7 +59,7 @@
 
 
       <!-- Logout -->
-      <v-list-item link>
+      <v-list-item @click="handleSignOut">
         <v-list-item-icon class="me-2">
           <v-icon size="22">
             {{ icons.mdiLogoutVariant }}
@@ -69,7 +73,11 @@
   </v-menu>
 </template>
 
-<script>
+<script >
+import { getAuth, onAuthStateChanged, signOut } from "@firebase/auth";
+import { onMounted, ref } from '@vue/composition-api';
+import db from '@/fb';
+
 import {
   mdiAccountOutline,
   mdiEmailOutline,
@@ -79,10 +87,31 @@ import {
   mdiCurrencyUsd,
   mdiHelpCircleOutline,
   mdiLogoutVariant,
-} from '@mdi/js'
+} from '@mdi/js';
+
+
+const isLoggedIn = ref(false);
+const userDisplayName = ref();
+const userPhoto = ref();
+let auth;
+
 
 export default {
   setup() {
+    onMounted(() => {
+      auth = getAuth();
+      onAuthStateChanged(auth, (user) => {
+        if (user) {
+          userDisplayName.value = user.displayName;
+          userPhoto.value = user.photoURL;
+          console.log(userPhoto.value);
+          isLoggedIn.value = true;
+
+        } else {
+          isLoggedIn.value = false;
+        }
+      });
+    });
     return {
       icons: {
         mdiAccountOutline,
@@ -94,6 +123,18 @@ export default {
         mdiHelpCircleOutline,
         mdiLogoutVariant,
       },
+      isLoggedIn,
+      userDisplayName,
+      auth,
+      userPhoto
+    }
+  },
+  methods: {
+    handleSignOut() {
+      signOut(auth).then(() => {
+        this.$router.push('/');
+
+      });
     }
   },
 }

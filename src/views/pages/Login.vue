@@ -20,15 +20,26 @@
           </p>
         </v-card-text>
 
+        <!-- snackbar -->
+        <v-snackbar v-model="snackbar" :timeout="timeout" top>
+          {{ text }}
+
+          <template v-slot:action="{ attrs }">
+            <v-btn color="blue" text v-bind="attrs" @click="snackbar = false">
+              Close
+            </v-btn>
+          </template>
+        </v-snackbar>
+
         <!-- login form -->
         <v-card-text>
-          <v-form>
+          <v-form ref="loginForm">
             <v-text-field v-model="email" outlined label="Email" placeholder="john@example.com" hide-details
-              class="mb-3"></v-text-field>
+              :rules="inputRules" class="mb-3"></v-text-field>
 
             <v-text-field v-model="password" outlined :type="isPasswordVisible ? 'text' : 'password'" label="Password"
               placeholder="············" :append-icon="isPasswordVisible ? icons.mdiEyeOffOutline : icons.mdiEyeOutline"
-              hide-details @click:append="isPasswordVisible = !isPasswordVisible"></v-text-field>
+              hide-details @click:append="isPasswordVisible = !isPasswordVisible" :rules="inputRules"></v-text-field>
 
             <div class="d-flex align-center justify-space-between flex-wrap">
               <v-checkbox label="Remember Me" hide-details class="me-3 mt-1">
@@ -40,7 +51,7 @@
               </a>
             </div>
 
-            <v-btn block color="primary" class="mt-6" @click="$router.push('dashboard')">
+            <v-btn block color="primary" class="mt-6" @click="login">
               Login
             </v-btn>
           </v-form>
@@ -65,7 +76,7 @@
 
         <!-- social links -->
         <v-card-actions class="d-flex justify-center">
-          <v-btn v-for="link in socialLink" :key="link.icon" icon class="ms-1">
+          <v-btn v-for="link in socialLink" :key="link.icon" icon class="ms-1" @click="signInWithGoogle">
             <v-icon :color="$vuetify.theme.dark ? link.colorInDark : link.color">
               {{ link.icon }}
             </v-icon>
@@ -88,14 +99,24 @@
 
 <script>
 // eslint-disable-next-line object-curly-newline
+import db from '@/fb';
 import { mdiGoogle, mdiEyeOutline, mdiEyeOffOutline } from '@mdi/js'
 import { ref } from '@vue/composition-api'
+import { getAuth, GoogleAuthProvider, signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
+
+const isPasswordVisible = ref(false)
+const email = ref('')
+const password = ref('')
+const errMsg = ref('');
+
 
 export default {
+  data: () => ({
+    snackbar: false,
+    text: errMsg.value,
+    timeout: 2000,
+  }),
   setup() {
-    const isPasswordVisible = ref(false)
-    const email = ref('')
-    const password = ref('')
     const socialLink = [
       {
         icon: mdiGoogle,
@@ -109,14 +130,67 @@ export default {
       email,
       password,
       socialLink,
-
+      errMsg,
       icons: {
         mdiEyeOutline,
         mdiEyeOffOutline,
       },
+      inputRules: [
+        v => v.length >= 3 || 'Minimum length is 3 characters'
+      ]
     }
   },
+  methods: {
+    login() {
+      // if (this.$refs.form.validate()) {
+      const auth = getAuth();
+      signInWithEmailAndPassword(getAuth(), email.value, password.value)
+        .then((data) => {
+          console.log("Successfully login! " + data);
+          console.log(auth.currentUser);
+          this.$router.push('/dashboard');
+        })
+        .catch((error) => {
+          console.log(error.code);
+          switch (error.code) {
+            case "auth/invalid-email":
+              this.text = "Invalid Email"
+              this.snackbar = true;
+              break;
+            case "auth/user-not-found":
+              this.text = "The email or mobile number you entered isn’t connected to an account.";
+              this.snackbar = true;
+              break;
+            case "auth/wrong-password":
+              this.text = "Incorrect password";
+              this.snackbar = true;
+              break;
+            default:
+              this.text = "Email or Password was incorrect.";
+              this.snackbar = true;
+              break;
+          }
+        });
+      // }
+
+    },
+
+    signInWithGoogle() {
+      const provider = new GoogleAuthProvider();
+      signInWithPopup(getAuth(), provider)
+        .then((data) => {
+          console.log("Successfully login! " + data);
+          this.$router.push('/dashboard');
+        })
+        .catch((error) => {
+          this.text = "There is something wrong: " + error;
+          this.snackbar = true;
+        });
+    }
+
+  }
 }
+
 </script>
 
 <style lang="scss">
