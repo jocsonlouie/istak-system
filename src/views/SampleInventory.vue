@@ -3,31 +3,38 @@
     <!-- Success Alert -->
     <v-snackbar v-model="snackbar" :timeout="timeout" top color="primary" outlined rounded="pill">
       <v-icon color="primary">{{ successIcon }}</v-icon>
-      
+
       Item {{ itemStatus }} Successfully!
-      <template v-slot:action="{ attrs2 }" >
-        
+      <template v-slot:action="{ attrs2 }">
+
         <v-spacer></v-spacer>
-        <v-btn color="primary" text v-bind="attrs2"  @click="snackbar = false">
+        <v-btn color="primary" text v-bind="attrs2" @click="snackbar = false">
           Dismiss
         </v-btn>
       </template>
     </v-snackbar>
 
     <!-- Data Table -->
-    <v-data-table :headers="headers" :items="items" sort-by="itemname" class="elevation-1 pt-3">
+    <v-data-table :headers="headers" :items="items" sort-by="itemname" class="elevation-1 pt-3" :search="search"
+      v-model="selected" :single-select="singleSelect" item-key="itemname" show-select>
 
       <template v-slot:top>
         <v-toolbar flat>
           <!-- Table Top Functions -->
+          <v-switch v-model="singleSelect" class="mb-n6 mr-4"></v-switch>
+          <v-icon class="mr-2">{{ searchIcon }}</v-icon>
+          <v-text-field v-model="search" label="Search Item..." single-line hide-details>
 
-
+          </v-text-field>
           <v-spacer></v-spacer>
+
+          <!-- Barcode Scan Button -->
+          <v-btn color="primary" elevation="2" class="mr-2">Barcode Scan</v-btn>
 
           <!-- Add & Edit Item Modal -->
           <v-dialog v-model="dialog" max-width="500px">
             <template v-slot:activator="{ on, attrs }">
-              <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on">
+              <v-btn color="primary" outlined class="" v-bind="attrs" v-on="on">
                 New Item
               </v-btn>
             </template>
@@ -44,7 +51,7 @@
                       required>
                     </v-text-field>
 
-                    <v-text-field v-model="dataItem.barcode" label="Barcode" clearable>
+                    <v-text-field v-model="dataItem.barcode" label="Barcode" type="number" clearable>
                     </v-text-field>
 
                     <v-text-field v-model="dataItem.storebox" label="Storebox" clearable>
@@ -70,11 +77,21 @@
               </v-card-actions>
             </v-card>
           </v-dialog>
+          <!-- Round buttons -->
+          <v-btn color="primary" elevation="2" class="ml-2" fab small outlined>
+            <v-icon>{{ pdfIcon }}</v-icon>
+          </v-btn>
+          <v-btn color="primary" elevation="2" class="ml-2" fab small outlined>
+            <v-icon>{{ editIcon }}</v-icon>
+          </v-btn>
+          <v-btn color="error" elevation="2" class="ml-2" fab small>
+            <v-icon>{{ deleteIcon }}</v-icon>
+          </v-btn>
 
           <!-- Delete Item Modal -->
           <v-dialog v-model="dialogDelete" max-width="500px">
             <v-card class="pa-5 d-flex flex-column justify-center">
-              <v-chip color="error lighten-1" class="d-flex justify-center font-weight-bold text-h6 pa-5">Delete Item
+              <v-chip color="error" class="d-flex justify-center font-weight-bold text-h6 pa-5">Delete Item
               </v-chip>
               <v-card-title class="-d-flex justify-center">Are you sure you want to delete this item?</v-card-title>
               <p class="text-center font-weight-bold text-h5">{{ dataItem.itemname }}</p>
@@ -89,14 +106,25 @@
         </v-toolbar>
       </template>
 
-      <!-- Table Data Edit & Delete Buttons -->
+      <template v-slot:item.total="{ item }" class="text-center">
+        <v-chip :color="getColor(item.total)" dark>
+          {{ item.total }}
+        </v-chip>
+      </template>
+      <!-- Table Actions Buttons -->
       <template v-slot:item.actions="{ item }">
-        <v-icon small class="mr-2" @click="editItem(item)">
-          {{ editIcon }}
-        </v-icon>
-        <v-icon small @click="deleteItem(item)">
-          {{ deleteIcon }}
-        </v-icon>
+        <div class="d-flex flex-row justify-center align-center">
+          <v-btn color="primary" elevation="2" class="mr-2" fab x-small outlined @click="editItem(item)">
+            <v-icon>{{ editIcon }}</v-icon>
+          </v-btn>
+          <v-btn color="error" elevation="2" class="mr-2" fab x-small @click="deleteItem(item)">
+            <v-icon>{{ deleteIcon }}</v-icon>
+          </v-btn>
+          <v-btn color="secondary" elevation="0" class="" x-small outlined>
+            <v-icon class="mx-n16">{{ moreIcon }}</v-icon>
+          </v-btn>
+        </div>
+
       </template>
       <!-- Reset Button if No Data -->
       <template v-slot:no-data>
@@ -113,7 +141,10 @@
   import {
     mdiPencil,
     mdiDelete,
-    mdiCheckboxMarkedCircleOutline
+    mdiCheckboxMarkedCircleOutline,
+    mdiMagnify,
+    mdiFilePdfBox,
+    mdiDotsVertical
   } from '@mdi/js'
 
   // crud imports
@@ -122,7 +153,9 @@
     addDoc,
     setDoc,
     doc,
-    deleteDoc, onSnapshot, updateDoc
+    deleteDoc,
+    onSnapshot,
+    updateDoc
   } from '@firebase/firestore';
 
 
@@ -133,10 +166,18 @@
       editIcon: mdiPencil,
       deleteIcon: mdiDelete,
       successIcon: mdiCheckboxMarkedCircleOutline,
+      searchIcon: mdiMagnify,
+      pdfIcon: mdiFilePdfBox,
+      moreIcon: mdiDotsVertical,
 
       // modal data
       dialog: false,
       dialogDelete: false,
+
+      //search and select data
+      search: '',
+      singleSelect: false,
+      selected: [],
 
       // table header data
       headers: [{
@@ -238,13 +279,16 @@
 
     methods: {
       async initialize() {
-      onSnapshot(inventoryColRef, (snapshot) => {
-        let items = []
-        snapshot.forEach((doc) => {
-          items.push({ ...doc.data(), id: doc.id })
-        });
-        this.items = items;
-      })
+        onSnapshot(inventoryColRef, (snapshot) => {
+          let items = []
+          snapshot.forEach((doc) => {
+            items.push({
+              ...doc.data(),
+              id: doc.id
+            })
+          });
+          this.items = items;
+        })
       },
 
       // edit function
@@ -254,9 +298,9 @@
           this.dataItem = Object.assign({}, item);
           this.itemId = this.dataItem.id;
           this.docRef = doc(inventoryColRef, this.itemId);
-          
-        
-        }   
+
+
+        }
         this.dialog = true
       },
 
@@ -288,7 +332,7 @@
       },
 
       // close function for delete
-     closeDelete() {
+      closeDelete() {
         this.dialogDelete = false;
         this.resetForm();
         this.$nextTick(() => {
@@ -299,9 +343,9 @@
 
       // function for edit and add
       async save() {
-        if (this.itemIndex > -1) {  
+        if (this.itemIndex > -1) {
           // edit function
-          if(this.$refs.form.validate()){
+          if (this.$refs.form.validate()) {
             await updateDoc(this.docRef, {
               itemname: this.dataItem.itemname,
               barcode: this.dataItem.barcode,
@@ -309,30 +353,30 @@
               total: this.dataItem.total,
               display: this.dataItem.display,
             })
-          // await setDoc(this.docRef, this.dataItem);
-          this.close();
-          this.itemStatus = 'Updated';
-          this.snackbar = true;
+            // await setDoc(this.docRef, this.dataItem);
+            this.close();
+            this.itemStatus = 'Updated';
+            this.snackbar = true;
           }
-          
+
         } else {
           // add function
-         if(this.$refs.form.validate()){
-          // const addedDoc = await addDoc(inventoryColRef, this.$data.dataItem);
-          await addDoc(inventoryColRef, {
+          if (this.$refs.form.validate()) {
+            // const addedDoc = await addDoc(inventoryColRef, this.$data.dataItem);
+            await addDoc(inventoryColRef, {
               itemname: this.dataItem.itemname,
               barcode: this.dataItem.barcode,
               storebox: this.dataItem.storebox,
               total: this.dataItem.total,
               display: this.dataItem.display,
             })
-          this.close();
-          this.itemStatus = 'Added';
-          this.snackbar = true;
+            this.close();
+            this.itemStatus = 'Added';
+            this.snackbar = true;
 
-         }
-          
           }
+
+        }
       },
 
       validate() {
@@ -341,10 +385,12 @@
       resetForm() {
         this.$refs.form.reset();
       },
-      resetValidation() {
-        this.$refs.form.resetValidation();
+      getColor(total) {
+        if (total > 400) return 'primary'
+        else if (total > 200) return 'warning'
+        else if (total == null) return ''
+        else return 'error'
       },
-
     },
   }
 </script>
