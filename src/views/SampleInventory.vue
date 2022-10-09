@@ -15,8 +15,10 @@
     </v-snackbar>
 
     <!-- Data Table -->
-    <v-data-table :headers="headers" :items="items" sort-by="itemname" class="elevation-1 pt-3" :search="search"
-      v-model="selected" :single-select="singleSelect" item-key="itemname" show-select>
+    <v-data-table :headers="headers" :items="items"
+    :single-expand="singleExpand" :expanded.sync="expanded" show-expand
+    sort-by="name" class="elevation-1 pt-3" :search="search"
+      v-model="selected" :single-select="singleSelect" item-key="itemname" show-select >
 
       <template v-slot:top>
         <v-toolbar flat>
@@ -87,6 +89,10 @@
           <v-btn color="error" elevation="2" class="ml-2" fab small>
             <v-icon>{{ deleteIcon }}</v-icon>
           </v-btn>
+          <!-- <v-switch
+          v-model="singleExpand"
+          class="mt-2" x-small
+        ></v-switch> -->
 
           <!-- Delete Item Modal -->
           <v-dialog v-model="dialogDelete" max-width="500px">
@@ -111,18 +117,22 @@
           {{ item.total }}
         </v-chip>
       </template>
+
+
       <!-- Table Actions Buttons -->
       <template v-slot:item.actions="{ item }">
-        <div class="d-flex flex-row justify-center align-center">
+        <div class="d-flex flex-row align-center">
           <v-btn color="primary" elevation="2" class="mr-2" fab x-small outlined @click="editItem(item)">
             <v-icon>{{ editIcon }}</v-icon>
           </v-btn>
-          <v-btn color="error" elevation="2" class="mr-2" fab x-small @click="deleteItem(item)">
+          <v-btn color="error" elevation="2" class="" fab x-small @click="deleteItem(item)">
             <v-icon>{{ deleteIcon }}</v-icon>
           </v-btn>
-          <v-btn color="secondary" elevation="0" class="" x-small outlined>
+          <!-- <v-btn color="secondary" elevation="0" class="" x-small outlined>
             <v-icon class="mx-n16">{{ moreIcon }}</v-icon>
-          </v-btn>
+            
+          </v-btn> -->
+          
         </div>
 
       </template>
@@ -132,7 +142,13 @@
           Reset
         </v-btn>
       </template>
+      <template v-slot:expanded-item="{ headers, item }">
+      <td :colspan="headers.length">
+        More info about {{ item.itemname }}
+      </td>
+    </template>
     </v-data-table>
+    
   </div>
 
 </template>
@@ -178,6 +194,9 @@
       search: '',
       singleSelect: false,
       selected: [],
+      expanded: [],
+      singleExpand: false,
+
 
       // table header data
       headers: [{
@@ -394,6 +413,11 @@
     },
   }
 </script>
-<style lang="">
+<style scoped>
 
+tr{
+  text-align: center;
+ 
+
+}
 </style>
