@@ -111,19 +111,28 @@ const errMsg = ref('');
 
 
 export default {
+
+  mounted() {
+    console.log(this.$route.params.logout)
+    if (this.$route.params.logout) {
+      this.text = "Logout Sucessfully!";
+      this.snackbar = true;
+    }
+  },
   data: () => ({
     snackbar: false,
     text: errMsg.value,
-    timeout: 2000,
+    timeout: 3000,
   }),
   setup() {
+
     const socialLink = [
       {
         icon: mdiGoogle,
         color: '#db4437',
         colorInDark: '#db4437',
       },
-    ]
+    ];
 
     return {
       isPasswordVisible,
@@ -137,7 +146,8 @@ export default {
       },
       inputRules: [
         v => v.length >= 3 || 'Minimum length is 3 characters'
-      ]
+      ],
+
     }
   },
   methods: {

@@ -132,7 +132,7 @@ export default {
   methods: {
     handleSignOut() {
       signOut(auth).then(() => {
-        this.$router.push('/');
+        this.$router.push({ name: 'login', params: { logout: true } });
 
       });
     }
