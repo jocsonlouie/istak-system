@@ -122,7 +122,7 @@
     addDoc,
     setDoc,
     doc,
-    deleteDoc, onSnapshot
+    deleteDoc, onSnapshot, updateDoc
   } from '@firebase/firestore';
 
 
@@ -198,6 +198,7 @@
       },
 
       //rules
+      valid: true,
       itemNameRules: [
         v => !!v || 'Item Name is required',
       ],
@@ -250,9 +251,10 @@
       async editItem(item) {
         this.itemIndex = this.items.indexOf(item)
         if (this.itemIndex > -1) {
-           this.dataItem = Object.assign({}, item);
-           this.itemId = this.dataItem.id;
-           this.docRef = doc(inventoryColRef, this.itemId);
+          this.dataItem = Object.assign({}, item);
+          this.itemId = this.dataItem.id;
+          this.docRef = doc(inventoryColRef, this.itemId);
+          
         
         }   
         this.dialog = true
@@ -286,7 +288,7 @@
       },
 
       // close function for delete
-      closeDelete() {
+     closeDelete() {
         this.dialogDelete = false;
         this.resetForm();
         this.$nextTick(() => {
@@ -297,22 +299,40 @@
 
       // function for edit and add
       async save() {
-        if (this.itemIndex > -1) {
+        if (this.itemIndex > -1) {  
           // edit function
-          await setDoc(this.docRef, this.dataItem);
+          if(this.$refs.form.validate()){
+            await updateDoc(this.docRef, {
+              itemname: this.dataItem.itemname,
+              barcode: this.dataItem.barcode,
+              storebox: this.dataItem.storebox,
+              total: this.dataItem.total,
+              display: this.dataItem.display,
+            })
+          // await setDoc(this.docRef, this.dataItem);
           this.close();
           this.itemStatus = 'Updated';
           this.snackbar = true;
-
+          }
+          
         } else {
           // add function
-          const addedDoc = await addDoc(inventoryColRef, this.$data.dataItem);
+         if(this.$refs.form.validate()){
+          // const addedDoc = await addDoc(inventoryColRef, this.$data.dataItem);
+          await addDoc(inventoryColRef, {
+              itemname: this.dataItem.itemname,
+              barcode: this.dataItem.barcode,
+              storebox: this.dataItem.storebox,
+              total: this.dataItem.total,
+              display: this.dataItem.display,
+            })
           this.close();
           this.itemStatus = 'Added';
           this.snackbar = true;
 
-
-        }
+         }
+          
+          }
       },
 
       validate() {
