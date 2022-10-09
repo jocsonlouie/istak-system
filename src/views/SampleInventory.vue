@@ -237,15 +237,6 @@
 
     methods: {
       async initialize() {
-        // let itemsSnapshot = await getDocs(inventoryColRef);
-        // let items = [];
-        // itemsSnapshot.forEach((item) => {
-        //   let itemData = item.data();
-        //   itemData.id = item.id;
-        //   items.push(itemData);
-        // });
-        // this.items = items;
-
       onSnapshot(inventoryColRef, (snapshot) => {
         let items = []
         snapshot.forEach((doc) => {
@@ -253,19 +244,17 @@
         });
         this.items = items;
       })
-
-      
       },
 
       // edit function
       async editItem(item) {
         this.itemIndex = this.items.indexOf(item)
         if (this.itemIndex > -1) {
-          this.dataItem = Object.assign({}, item)
-          this.itemId = this.dataItem.id;
-          this.docRef = doc(inventoryColRef, this.itemId);
-
-        }
+           this.dataItem = Object.assign({}, item);
+           this.itemId = this.dataItem.id;
+           this.docRef = doc(inventoryColRef, this.itemId);
+        
+        }   
         this.dialog = true
       },
 
@@ -284,11 +273,11 @@
         this.itemStatus = 'Deleted';
         this.snackbar = true;
         this.resetForm();
-        //this.$router.go;
       },
 
       // close function for edit and add
       close() {
+        this.resetForm();
         this.dialog = false
         this.$nextTick(() => {
           this.currentItem = Object.assign({}, this.defaultItem)
@@ -298,7 +287,8 @@
 
       // close function for delete
       closeDelete() {
-        this.dialogDelete = false
+        this.dialogDelete = false;
+        this.resetForm();
         this.$nextTick(() => {
           this.currentItem = Object.assign({}, this.defaultItem)
           this.itemIndex = -1
@@ -313,7 +303,6 @@
           this.close();
           this.itemStatus = 'Updated';
           this.snackbar = true;
-          //this.$router.go();
 
         } else {
           // add function
@@ -321,10 +310,9 @@
           this.close();
           this.itemStatus = 'Added';
           this.snackbar = true;
-          this.resetForm();
-          //this.$router.go();
+
+
         }
-        //this.close()
       },
 
       validate() {
