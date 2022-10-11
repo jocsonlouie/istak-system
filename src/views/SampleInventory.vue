@@ -15,10 +15,9 @@
     </v-snackbar>
 
     <!-- Data Table -->
-    <v-data-table :headers="headers" :items="items"
-    :single-expand="singleExpand" :expanded.sync="expanded" show-expand
-    sort-by="name" class="elevation-1 pt-3" :search="search"
-      v-model="selected" :single-select="singleSelect" item-key="itemname" show-select >
+    <v-data-table :headers="headers" :items="items" :single-expand="singleExpand" :expanded.sync="expanded" show-expand
+      sort-by="name" class="elevation-1 pt-3" :search="search" v-model="selected" :single-select="singleSelect"
+      item-key="itemname" show-select :loading="loadingTable">
 
       <template v-slot:top>
         <v-toolbar flat>
@@ -53,16 +52,19 @@
                       required>
                     </v-text-field>
 
-                    <v-text-field v-model="dataItem.barcode" label="Barcode" type="number" clearable>
+                    <v-text-field v-model="dataItem.barcode" :rules="itemNameRules" label="Barcode" type="number"
+                      clearable>
                     </v-text-field>
 
-                    <v-text-field v-model="dataItem.storebox" label="Storebox" clearable>
+                    <v-text-field v-model="dataItem.storebox" :rules="itemNameRules" label="Storebox" clearable>
                     </v-text-field>
 
-                    <v-text-field v-model.number="dataItem.total" label="Total Stocks" type="number" clearable>
+                    <v-text-field v-model.number="dataItem.total" :rules="itemNameRules" label="Total Stocks"
+                      type="number" clearable>
                     </v-text-field>
 
-                    <v-text-field v-model.number="dataItem.display" label="Display Stocks" type="number" clearable>
+                    <v-text-field v-model.number="dataItem.display" :rules="itemNameRules" label="Display Stocks"
+                      type="number" clearable>
                     </v-text-field>
 
                   </v-form>
@@ -132,7 +134,7 @@
             <v-icon class="mx-n16">{{ moreIcon }}</v-icon>
             
           </v-btn> -->
-          
+
         </div>
 
       </template>
@@ -143,281 +145,285 @@
         </v-btn>
       </template>
       <template v-slot:expanded-item="{ headers, item }">
-      <td :colspan="headers.length">
-        More info about {{ item.itemname }}
-      </td>
-    </template>
+        <td :colspan="headers.length">
+          More info about {{ item.itemname }}
+        </td>
+      </template>
     </v-data-table>
-    
+
   </div>
 
 </template>
 <script>
-  // icons
-  import {
-    mdiPencil,
-    mdiDelete,
-    mdiCheckboxMarkedCircleOutline,
-    mdiMagnify,
-    mdiFilePdfBox,
-    mdiDotsVertical
-  } from '@mdi/js'
+// icons
+import {
+  mdiPencil,
+  mdiDelete,
+  mdiCheckboxMarkedCircleOutline,
+  mdiMagnify,
+  mdiFilePdfBox,
+  mdiDotsVertical
+} from '@mdi/js'
 
-  // crud imports
-  import inventoryColRef from '@/fb';
-  import {
-    addDoc,
-    setDoc,
-    doc,
-    deleteDoc,
-    onSnapshot,
-    updateDoc
-  } from '@firebase/firestore';
-
-
-
-  export default {
-    data: () => ({
-      // icon data
-      editIcon: mdiPencil,
-      deleteIcon: mdiDelete,
-      successIcon: mdiCheckboxMarkedCircleOutline,
-      searchIcon: mdiMagnify,
-      pdfIcon: mdiFilePdfBox,
-      moreIcon: mdiDotsVertical,
-
-      // modal data
-      dialog: false,
-      dialogDelete: false,
-
-      //search and select data
-      search: '',
-      singleSelect: false,
-      selected: [],
-      expanded: [],
-      singleExpand: false,
+// crud imports
+import db from '@/fb';
+import { collection } from "firebase/firestore";
+import {
+  addDoc,
+  setDoc,
+  doc,
+  deleteDoc,
+  onSnapshot,
+  updateDoc
+} from '@firebase/firestore';
 
 
-      // table header data
-      headers: [{
-          text: 'Item Name',
-          align: 'start',
-          value: 'itemname',
-        },
-        {
-          text: 'Barcode',
-          sortable: false,
-          value: 'barcode'
-        },
-        {
-          text: 'Storebox',
-          sortable: false,
-          value: 'storebox'
-        },
-        {
-          text: 'Total Stocks',
-          sortable: false,
-          value: 'total'
-        },
-        {
-          text: 'Display Stocks',
-          sortable: false,
-          value: 'display'
-        },
-        {
-          text: 'Actions',
-          value: 'actions',
-          sortable: false
-        },
-      ],
-      // table data
-      items: [],
-      itemIndex: -1,
-      currentItem: {
-        itemname: '',
-        barcode: '',
-        storebox: '',
-        total: 0,
-        display: 0,
-      },
-      defaultItem: {
-        itemname: '',
-        barcode: '',
-        storebox: '',
-        total: 0,
-        display: 0,
-      },
+const inventoryColRef = collection(db, "inventory");
 
-      // add item
-      dataItem: {
-        itemname: '',
-        barcode: '',
-        storebox: '',
-        total: '',
-        display: '',
-      },
+export default {
+  data: () => ({
 
-      //rules
-      valid: true,
-      itemNameRules: [
-        v => !!v || 'Item Name is required',
-      ],
+    loadingTable: true,
+    // icon data
+    editIcon: mdiPencil,
+    deleteIcon: mdiDelete,
+    successIcon: mdiCheckboxMarkedCircleOutline,
+    searchIcon: mdiMagnify,
+    pdfIcon: mdiFilePdfBox,
+    moreIcon: mdiDotsVertical,
 
-      //edit item
-      itemId: null,
-      docRef: null,
+    // modal data
+    dialog: false,
+    dialogDelete: false,
 
-      //snackbar
-      snackbar: false,
-      timeout: 3000,
-      itemStatus: '',
+    //search and select data
+    search: '',
+    singleSelect: false,
+    selected: [],
+    expanded: [],
+    singleExpand: false,
 
-    }),
 
-    computed: {
-      // to change modal to add or edit
-      formTitle() {
-        return this.itemIndex === -1 ? 'New Item' : 'Edit Item'
-      },
+    // table header data
+    headers: [{
+      text: 'Item Name',
+      align: 'start',
+      value: 'itemname',
+    },
+    {
+      text: 'Barcode',
+      sortable: false,
+      value: 'barcode'
+    },
+    {
+      text: 'Storebox',
+      sortable: false,
+      value: 'storebox'
+    },
+    {
+      text: 'Total Stocks',
+      sortable: false,
+      value: 'total'
+    },
+    {
+      text: 'Display Stocks',
+      sortable: false,
+      value: 'display'
+    },
+    {
+      text: 'Actions',
+      value: 'actions',
+      sortable: false
+    },
+    ],
+    // table data
+    items: [],
+    itemIndex: -1,
+    currentItem: {
+      itemname: '',
+      barcode: '',
+      storebox: '',
+      total: 0,
+      display: 0,
+    },
+    defaultItem: {
+      itemname: '',
+      barcode: '',
+      storebox: '',
+      total: 0,
+      display: 0,
     },
 
-    watch: {
-      dialog(val) {
-        val || this.close()
-      },
-      dialogDelete(val) {
-        val || this.closeDelete()
-      },
+    // add item
+    dataItem: {
+      itemname: '',
+      barcode: '',
+      storebox: '',
+      total: '',
+      display: '',
     },
 
-    created() {
-      // to fetch data
-      this.initialize();
+    //rules
+    valid: true,
+    itemNameRules: [
+      v => !!v || 'This field is required',
+    ],
 
+    //edit item
+    itemId: null,
+    docRef: null,
+
+    //snackbar
+    snackbar: false,
+    timeout: 3000,
+    itemStatus: '',
+
+  }),
+
+  computed: {
+    // to change modal to add or edit
+    formTitle() {
+      return this.itemIndex === -1 ? 'New Item' : 'Edit Item'
+    },
+  },
+
+  watch: {
+    dialog(val) {
+      val || this.close()
+    },
+    dialogDelete(val) {
+      val || this.closeDelete()
+    },
+  },
+
+  created() {
+    // to fetch data
+    this.initialize();
+
+  },
+
+  methods: {
+    async initialize() {
+      onSnapshot(inventoryColRef, (snapshot) => {
+        let items = []
+        snapshot.forEach((doc) => {
+          items.push({
+            ...doc.data(),
+            id: doc.id
+          })
+        });
+        this.items = items;
+        this.loadingTable = false;
+      })
     },
 
-    methods: {
-      async initialize() {
-        onSnapshot(inventoryColRef, (snapshot) => {
-          let items = []
-          snapshot.forEach((doc) => {
-            items.push({
-              ...doc.data(),
-              id: doc.id
-            })
-          });
-          this.items = items;
-        })
-      },
-
-      // edit function
-      async editItem(item) {
-        this.itemIndex = this.items.indexOf(item)
-        if (this.itemIndex > -1) {
-          this.dataItem = Object.assign({}, item);
-          this.itemId = this.dataItem.id;
-          this.docRef = doc(inventoryColRef, this.itemId);
-
-
-        }
-        this.dialog = true
-      },
-
-      // delete function
-      async deleteItem(item) {
+    // edit function
+    async editItem(item) {
+      this.itemIndex = this.items.indexOf(item)
+      if (this.itemIndex > -1) {
         this.dataItem = Object.assign({}, item);
         this.itemId = this.dataItem.id;
         this.docRef = doc(inventoryColRef, this.itemId);
-        this.dialogDelete = true;
-      },
 
-      async deleteItemConfirm() {
-        this.items.splice(this.itemIndex, 1);
-        await deleteDoc(this.docRef);
-        this.closeDelete();
-        this.itemStatus = 'Deleted';
-        this.snackbar = true;
-        this.resetForm();
-      },
 
-      // close function for edit and add
-      close() {
-        this.resetForm();
-        this.dialog = false
-        this.$nextTick(() => {
-          this.currentItem = Object.assign({}, this.defaultItem)
-          this.itemIndex = -1
-        })
-      },
+      }
+      this.dialog = true
+    },
 
-      // close function for delete
-      closeDelete() {
-        this.dialogDelete = false;
-        this.resetForm();
-        this.$nextTick(() => {
-          this.currentItem = Object.assign({}, this.defaultItem)
-          this.itemIndex = -1
-        })
-      },
+    // delete function
+    async deleteItem(item) {
+      this.dataItem = Object.assign({}, item);
+      this.itemId = this.dataItem.id;
+      this.docRef = doc(inventoryColRef, this.itemId);
+      this.dialogDelete = true;
+    },
 
-      // function for edit and add
-      async save() {
-        if (this.itemIndex > -1) {
-          // edit function
-          if (this.$refs.form.validate()) {
-            await updateDoc(this.docRef, {
-              itemname: this.dataItem.itemname,
-              barcode: this.dataItem.barcode,
-              storebox: this.dataItem.storebox,
-              total: this.dataItem.total,
-              display: this.dataItem.display,
-            })
-            // await setDoc(this.docRef, this.dataItem);
-            this.close();
-            this.itemStatus = 'Updated';
-            this.snackbar = true;
-          }
+    async deleteItemConfirm() {
+      this.items.splice(this.itemIndex, 1);
+      await deleteDoc(this.docRef);
+      this.closeDelete();
+      this.itemStatus = 'Deleted';
+      this.snackbar = true;
+      this.resetForm();
+    },
 
-        } else {
-          // add function
-          if (this.$refs.form.validate()) {
-            // const addedDoc = await addDoc(inventoryColRef, this.$data.dataItem);
-            await addDoc(inventoryColRef, {
-              itemname: this.dataItem.itemname,
-              barcode: this.dataItem.barcode,
-              storebox: this.dataItem.storebox,
-              total: this.dataItem.total,
-              display: this.dataItem.display,
-            })
-            this.close();
-            this.itemStatus = 'Added';
-            this.snackbar = true;
+    // close function for edit and add
+    close() {
+      this.resetForm();
+      this.dialog = false
+      this.$nextTick(() => {
+        this.currentItem = Object.assign({}, this.defaultItem)
+        this.itemIndex = -1
+      })
+    },
 
-          }
+    // close function for delete
+    closeDelete() {
+      this.dialogDelete = false;
+      this.resetForm();
+      this.$nextTick(() => {
+        this.currentItem = Object.assign({}, this.defaultItem)
+        this.itemIndex = -1
+      })
+    },
+
+    // function for edit and add
+    async save() {
+      if (this.itemIndex > -1) {
+        // edit function
+        if (this.$refs.form.validate()) {
+          await updateDoc(this.docRef, {
+            itemname: this.dataItem.itemname,
+            barcode: this.dataItem.barcode,
+            storebox: this.dataItem.storebox,
+            total: this.dataItem.total,
+            display: this.dataItem.display,
+          })
+          // await setDoc(this.docRef, this.dataItem);
+          this.close();
+          this.itemStatus = 'Updated';
+          this.snackbar = true;
+        }
+
+      } else {
+        // add function
+        if (this.$refs.form.validate()) {
+          // const addedDoc = await addDoc(inventoryColRef, this.$data.dataItem);
+          await addDoc(inventoryColRef, {
+            itemname: this.dataItem.itemname,
+            barcode: this.dataItem.barcode,
+            storebox: this.dataItem.storebox,
+            total: this.dataItem.total,
+            display: this.dataItem.display,
+          })
+          this.close();
+          this.itemStatus = 'Added';
+          this.snackbar = true;
 
         }
-      },
 
-      validate() {
-        this.$refs.form.validate();
-      },
-      resetForm() {
-        this.$refs.form.reset();
-      },
-      getColor(total) {
-        if (total > 400) return 'primary'
-        else if (total > 200) return 'warning'
-        else if (total == null) return ''
-        else return 'error'
-      },
+      }
     },
-  }
+
+    validate() {
+      this.$refs.form.validate();
+    },
+    resetForm() {
+      this.$refs.form.reset();
+    },
+    getColor(total) {
+      if (total > 400) return 'primary'
+      else if (total > 200) return 'warning'
+      else if (total == null) return ''
+      else return 'error'
+    },
+  },
+}
 </script>
 <style scoped>
-
-tr{
+tr {
   text-align: center;
- 
+
 
 }
 </style>

@@ -29,6 +29,4 @@ const db = getFirestore(app);
 //db.settings({ ignoreUndefinedProperties: true});
 //db.settings({ timestampsInSnapshots: true });
 
-const inventoryColRef = collection(db, "inventory") 
-
-export default inventoryColRef;
+export default db;

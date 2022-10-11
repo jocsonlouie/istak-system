@@ -33,7 +33,7 @@
 
         <!-- login form -->
         <v-card-text>
-          <v-form ref="loginForm">
+          <v-form ref="form">
             <v-text-field v-model="email" outlined label="Email" placeholder="john@example.com" hide-details
               :rules="inputRules" class="mb-3"></v-text-field>
 
@@ -101,7 +101,7 @@
 // eslint-disable-next-line object-curly-newline
 import db from '@/fb';
 import { mdiGoogle, mdiEyeOutline, mdiEyeOffOutline } from '@mdi/js'
-import { ref } from '@vue/composition-api'
+import { onMounted, ref } from '@vue/composition-api'
 import { getAuth, GoogleAuthProvider, signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
 
 const isPasswordVisible = ref(false)
@@ -113,7 +113,10 @@ const errMsg = ref('');
 export default {
 
   mounted() {
-    console.log(this.$route.params.logout)
+    const auth = getAuth();
+    if (auth.currentUser !== null) {
+      this.$router.push('/dashboard');
+    }
     if (this.$route.params.logout) {
       this.text = "Logout Sucessfully!";
       this.snackbar = true;
@@ -152,36 +155,36 @@ export default {
   },
   methods: {
     login() {
-      // if (this.$refs.form.validate()) {
-      const auth = getAuth();
-      signInWithEmailAndPassword(getAuth(), email.value, password.value)
-        .then((data) => {
-          console.log("Successfully login! " + data);
-          console.log(auth.currentUser);
-          this.$router.push('/dashboard');
-        })
-        .catch((error) => {
-          console.log(error.code);
-          switch (error.code) {
-            case "auth/invalid-email":
-              this.text = "Invalid Email"
-              this.snackbar = true;
-              break;
-            case "auth/user-not-found":
-              this.text = "The email or mobile number you entered isn’t connected to an account.";
-              this.snackbar = true;
-              break;
-            case "auth/wrong-password":
-              this.text = "Incorrect password";
-              this.snackbar = true;
-              break;
-            default:
-              this.text = "Email or Password was incorrect.";
-              this.snackbar = true;
-              break;
-          }
-        });
-      // }
+      if (this.$refs.form.validate()) {
+        const auth = getAuth();
+        signInWithEmailAndPassword(getAuth(), email.value, password.value)
+          .then((data) => {
+            console.log("Successfully login! " + data);
+            console.log(auth.currentUser);
+            this.$router.push('/dashboard');
+          })
+          .catch((error) => {
+            console.log(error.code);
+            switch (error.code) {
+              case "auth/invalid-email":
+                this.text = "Invalid Email"
+                this.snackbar = true;
+                break;
+              case "auth/user-not-found":
+                this.text = "The email or mobile number you entered isn’t connected to an account.";
+                this.snackbar = true;
+                break;
+              case "auth/wrong-password":
+                this.text = "Incorrect password";
+                this.snackbar = true;
+                break;
+              default:
+                this.text = "Email or Password was incorrect.";
+                this.snackbar = true;
+                break;
+            }
+          });
+      }
 
     },
 

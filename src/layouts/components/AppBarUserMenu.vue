@@ -29,20 +29,20 @@
       <v-divider></v-divider>
 
       <!-- Chat -->
-      <v-list-item link>
+      <v-list-item link @click="goToRegister">
         <v-list-item-icon class="me-2">
           <v-icon size="22">
-            {{ icons.mdiChatOutline }}
+            {{ icons.mdiAccountPlusOutline }}
           </v-icon>
         </v-list-item-icon>
         <v-list-item-content>
-          <v-list-item-title>Chat</v-list-item-title>
+          <v-list-item-title>Register</v-list-item-title>
         </v-list-item-content>
 
-        <v-list-item-action>
+        <!-- <v-list-item-action>
           <v-badge inline color="error" content="2">
           </v-badge>
-        </v-list-item-action>
+        </v-list-item-action> -->
       </v-list-item>
 
       <!-- Settings -->
@@ -87,6 +87,7 @@ import {
   mdiCurrencyUsd,
   mdiHelpCircleOutline,
   mdiLogoutVariant,
+  mdiAccountPlusOutline,
 } from '@mdi/js';
 
 
@@ -122,6 +123,7 @@ export default {
         mdiCurrencyUsd,
         mdiHelpCircleOutline,
         mdiLogoutVariant,
+        mdiAccountPlusOutline
       },
       isLoggedIn,
       userDisplayName,
@@ -130,6 +132,12 @@ export default {
     }
   },
   methods: {
+    goToRegister() {
+      const auth = getAuth();
+      if (auth.currentUser !== null) {
+        this.$router.push('/register');
+      }
+    },
     handleSignOut() {
       signOut(auth).then(() => {
         this.$router.push({ name: 'login', params: { logout: true } });
