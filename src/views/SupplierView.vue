@@ -15,9 +15,8 @@
     </v-snackbar>
 
     <!-- Data Table -->
-    <v-data-table :headers="headers" :items="items" 
-      sort-by="name" class="elevation-1 pt-3" :search="search" v-model="selected" :single-select="singleSelect"
-      item-key="itemname" show-select :loading="loadingTable">
+    <v-data-table :headers="headers" :items="items" sort-by="name" class="elevation-1 pt-3" :search="search"
+      v-model="selected" :single-select="singleSelect" item-key="itemname" show-select :loading="loadingTable">
 
       <template v-slot:top>
         <v-toolbar flat>
@@ -29,7 +28,7 @@
           </v-text-field>
           <v-spacer></v-spacer>
 
-       
+
 
           <!-- Add & Edit Item Modal -->
           <v-dialog v-model="dialog" max-width="500px">
@@ -47,19 +46,17 @@
               <v-card-text>
                 <v-container>
                   <v-form ref="form">
-                    <v-text-field v-model="dataItem.name" :rules="itemNameRules" label="Name" clearable
-                      required>
+                    <v-text-field v-model="dataItem.name" :rules="itemNameRules" label="Name" clearable required>
                     </v-text-field>
 
-                    <v-text-field v-model="dataItem.email" :rules="itemNameRules" label="Email"
-                      clearable>
+                    <v-text-field v-model="dataItem.email" :rules="itemNameRules" label="Email" clearable>
                     </v-text-field>
 
                     <v-text-field v-model="dataItem.contactno" :rules="itemNameRules" label="Contact Number" clearable>
                     </v-text-field>
 
                     <v-text-field v-model.number="dataItem.contactper" :rules="itemNameRules" label="Contact Person"
-                     clearable>
+                      clearable>
                     </v-text-field>
 
 
@@ -109,44 +106,32 @@
           </v-dialog>
         </v-toolbar>
 
-          <!-- Supplier Send Email -->
-          <v-dialog v-model="dialogSendEmail" max-width="580px">
-            <v-card class="pa-5 d-flex flex-column justify-center">
-                <v-container>
-                  <v-form ref="form">
-              <v-chip color="primary" class="d-flex justify-center font-weight-bold text-h6 pa-5">Send Email
-              </v-chip>
-                <v-row>
-                  <v-col cols="12" sm="6" md="4">
-                    <p class="font-weight-bold">TO:</p>
-                    <v-text-field label="Supplier inc." required hint="Only Supplier on the List" outlined>
-                    </v-text-field>
-                  </v-col>
-                  <v-col cols="12" sm="6" md="4">
-                    <p class="font-weight-bold">FROM:</p>
-                    <v-text-field class="" label="Assumpta Dog & Cat Clinic" outlined></v-text-field>
-                  </v-col>
-                  <v-col cols="10" sm="6" md="4">
-                    <p class="font-weight-bold">SUBJECT:</p>
-                    <v-text-field label="Issue or Problem" outlined></v-text-field>
-                  </v-col>
-                </v-row>
-                <v-col cols="12">
-                  <p class="font-weight-bold">Message:</p>
-                  <v-textarea color="primary">
+        <!-- Supplier Send Email -->
+        <v-dialog v-model="dialogSendEmail" max-width="580px">
+          <v-card class="pa-5 d-flex flex-column justify-center">
+            <v-container>
+              <form ref="form" class="d-flex justify-content flex-column">
+                <v-chip color="primary" class="d-flex justify-center font-weight-bold text-h6 pa-5 mb-5">Send Email
+                </v-chip>
+                <div class="d-flex flex-row gap">
+                  <v-text-field label="To" required outlined v-model="sendData.toEmail" name="toEmail" readonly></v-text-field>
+                  <v-text-field class="" label="From" outlined v-model="sendData.fromEmail" name="fromEmail" readonly></v-text-field>
+                </div>
+                <v-text-field label="Subject" outlined v-model="sendData.subject" name="subject"></v-text-field>
+                <v-textarea color="primary" label="Message" filled outlined v-model="sendData.message" name="message">
                   </v-textarea>
-                </v-col>
+
 
                 <v-card-actions class="mb-n5">
                   <v-spacer></v-spacer>
                   <v-btn color="secondary" @click="closeEmail">Cancel</v-btn>
-                  <v-btn color="primary" >YES</v-btn>
+                  <v-btn color="primary"  @click="sendEmailzz">Send</v-btn>
                   <v-spacer></v-spacer>
                 </v-card-actions>
-                </v-form>
-              </v-container>
-            </v-card>
-          </v-dialog>
+              </form>
+            </v-container>
+          </v-card>
+        </v-dialog>
       </template>
 
       <template v-slot:item.total="{ item }" class="text-center">
@@ -165,8 +150,8 @@
           <v-btn color="error" elevation="2" class="mr-2" fab x-small @click="deleteItem(item)">
             <v-icon>{{ deleteIcon }}</v-icon>
           </v-btn>
-          <v-btn color="primary"  outlined class="" @click="emailItem(item)">
-          SEND EMAIL
+          <v-btn color="primary" outlined class="" @click="emailItem(item)">
+            SEND EMAIL
           </v-btn>
           <!-- <v-btn color="secondary" elevation="0" class="" x-small outlined>
             <v-icon class="mx-n16">{{ moreIcon }}</v-icon>
@@ -193,306 +178,321 @@
 
 </template>
 <script>
-// icons
-import {
-  mdiPencil,
-  mdiDelete,
-  mdiCheckboxMarkedCircleOutline,
-  mdiMagnify,
-  mdiFilePdfBox,
-  mdiDotsVertical
-} from '@mdi/js'
+  // icons
+  import {
+    mdiPencil,
+    mdiDelete,
+    mdiCheckboxMarkedCircleOutline,
+    mdiMagnify,
+    mdiFilePdfBox,
+    mdiDotsVertical
+  } from '@mdi/js'
 
-// crud imports
-import db from '@/fb';
-import { collection } from "firebase/firestore";
-import {
-  addDoc,
-  setDoc,
-  doc,
-  deleteDoc,
-  onSnapshot,
-  updateDoc
-} from '@firebase/firestore';
-
-
-const inventoryColRef = collection(db, "supplier");
-
-export default {
-  data: () => ({
-
-    loadingTable: true,
-    // icon data
-    editIcon: mdiPencil,
-    deleteIcon: mdiDelete,
-    successIcon: mdiCheckboxMarkedCircleOutline,
-    searchIcon: mdiMagnify,
-    pdfIcon: mdiFilePdfBox,
-    moreIcon: mdiDotsVertical,
-
-    // modal data
-    dialog: false,
-    dialogDelete: false,
-    dialogSendEmail: false,
-
-    //search and select data
-    search: '',
-    singleSelect: false,
-    selected: [],
-    expanded: [],
-    singleExpand: false,
+  // crud imports
+  import db from '@/fb';
+  import {
+    collection
+  } from "firebase/firestore";
+  import {
+    addDoc,
+    setDoc,
+    doc,
+    deleteDoc,
+    onSnapshot,
+    updateDoc
+  } from '@firebase/firestore';
 
 
-    // table header data
-    headers: [{
-      text: 'Name',
-      align: 'start',
-      value: 'name',
+  const inventoryColRef = collection(db, "supplier");
+
+  //email
+  import emailjs from '@emailjs/browser';
+
+  export default {
+    data: () => ({
+
+      loadingTable: true,
+      // icon data
+      editIcon: mdiPencil,
+      deleteIcon: mdiDelete,
+      successIcon: mdiCheckboxMarkedCircleOutline,
+      searchIcon: mdiMagnify,
+      pdfIcon: mdiFilePdfBox,
+      moreIcon: mdiDotsVertical,
+
+      // modal data
+      dialog: false,
+      dialogDelete: false,
+      dialogSendEmail: false,
+
+      //search and select data
+      search: '',
+      singleSelect: false,
+      selected: [],
+      expanded: [],
+      singleExpand: false,
+
+
+      // table header data
+      headers: [{
+          text: 'Name',
+          align: 'start',
+          value: 'name',
+        },
+        {
+          text: 'Email',
+          sortable: false,
+          value: 'email'
+        },
+        {
+          text: 'Contact Number',
+          sortable: false,
+          value: 'contactno'
+        },
+        {
+          text: 'Contact Person',
+          sortable: false,
+          value: 'contactper'
+        },
+        {
+          text: 'Actions',
+          value: 'actions',
+          sortable: false
+        },
+      ],
+      // table data
+      items: [],
+      itemIndex: -1,
+      currentItem: {
+        name: '',
+        email: '',
+        contactno: '',
+        contactper: 0,
+
+      },
+      defaultItem: {
+        name: '',
+        email: '',
+        contactno: '',
+        contactper: 0,
+      },
+
+      // add item
+      dataItem: {
+        name: '',
+        email: '',
+        contactno: '',
+        contactper: 0,
+      },
+
+      //rules
+      valid: true,
+      itemNameRules: [
+        v => !!v || 'This field is required',
+      ],
+
+      //edit item
+      itemId: null,
+      docRef: null,
+
+      //email item
+      itemId: null,
+      docRef: null,
+
+      //snackbar
+      snackbar: false,
+      timeout: 3000,
+      itemStatus: '',
+
+      //email
+      sendData : {
+        toEmail: '',
+        fromEmail: '',
+        subject: '',
+        message: '',
+      }
+
+    }),
+
+    computed: {
+      // to change modal to add or edit
+      formTitle() {
+        return this.itemIndex === -1 ? 'New Supplier' : 'Edit Supplier'
+      },
     },
-    {
-      text: 'Email',
-      sortable: false,
-      value: 'email'
-    },
-    {
-      text: 'Contact Number',
-      sortable: false,
-      value: 'contactno'
-    },
-    {
-      text: 'Contact Person',
-      sortable: false,
-      value: 'contactper'
-    },
-    {
-      text: 'Actions',
-      value: 'actions',
-      sortable: false
-    },
-    ],
-    // table data
-    items: [],
-    itemIndex: -1,
-    currentItem: {
-      name: '',
-      email: '',
-      contactno: '',
-      contactper: 0,
-     
-    },
-    defaultItem: {
-      name: '',
-      email: '',
-      contactno: '',
-      contactper: 0,
+
+    watch: {
+      dialog(val) {
+        val || this.close()
+      },
+      dialogDelete(val) {
+        val || this.closeDelete()
+      },
     },
 
-    // add item
-    dataItem: {
-      name: '',
-      email: '',
-      contactno: '',
-      contactper: 0,
+    created() {
+      // to fetch data
+      this.initialize();
+
     },
 
-    //rules
-    valid: true,
-    itemNameRules: [
-      v => !!v || 'This field is required',
-    ],
+    methods: {
+      async initialize() {
+        onSnapshot(inventoryColRef, (snapshot) => {
+          let items = []
+          snapshot.forEach((doc) => {
+            items.push({
+              ...doc.data(),
+              id: doc.id
+            })
+          });
+          this.items = items;
+          this.loadingTable = false;
+        })
+      },
 
-    //edit item
-    itemId: null,
-    docRef: null,
+      // edit function
+      async editItem(item) {
+        this.itemIndex = this.items.indexOf(item)
+        if (this.itemIndex > -1) {
+          this.dataItem = Object.assign({}, item);
+          this.itemId = this.dataItem.id;
+          this.docRef = doc(inventoryColRef, this.itemId);
+        }
+        this.dialog = true
+      },
 
-    //email item
-    itemId: null,
-    docRef: null,
+      // email function
+      emailItem(item) {
+        this.dialogSendEmail = true;
+        this.sendData.fromEmail = 'assumptadogandcatclinic@gmail.com';
+        this.dataItem = Object.assign({}, item);
+        this.sendData.toEmail = this.dataItem.email;
+      },
 
-    //snackbar
-    snackbar: false,
-    timeout: 3000,
-    itemStatus: '',
+      // delete function
+      async deleteItem(item) {
+        this.dataItem = Object.assign({}, item);
+        this.itemId = this.dataItem.id;
+        this.docRef = doc(inventoryColRef, this.itemId);
+        this.dialogDelete = true;
+      },
 
-  }),
+      // async sendEmail(item) {
+      //   this.dataItem = Object.assign({}, item);
+      //   this.itemId = this.dataItem.id;
+      //   this.docRef = doc(inventoryColRef, this.itemId);
+      //   this.dialogSendEmail = true;
+      // },
 
-  computed: {
-    // to change modal to add or edit
-    formTitle() {
-      return this.itemIndex === -1 ? 'New Supplier' : 'Edit Supplier'
-    },
-  },
 
-  watch: {
-    dialog(val) {
-      val || this.close()
-    },
-    dialogDelete(val) {
-      val || this.closeDelete()
-    },
-  },
+      async deleteItemConfirm() {
+        this.items.splice(this.itemIndex, 1);
+        await deleteDoc(this.docRef);
+        this.closeDelete();
+        this.itemStatus = 'Deleted';
+        this.snackbar = true;
+        this.resetForm();
+      },
 
-  created() {
-    // to fetch data
-    this.initialize();
 
-  },
+      // close function for edit and add
+      close() {
+        this.resetForm();
+        this.dialog = false
+        this.$nextTick(() => {
+          this.currentItem = Object.assign({}, this.defaultItem)
+          this.itemIndex = -1
+        })
+      },
 
-  methods: {
-    async initialize() {
-      onSnapshot(inventoryColRef, (snapshot) => {
-        let items = []
-        snapshot.forEach((doc) => {
-          items.push({
-            ...doc.data(),
-            id: doc.id
-          })
+      // close function for send Email
+      closeEmail() {
+        this.dialogSendEmail = false;
+        this.resetForm();
+        this.$nextTick(() => {
+          this.currentItem = Object.assign({}, this.defaultItem)
+          this.itemIndex = -1
+        })
+      },
+
+      // close function for delete
+      closeDelete() {
+        this.dialogDelete = false;
+        this.resetForm();
+        this.$nextTick(() => {
+          this.currentItem = Object.assign({}, this.defaultItem)
+          this.itemIndex = -1
+        })
+      },
+
+
+
+      // function for edit and add
+      async save() {
+        if (this.itemIndex > -1) {
+          // edit function
+          if (this.$refs.form.validate()) {
+            await updateDoc(this.docRef, {
+              name: this.dataItem.name,
+              email: this.dataItem.email,
+              contactno: this.dataItem.contactno,
+              contactper: this.dataItem.contactper,
+            })
+            // await setDoc(this.docRef, this.dataItem);
+            this.close();
+            this.itemStatus = 'Updated';
+            this.snackbar = true;
+          }
+
+        } else {
+          // add function
+          if (this.$refs.form.validate()) {
+            // const addedDoc = await addDoc(inventoryColRef, this.$data.dataItem);
+            await addDoc(inventoryColRef, {
+              name: this.dataItem.name,
+              email: this.dataItem.email,
+              contactno: this.dataItem.contactno,
+              contactper: this.dataItem.contactper,
+            })
+            this.close();
+            this.itemStatus = 'Added';
+            this.snackbar = true;
+
+          }
+
+        }
+      },
+
+
+
+      validate() {
+        this.$refs.form.validate();
+      },
+      resetForm() {
+        this.$refs.form.reset();
+      },
+      getColor(total) {
+        if (total > 400) return 'primary'
+        else if (total > 200) return 'warning'
+        else if (total == null) return ''
+        else return 'error'
+      },
+
+      sendEmailzz() {
+      
+      emailjs.sendForm('service_cky0y6t', 'template_2zs8qew', this.$refs.form, '9aetr9pH3Vj0_P8yK')
+        .then((result) => {
+            console.log('SUCCESS!', result.text);
+
+        }, (error) => {
+            console.log('FAILED...', error.text);
         });
-        this.items = items;
-        this.loadingTable = false;
-      })
+        
+    }
     },
-
-    // edit function
-    async editItem(item) {
-      this.itemIndex = this.items.indexOf(item)
-      if (this.itemIndex > -1) {
-        this.dataItem = Object.assign({}, item);
-        this.itemId = this.dataItem.id;
-        this.docRef = doc(inventoryColRef, this.itemId);
-
-
-      }
-      this.dialog = true
-    },
-
-     // email function
-     async emailItem(item) {
-      this.itemIndex = this.items.indexOf(item)
-      if (this.itemIndex > -1) {
-        this.dataItem = Object.assign({}, item);
-        this.itemId = this.dataItem.id;
-        this.docRef = doc(inventoryColRef, this.itemId);
-
-
-      }
-      this.dialogSendEmail = true
-    },
-
-    // delete function
-    async deleteItem(item) {
-      this.dataItem = Object.assign({}, item);
-      this.itemId = this.dataItem.id;
-      this.docRef = doc(inventoryColRef, this.itemId);
-      this.dialogDelete = true;
-    },
-
-    async sendEmail(item) {
-      this.dataItem = Object.assign({}, item);
-      this.itemId = this.dataItem.id;
-      this.docRef = doc(inventoryColRef, this.itemId);
-      this.dialogSendEmail = true;
-    },
-
-    async deleteItemConfirm() {
-      this.items.splice(this.itemIndex, 1);
-      await deleteDoc(this.docRef);
-      this.closeDelete();
-      this.itemStatus = 'Deleted';
-      this.snackbar = true;
-      this.resetForm();
-    },
-
-
-    // close function for edit and add
-    close() {
-      this.resetForm();
-      this.dialog = false
-      this.$nextTick(() => {
-        this.currentItem = Object.assign({}, this.defaultItem)
-        this.itemIndex = -1
-      })
-    },
-
-    // close function for send Email
-    closeEmail() {
-      this.dialogSendEmail = false;
-      this.resetForm();
-      this.$nextTick(() => {
-        this.currentItem = Object.assign({}, this.defaultItem)
-        this.itemIndex = -1
-      })
-    },
-
-    // close function for delete
-    closeDelete() {
-      this.dialogDelete = false;
-      this.resetForm();
-      this.$nextTick(() => {
-        this.currentItem = Object.assign({}, this.defaultItem)
-        this.itemIndex = -1
-      })
-    },
-
-    
-
-    // function for edit and add
-    async save() {
-      if (this.itemIndex > -1) {
-        // edit function
-        if (this.$refs.form.validate()) {
-          await updateDoc(this.docRef, {
-            name: this.dataItem.name,
-            email: this.dataItem.email,
-            contactno: this.dataItem.contactno,
-            contactper: this.dataItem.contactper,
-          })
-          // await setDoc(this.docRef, this.dataItem);
-          this.close();
-          this.itemStatus = 'Updated';
-          this.snackbar = true;
-        }
-
-      } else {
-        // add function
-        if (this.$refs.form.validate()) {
-          // const addedDoc = await addDoc(inventoryColRef, this.$data.dataItem);
-          await addDoc(inventoryColRef, {
-            name: this.dataItem.name,
-            email: this.dataItem.email,
-            contactno: this.dataItem.contactno,
-            contactper: this.dataItem.contactper,
-          })
-          this.close();
-          this.itemStatus = 'Added';
-          this.snackbar = true;
-
-        }
-
-      }
-    },
-
-    
-
-    validate() {
-      this.$refs.form.validate();
-    },
-    resetForm() {
-      this.$refs.form.reset();
-    },
-    getColor(total) {
-      if (total > 400) return 'primary'
-      else if (total > 200) return 'warning'
-      else if (total == null) return ''
-      else return 'error'
-    },
-  },
-}
+  }
 </script>
 <style scoped>
-tr {
-  text-align: center;
-
-
-}
+  
 </style>
