@@ -19,7 +19,7 @@
       </nav-menu-group> -->
       <nav-menu-link title="Inventories" :to="{ name: 'InventoryList' }" :icon="icons.mdiWarehouse"></nav-menu-link>
       <nav-menu-link title="Barcode" :to="{ name: 'typography' }" :icon="icons.mdiBarcodeScan"></nav-menu-link>
-      <nav-menu-link title="Suppliers" :to="{ name: 'icons' }" :icon="icons.mdiTruckFast"></nav-menu-link>
+      <nav-menu-link title="Suppliers" :to="{ name: 'SupplierList' }" :icon="icons.mdiTruckFast"></nav-menu-link>
       <nav-menu-link title="User Roles" :to="{ name: 'cards' }" :icon="icons.mdiAccountLock"></nav-menu-link>
 
       <nav-menu-link title="Form Layouts" :to="{ name: 'form-layouts' }" :icon="icons.mdiFormSelect"></nav-menu-link>
