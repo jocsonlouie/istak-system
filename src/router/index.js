@@ -62,6 +62,11 @@ const routes = [
     component: () => import('@/views/SampleInventory.vue'),
   },
   {
+    path: '/supplier-list',
+    name: 'SupplierList',
+    component: () => import('@/views/SupplierView.vue'),
+  },
+  {
     path: '/pages/account-settings',
     name: 'pages-account-settings',
     component: () => import('@/views/pages/account-settings/AccountSettings.vue'),
