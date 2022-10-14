@@ -3,7 +3,7 @@
     <v-col cols="12" class="mb-6">
       <typography-headlines></typography-headlines>
       <h1>
-        hallos
+        Initial Scanner
       </h1>
       <StreamBarcodeReader @decode="onDecode" @loaded="onLoaded"></StreamBarcodeReader>
 
