@@ -10,6 +10,7 @@ import { useRouter } from '@/utils'
 import LayoutBlank from '@/layouts/Blank.vue'
 import LayoutContent from '@/layouts/Content.vue'
 
+
 export default {
   components: {
     LayoutBlank,
