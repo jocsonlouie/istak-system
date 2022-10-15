@@ -45,7 +45,7 @@
 
               <v-card-text>
                 <v-container>
-                  <v-form ref="form">
+                  <form ref="form" id="myTable">
                     <v-text-field v-model="dataItem.name" :rules="itemNameRules" label="Name" clearable required>
                     </v-text-field>
 
@@ -60,7 +60,7 @@
                     </v-text-field>
 
 
-                  </v-form>
+                  </form>
                 </v-container>
               </v-card-text>
 
@@ -75,7 +75,7 @@
             </v-card>
           </v-dialog>
           <!-- Round buttons -->
-          <v-btn color="primary" elevation="2" class="ml-2" fab small outlined>
+          <v-btn color="primary" elevation="2" class="ml-2" @click="generatePDF" fab small outlined>
             <v-icon>{{ pdfIcon }}</v-icon>
           </v-btn>
           <v-btn color="primary" elevation="2" class="ml-2" fab small outlined>
@@ -183,324 +183,358 @@
 
 </template>
 <script>
-// icons
-import {
-  mdiPencil,
-  mdiDelete,
-  mdiCheckboxMarkedCircleOutline,
-  mdiMagnify,
-  mdiFilePdfBox,
-  mdiDotsVertical
-} from '@mdi/js'
+  // icons
+  import {
+    mdiPencil,
+    mdiDelete,
+    mdiCheckboxMarkedCircleOutline,
+    mdiMagnify,
+    mdiFilePdfBox,
+    mdiDotsVertical
+  } from '@mdi/js'
 
-// crud imports
-import db from '@/fb';
-import {
-  collection
-} from "firebase/firestore";
-import {
-  addDoc,
-  setDoc,
-  doc,
-  deleteDoc,
-  onSnapshot,
-  updateDoc
-} from '@firebase/firestore';
-
-
-const inventoryColRef = collection(db, "supplier");
-
-//email
-import emailjs from '@emailjs/browser';
-
-export default {
-  data: () => ({
-
-    loadingTable: true,
-    // icon data
-    editIcon: mdiPencil,
-    deleteIcon: mdiDelete,
-    successIcon: mdiCheckboxMarkedCircleOutline,
-    searchIcon: mdiMagnify,
-    pdfIcon: mdiFilePdfBox,
-    moreIcon: mdiDotsVertical,
-
-    // modal data
-    dialog: false,
-    dialogDelete: false,
-    dialogSendEmail: false,
-
-    //search and select data
-    search: '',
-    singleSelect: false,
-    selected: [],
-    expanded: [],
-    singleExpand: false,
+  // crud imports
+  import db from '@/fb';
+  import {
+    collection
+  } from "firebase/firestore";
+  import {
+    addDoc,
+    setDoc,
+    doc,
+    deleteDoc,
+    onSnapshot,
+    updateDoc
+  } from '@firebase/firestore';
 
 
-    // table header data
-    headers: [{
-      text: 'Name',
-      align: 'start',
-      value: 'name',
-    },
-    {
-      text: 'Email',
-      sortable: false,
-      value: 'email'
-    },
-    {
-      text: 'Contact Number',
-      sortable: false,
-      value: 'contactno'
-    },
-    {
-      text: 'Contact Person',
-      sortable: false,
-      value: 'contactper'
-    },
-    {
-      text: 'Actions',
-      value: 'actions',
-      sortable: false
-    },
-    ],
-    // table data
-    items: [],
-    itemIndex: -1,
-    currentItem: {
-      name: '',
-      email: '',
-      contactno: '',
-      contactper: 0,
+  const inventoryColRef = collection(db, "supplier");
 
-    },
-    defaultItem: {
-      name: '',
-      email: '',
-      contactno: '',
-      contactper: 0,
-    },
+  //email
+  import emailjs from '@emailjs/browser';
 
-    // add item
-    dataItem: {
-      name: '',
-      email: '',
-      contactno: '',
-      contactper: 0,
-    },
+  //pdf
+  import {
+    jsPDF
+  } from "jspdf";
+  import autoTable from 'jspdf-autotable';
+  window.jsPDF = require('jspdf');
 
-    //rules
-    valid: true,
-    itemNameRules: [
-      v => !!v || 'This field is required',
-    ],
 
-    //edit item
-    itemId: null,
-    docRef: null,
+  export default {
+    data: () => ({
 
-    //email item
-    itemId: null,
-    docRef: null,
+      loadingTable: true,
+      // icon data
+      editIcon: mdiPencil,
+      deleteIcon: mdiDelete,
+      successIcon: mdiCheckboxMarkedCircleOutline,
+      searchIcon: mdiMagnify,
+      pdfIcon: mdiFilePdfBox,
+      moreIcon: mdiDotsVertical,
 
-    //snackbar
-    snackbar: false,
-    timeout: 3000,
-    itemStatus: '',
+      // modal data
+      dialog: false,
+      dialogDelete: false,
+      dialogSendEmail: false,
 
-    //email
-    sendData: {
-      toEmail: '',
-      fromEmail: '',
-      subject: '',
-      message: '',
-    }
+      //search and select data
+      search: '',
+      singleSelect: false,
+      selected: [],
+      expanded: [],
+      singleExpand: false,
 
-  }),
 
-  computed: {
-    // to change modal to add or edit
-    formTitle() {
-      return this.itemIndex === -1 ? 'New Supplier' : 'Edit Supplier'
-    },
-  },
+      // table header data
+      headers: [{
+          text: 'Name',
+          align: 'start',
+          value: 'name',
+        },
+        {
+          text: 'Email',
+          sortable: false,
+          value: 'email'
+        },
+        {
+          text: 'Contact Number',
+          sortable: false,
+          value: 'contactno'
+        },
+        {
+          text: 'Contact Person',
+          sortable: false,
+          value: 'contactper'
+        },
+        {
+          text: 'Actions',
+          value: 'actions',
+          sortable: false
+        },
+      ],
+      // table data
+      items: [],
+      itemIndex: -1,
+      currentItem: {
+        name: '',
+        email: '',
+        contactno: '',
+        contactper: 0,
 
-  watch: {
-    dialog(val) {
-      val || this.close()
-    },
-    dialogDelete(val) {
-      val || this.closeDelete()
-    },
-  },
+      },
+      defaultItem: {
+        name: '',
+        email: '',
+        contactno: '',
+        contactper: 0,
+      },
 
-  created() {
-    // to fetch data
-    this.initialize();
+      // add item
+      dataItem: {
+        name: '',
+        email: '',
+        contactno: '',
+        contactper: 0,
+      },
 
-  },
+      //rules
+      valid: true,
+      itemNameRules: [
+        v => !!v || 'This field is required',
+      ],
 
-  methods: {
-    async initialize() {
-      onSnapshot(inventoryColRef, (snapshot) => {
-        let items = []
-        snapshot.forEach((doc) => {
-          items.push({
-            ...doc.data(),
-            id: doc.id
-          })
-        });
-        this.items = items;
-        this.loadingTable = false;
-      })
+      //edit item
+      itemId: null,
+      docRef: null,
+
+      //email item
+      itemId: null,
+      docRef: null,
+
+      //snackbar
+      snackbar: false,
+      timeout: 3000,
+      itemStatus: '',
+
+      //email
+      sendData: {
+        toEmail: '',
+        fromEmail: '',
+        subject: '',
+        message: '',
+      }
+
+    }),
+
+    computed: {
+      // to change modal to add or edit
+      formTitle() {
+        return this.itemIndex === -1 ? 'New Supplier' : 'Edit Supplier'
+      },
     },
 
-    // edit function
-    async editItem(item) {
-      this.itemIndex = this.items.indexOf(item)
-      if (this.itemIndex > -1) {
+    watch: {
+      dialog(val) {
+        val || this.close()
+      },
+      dialogDelete(val) {
+        val || this.closeDelete()
+      },
+    },
+
+    created() {
+      // to fetch data
+      this.initialize();
+
+    },
+
+    methods: {
+      async initialize() {
+        onSnapshot(inventoryColRef, (snapshot) => {
+          let items = []
+          snapshot.forEach((doc) => {
+            items.push({
+              ...doc.data(),
+              id: doc.id
+            })
+          });
+          this.items = items;
+          this.loadingTable = false;
+        })
+      },
+
+      // edit function
+      async editItem(item) {
+        this.itemIndex = this.items.indexOf(item)
+        if (this.itemIndex > -1) {
+          this.dataItem = Object.assign({}, item);
+          this.itemId = this.dataItem.id;
+          this.docRef = doc(inventoryColRef, this.itemId);
+        }
+        this.dialog = true
+      },
+
+      // email function
+      emailItem(item) {
+        this.dialogSendEmail = true;
+        this.sendData.fromEmail = 'assumptadogandcatclinic@gmail.com';
+        this.dataItem = Object.assign({}, item);
+        this.sendData.toEmail = this.dataItem.email;
+      },
+
+      // delete function
+      async deleteItem(item) {
         this.dataItem = Object.assign({}, item);
         this.itemId = this.dataItem.id;
         this.docRef = doc(inventoryColRef, this.itemId);
-      }
-      this.dialog = true
-    },
+        this.dialogDelete = true;
+      },
 
-    // email function
-    emailItem(item) {
-      this.dialogSendEmail = true;
-      this.sendData.fromEmail = 'assumptadogandcatclinic@gmail.com';
-      this.dataItem = Object.assign({}, item);
-      this.sendData.toEmail = this.dataItem.email;
-    },
-
-    // delete function
-    async deleteItem(item) {
-      this.dataItem = Object.assign({}, item);
-      this.itemId = this.dataItem.id;
-      this.docRef = doc(inventoryColRef, this.itemId);
-      this.dialogDelete = true;
-    },
-
-    // async sendEmail(item) {
-    //   this.dataItem = Object.assign({}, item);
-    //   this.itemId = this.dataItem.id;
-    //   this.docRef = doc(inventoryColRef, this.itemId);
-    //   this.dialogSendEmail = true;
-    // },
-
-
-    async deleteItemConfirm() {
-      this.items.splice(this.itemIndex, 1);
-      await deleteDoc(this.docRef);
-      this.closeDelete();
-      this.itemStatus = 'Deleted';
-      this.snackbar = true;
-      this.resetForm();
-    },
-
-
-    // close function for edit and add
-    close() {
-      this.resetForm();
-      this.dialog = false
-      this.$nextTick(() => {
-        this.currentItem = Object.assign({}, this.defaultItem)
-        this.itemIndex = -1
-      })
-    },
-
-    // close function for send Email
-    closeEmail() {
-      this.dialogSendEmail = false;
-      this.resetForm();
-      this.$nextTick(() => {
-        this.currentItem = Object.assign({}, this.defaultItem)
-        this.itemIndex = -1
-      })
-    },
-
-    // close function for delete
-    closeDelete() {
-      this.dialogDelete = false;
-      this.resetForm();
-      this.$nextTick(() => {
-        this.currentItem = Object.assign({}, this.defaultItem)
-        this.itemIndex = -1
-      })
-    },
-
-
-
-    // function for edit and add
-    async save() {
-      if (this.itemIndex > -1) {
-        // edit function
-        if (this.$refs.form.validate()) {
-          await updateDoc(this.docRef, {
-            name: this.dataItem.name,
-            email: this.dataItem.email,
-            contactno: this.dataItem.contactno,
-            contactper: this.dataItem.contactper,
-          })
-          // await setDoc(this.docRef, this.dataItem);
-          this.close();
-          this.itemStatus = 'Updated';
-          this.snackbar = true;
-        }
-
-      } else {
-        // add function
-        if (this.$refs.form.validate()) {
-          // const addedDoc = await addDoc(inventoryColRef, this.$data.dataItem);
-          await addDoc(inventoryColRef, {
-            name: this.dataItem.name,
-            email: this.dataItem.email,
-            contactno: this.dataItem.contactno,
-            contactper: this.dataItem.contactper,
-          })
-          this.close();
-          this.itemStatus = 'Added';
-          this.snackbar = true;
-
-        }
-
-      }
-    },
-
-
-
-    validate() {
-      this.$refs.form.validate();
-    },
-    resetForm() {
-      this.$refs.form.reset();
-    },
-    getColor(total) {
-      if (total > 400) return 'primary'
-      else if (total > 200) return 'warning'
-      else if (total == null) return ''
-      else return 'error'
-    },
-
-    sendEmailzz() {
-      if (this.$refs.form.validate()) {
-        emailjs.sendForm('service_cky0y6t', 'template_2zs8qew', this.$refs.form, '9aetr9pH3Vj0_P8yK')
-          .then((result) => {
-            console.log('SUCCESS!', result.text);
-
-          }, (error) => {
-            console.log('FAILED...', error.text);
-          });
-        this.closeEmail();
-        this.itemStatus = 'SUCCESSFULY SENT EMAIL TO THE SUPPLIER';
+      async deleteItemConfirm() {
+        this.items.splice(this.itemIndex, 1);
+        await deleteDoc(this.docRef);
+        this.closeDelete();
+        this.itemStatus = 'Deleted';
         this.snackbar = true;
-      }
-    }
-  },
-}
+        this.resetForm();
+      },
 
+
+      // close function for edit and add
+      close() {
+        this.resetForm();
+        this.dialog = false
+        this.$nextTick(() => {
+          this.currentItem = Object.assign({}, this.defaultItem)
+          this.itemIndex = -1
+        })
+      },
+
+      // close function for send Email
+      closeEmail() {
+        this.dialogSendEmail = false;
+        this.resetForm();
+        this.$nextTick(() => {
+          this.currentItem = Object.assign({}, this.defaultItem)
+          this.itemIndex = -1
+        })
+      },
+
+      // close function for delete
+      closeDelete() {
+        this.dialogDelete = false;
+        this.resetForm();
+        this.$nextTick(() => {
+          this.currentItem = Object.assign({}, this.defaultItem)
+          this.itemIndex = -1
+        })
+      },
+
+
+
+      // function for edit and add
+      async save() {
+        if (this.itemIndex > -1) {
+          // edit function
+          if (this.$refs.form.validate()) {
+            await updateDoc(this.docRef, {
+              name: this.dataItem.name,
+              email: this.dataItem.email,
+              contactno: this.dataItem.contactno,
+              contactper: this.dataItem.contactper,
+            })
+            // await setDoc(this.docRef, this.dataItem);
+            this.close();
+            this.itemStatus = 'Updated';
+            this.snackbar = true;
+          }
+
+        } else {
+          // add function
+          if (this.$refs.form.validate()) {
+            // const addedDoc = await addDoc(inventoryColRef, this.$data.dataItem);
+            await addDoc(inventoryColRef, {
+              name: this.dataItem.name,
+              email: this.dataItem.email,
+              contactno: this.dataItem.contactno,
+              contactper: this.dataItem.contactper,
+            })
+            this.close();
+            this.itemStatus = 'Added';
+            this.snackbar = true;
+          }
+        }
+      },
+
+      validate() {
+        this.$refs.form.validate();
+      },
+      resetForm() {
+        this.$refs.form.reset();
+      },
+
+      sendEmailzz() {
+        if (this.$refs.form.validate()) {
+          emailjs.sendForm('service_cky0y6t', 'template_2zs8qew', this.$refs.form, '9aetr9pH3Vj0_P8yK')
+            .then((result) => {
+              console.log('SUCCESS!', result.text);
+
+            }, (error) => {
+              console.log('FAILED...', error.text);
+            });
+          this.closeEmail();
+          this.itemStatus = 'SUCCESSFULY SENT EMAIL TO THE SUPPLIER';
+          this.snackbar = true;
+        }
+      },
+
+      generatePDF() {
+        const columns = [{
+            title: "Supplier Name",
+            dataKey: "name"
+          },
+          {
+            title: "Email",
+            dataKey: "email"
+          },
+          {
+            title: "Contact Number",
+            dataKey: "contactno"
+          },
+          {
+            title: "Contact Person",
+            dataKey: "contactper"
+          },
+        ];
+
+        const doc = new jsPDF({
+          orientation: "portrait",
+          unit: "in",
+          format: "letter"
+        });
+
+        doc.setFontSize(16).text("Supplier List", 0.5, 1.0);
+        doc.setLineWidth(0.01).line(0.5, 1.1, 8.0, 1.1);
+
+      //   var base64Img = 'data:image/jpeg;base64,iVBORw0KGgoAAAANS...'
+      // doc.addImage(base64Img, 'JPEG', data.cell.x + 2, data.cell.y + 2, 10, 10)
+
+        autoTable(doc, {
+          columns,
+          body: this.items,
+          margin: {
+            left: 0.5,
+            top: 1.25
+          },
+          theme: 'grid',
+          lineWidth: 2
+        });
+
+        doc.save('SupplierList.pdf')
+      }
+    },
+  }
 </script>
 <style scoped>
 
