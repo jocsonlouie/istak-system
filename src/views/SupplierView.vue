@@ -323,8 +323,13 @@
         fromEmail: '',
         subject: '',
         message: '',
-      }
+      },
 
+      //pdf contents
+      business: 'Assumpta Dog and Cat Clinic - Cainta Branch',
+      address: 'Ortigas Ave., Extension Corner Hunter ROTC. Guerilla St. Brgy. San Juan, Cainta Rizal',
+      contact: '09190090841 / 09269910470 / 897-3264 / assumptacainta.yahoo.com',
+      report: 'Supplier List Report'
     }),
 
     computed: {
@@ -508,30 +513,63 @@
           },
         ];
 
-        const doc = new jsPDF({
+        const pdf = new jsPDF({
           orientation: "portrait",
           unit: "in",
-          format: "letter"
+          format: "a4"
         });
 
-        doc.setFontSize(16).text("Supplier List", 0.5, 1.0);
-        doc.setLineWidth(0.01).line(0.5, 1.1, 8.0, 1.1);
+        // let footerPath = path.resolve("../../assets/images/logos/google.png")
+        // let footer = fs.readFileSync(footerPath,{
+        //   encoding: "base64",
+        // });
 
-      //   var base64Img = 'data:image/jpeg;base64,iVBORw0KGgoAAAANS...'
-      // doc.addImage(base64Img, 'JPEG', data.cell.x + 2, data.cell.y + 2, 10, 10)
+        // let footer = new Image();
+        // footer.src = '';
+        // footer.onload = function() {
+        //   doc.addImage(footer, "PNG", 110, 770, 384, 100);
+        //   doc.save('myPDF.pdf');
+        // }
 
-        autoTable(doc, {
+        // const img = new Image();
+        // img.src = 'image-url';
+        // img.onload = () => {
+        //   // await for the image to be fully loaded
+        //   doc.addImage(img, 'png', );
+        //   doc.text("Sample", 20, 15);
+        //   //...
+        //   doc.save('order.pdf');
+        // };
+
+
+
+         //pdf.setFontSize(12).text(this.business, 105, 80, null, null, 'center');
+        pdf.setFontSize(12).text(this.business, 2.5, 1.37);
+        pdf.setFontSize(10).text(this.address, 1.40, 1.55);
+        pdf.setFontSize(10).text(this.contact, 1.95, 1.75);
+        pdf.setFontSize(16).text(this.report, 3.1, 2.15);
+        //doc.setFontSize(16).text("Supplier List", 0.5, 1.0);
+        pdf.setLineWidth(0.02).line(0.56, 2.35, 7.7, 2.35);
+
+
+
+        autoTable(pdf, {
           columns,
           body: this.items,
-          margin: {
-            left: 0.5,
-            top: 1.25
+          startY: 2.5,
+          styles: {
+            fontSize: 12,
+            cellWidth: 'wrap'
           },
-          theme: 'grid',
-          lineWidth: 2
+          columnStyles:{
+            1: {
+              cellWidth: 'auto'
+            }
+          }
         });
 
-        doc.save('SupplierList.pdf')
+      
+        pdf.save('SupplierList.pdf')
       }
     },
   }
