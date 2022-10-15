@@ -38,6 +38,8 @@
     "core-js": "^3.6.5",
     "emailjs": "^4.0.1",
     "firebase": "^9.10.0",
+    "jspdf": "^2.5.1",
+    "jspdf-autotable": "^3.5.25",
     "vue": "^2.6.11",
     "vue-apexcharts": "^1.6.2",
     "vue-barcode-reader": "^1.0.2",
