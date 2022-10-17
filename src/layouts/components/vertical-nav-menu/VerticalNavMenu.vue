@@ -24,8 +24,8 @@
 
       <nav-menu-link title="Form Layouts" :to="{ name: 'form-layouts' }" :icon="icons.mdiFormSelect"></nav-menu-link>
       <nav-menu-section-title title="ACCOUNT"></nav-menu-section-title>
-      <nav-menu-link title="Account Settings" :to="{ name: 'pages-account-settings'}"
-        :icon="icons.mdiAccountCogOutline"></nav-menu-link>
+      <nav-menu-link title="Account Settings" :to="{ name: 'account-settings'}" :icon="icons.mdiAccountCogOutline">
+      </nav-menu-link>
 
     </v-list>
     <a href="https://themeselection.com/products/materio-vuetify-vuejs-admin-template" target="_blank" rel="nofollow">

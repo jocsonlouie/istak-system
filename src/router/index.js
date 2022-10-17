@@ -67,9 +67,12 @@ const routes = [
     component: () => import('@/views/SupplierView.vue'),
   },
   {
-    path: '/pages/account-settings',
-    name: 'pages-account-settings',
+    path: '/account-settings',
+    name: 'account-settings',
     component: () => import('@/views/pages/account-settings/AccountSettings.vue'),
+    meta: {
+      requiresAuth: true,
+    },
   },
   {
     path: '/pages/login',
