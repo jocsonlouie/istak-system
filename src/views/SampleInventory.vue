@@ -15,8 +15,9 @@
     </v-snackbar>
 
     <!-- Data Table -->
-    <v-data-table :headers="headers" :items="items" sort-by="name" class="elevation-1 pt-3" :search="search"
-      v-model="selected" :single-select="singleSelect" item-key="itemname" show-select :loading="loadingTable">
+    <v-data-table :headers="headers" :items="items" :single-expand="singleExpand" :expanded.sync="expanded" show-expand
+      sort-by="name" class="elevation-1 pt-3" :search="search" v-model="selected" :single-select="singleSelect"
+      item-key="itemname" show-select :loading="loadingTable">
 
       <template v-slot:top>
         <v-toolbar flat>
@@ -29,93 +30,7 @@
           <v-spacer></v-spacer>
 
           <!-- Barcode Scan Button -->
-          <v-btn color="primary" elevation="2" class="mr-2 hidden-sm-and-down" @click="openBarcodeScanner">Barcode Scan
-          </v-btn>
-
-          <!-- Scan Barcode Modal -->
-          <v-dialog v-model="dialogScan" max-width="550px">
-            <v-card class="pa-5 d-flex flex-column justify-center">
-              <v-chip color="primary" class="d-flex justify-center rounded-pill font-weight-bold text-h6 pa-5 ">Scan
-                barcode
-              </v-chip>
-              <v-card-title class="-d-flex justify-center pa-0 rounded-lg my-3 overflow-hidden">
-                <StreamBarcodeReader @decode="onDecode" @loaded="onLoaded" stop></StreamBarcodeReader>
-              </v-card-title>
-
-              <v-card-actions class="mb-n5">
-                <v-spacer></v-spacer>
-                <v-btn color="secondary" @click="closeScan">Cancel</v-btn>
-                <v-spacer></v-spacer>
-              </v-card-actions>
-            </v-card>
-          </v-dialog>
-
-          <!-- Scan View Modal -->
-          <v-dialog v-model="dialogScanView" max-width="550px">
-            <v-card flat class="pa-3 mt-2">
-              <v-chip color="primary" class="d-flex justify-center rounded-pill mb-4 font-weight-bold text-h6 pa-5 ">
-                Scan
-                Result
-              </v-chip>
-              <div v-if="scanStatus">
-                <v-card-text class="d-flex align-center">
-                  <v-avatar rounded size="120" class="me-6">
-                    <v-img :src="scanItemImage"></v-img>
-                  </v-avatar>
-                  <!-- upload photo -->
-                  <div class="align-center">
-                    <h1 class="headline mt-5">
-                      {{ scanItemName}}
-                    </h1>
-                    <p class="text-sm">
-                      {{ scanBarcode }}
-                    </p>
-                  </div>
-                </v-card-text>
-                <v-card-text>
-                  <v-form class="multi-col-validation mt-6">
-                    <v-row>
-                      <v-col md="6" cols="12">
-                        <v-text-field v-model="scanBarcode" label="Barcode" dense outlined readonly></v-text-field>
-                      </v-col>
-                      <v-col md="6" cols="12">
-                        <v-text-field v-model="scanItemName" label="Item name" dense outlined readonly></v-text-field>
-                      </v-col>
-                      <v-col cols="12" md="6">
-                        <v-text-field v-model="scanDisplayStocks" label="Display Stocks" dense outlined readonly>
-                        </v-text-field>
-                      </v-col>
-                      <v-col cols="12" md="6">
-                        <v-text-field v-model="scanStorebox" dense label="Storebox" outlined readonly></v-text-field>
-                      </v-col>
-                      <v-col cols="12" md="6">
-                        <v-text-field v-model="scanTotalStocks" dense label="Total Stocks" outlined readonly>
-                        </v-text-field>
-                      </v-col>
-                    </v-row>
-                  </v-form>
-                </v-card-text>
-              </div>
-
-              <!-- alert -->
-              <v-col cols="12" v-else>
-                <v-alert color="info" text class="mb-0">
-                  <div class="d-flex align-start">
-                    <v-icon color="info">
-                      {{ barcodeIcon }}
-                    </v-icon>
-
-                    <div class="ms-3">
-                      <p class="text-base font-weight-medium mb-1">
-                        No Item Found.
-                      </p>
-
-                    </div>
-                  </div>
-                </v-alert>
-              </v-col>
-            </v-card>
-          </v-dialog>
+          <v-btn color="primary" elevation="2" class="mr-2">Barcode Scan</v-btn>
 
           <!-- Add & Edit Item Modal -->
           <v-dialog v-model="dialog" max-width="500px">
@@ -167,25 +82,13 @@
             </v-card>
           </v-dialog>
           <!-- Round buttons -->
-          <v-btn color="white" elevation="2" class="ml-2 primary hidden-sm-and-up" fab small outlined
-            @click="openBarcodeScanner">
-            <v-icon>{{ barcodeIcon }}</v-icon>
-          </v-btn>
-          <!-- <v-dialog v-model="dialog" max-width="500px">
-            <template v-slot:activator="{ on, attrs }">
-              <v-btn color="primary" elevation="2" class="ml-2 hidden-md-and-up" fab small outlined v-bind="attrs"
-                v-on="on">
-                <v-icon>{{ plusIcon }}</v-icon>
-              </v-btn>
-            </template>
-          </v-dialog> -->
-          <v-btn color="primary" elevation="2" class="ml-2 hidden-sm-and-down" fab small outlined>
+          <v-btn color="primary" elevation="2" class="ml-2" fab small outlined>
             <v-icon>{{ pdfIcon }}</v-icon>
           </v-btn>
-          <v-btn color="primary" elevation="2" class="ml-2 hidden-sm-and-down" fab small outlined>
+          <v-btn color="primary" elevation="2" class="ml-2" fab small outlined>
             <v-icon>{{ editIcon }}</v-icon>
           </v-btn>
-          <v-btn color="error" elevation="2" class="ml-2 hidden-sm-and-down" fab small>
+          <v-btn color="error" elevation="2" class="ml-2" fab small>
             <v-icon>{{ deleteIcon }}</v-icon>
           </v-btn>
           <!-- <v-switch
@@ -259,36 +162,25 @@ import {
   mdiCheckboxMarkedCircleOutline,
   mdiMagnify,
   mdiFilePdfBox,
-  mdiDotsVertical,
-  mdiBarcodeScan,
-  mdiPlus
+  mdiDotsVertical
 } from '@mdi/js'
 
 // crud imports
 import db from '@/fb';
-// import { collection } from "firebase/firestore";
-import { StreamBarcodeReader } from "vue-barcode-reader";
+import { collection } from "firebase/firestore";
 import {
   addDoc,
   setDoc,
-  getDocs,
   doc,
   deleteDoc,
   onSnapshot,
-  updateDoc,
-  collection,
-  where,
-  query,
-
+  updateDoc
 } from '@firebase/firestore';
 
 
 const inventoryColRef = collection(db, "inventory");
 
 export default {
-  components: {
-    StreamBarcodeReader
-  },
   data: () => ({
 
     loadingTable: true,
@@ -299,24 +191,10 @@ export default {
     searchIcon: mdiMagnify,
     pdfIcon: mdiFilePdfBox,
     moreIcon: mdiDotsVertical,
-    barcodeIcon: mdiBarcodeScan,
-    plusIcon: mdiPlus,
 
     // modal data
     dialog: false,
     dialogDelete: false,
-    dialogScan: false,
-    dialogScanView: false,
-
-
-    // Scan Modal
-    scanItemImage: 'https://assumptaclinic.com/wp-content/uploads/2022/10/profile-icon-default.jpeg',
-    scanItemName: 'Sample Name',
-    scanBarcode: '12312312312',
-    scanStorebox: '686',
-    scanTotalStocks: '454',
-    scanDisplayStocks: '565',
-    scanStatus: false,
 
     //search and select data
     search: '',
@@ -334,28 +212,28 @@ export default {
     },
     {
       text: 'Barcode',
-      sortable: true,
+      sortable: false,
       value: 'barcode'
     },
     {
       text: 'Storebox',
-      sortable: true,
+      sortable: false,
       value: 'storebox'
     },
     {
       text: 'Total Stocks',
-      sortable: true,
+      sortable: false,
       value: 'total'
     },
     {
       text: 'Display Stocks',
-      sortable: true,
+      sortable: false,
       value: 'display'
     },
     {
       text: 'Actions',
       value: 'actions',
-      sortable: true
+      sortable: false
     },
     ],
     // table data
@@ -416,12 +294,6 @@ export default {
     dialogDelete(val) {
       val || this.closeDelete()
     },
-    dialogScan(val) {
-      val || this.closeScan()
-    },
-    dialogScanView(val) {
-      val || this.closeScanView()
-    }
   },
 
   created() {
@@ -495,20 +367,6 @@ export default {
       })
     },
 
-    // close function for scan
-    closeScan() {
-      this.dialogScan = false;
-    },
-
-    closeScanView() {
-      this.dialogScanView = false;
-      this.$router.go();
-    },
-
-    openBarcodeScanner() {
-      this.dialogScan = true;
-    },
-
     // function for edit and add
     async save() {
       if (this.itemIndex > -1) {
@@ -545,35 +403,6 @@ export default {
         }
 
       }
-    },
-
-    async onDecode(result) {
-      console.log(result);
-      const q = query(collection(db, "inventory"), where("barcode", "==", result));
-      const querySnapshot = await getDocs(q);
-
-      if (querySnapshot.empty) {
-        this.dialogScan = false;
-        this.dialogScanView = true;
-      } else {
-        querySnapshot.forEach((doc) => {
-          // doc.data() is never undefined for query doc snapshots
-          this.scanStatus = true;
-          this.scanBarcode = "" + doc.data().barcode;
-          this.scanDisplayStocks = "" + doc.data().display;
-          this.scanItemImage = "https://assumptaclinic.com/wp-content/uploads/2022/10/profile-icon-default.jpeg";
-          this.scanItemName = "" + doc.data().itemname;
-          this.scanStorebox = "" + doc.data().storebox;
-          this.scanTotalStocks = "" + doc.data().total;
-
-        });
-        this.dialogScan = false;
-        this.dialogScanView = true;
-      }
-    },
-
-    onLoaded(result) {
-      console.log(result)
     },
 
     validate() {
