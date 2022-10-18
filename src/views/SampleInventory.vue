@@ -133,6 +133,31 @@
               <v-card-text>
                 <v-container>
                   <v-form ref="form">
+
+                    <!-- upload photo -->
+                    <v-card-text class="d-flex justify-center">
+                      <v-avatar rounded size="120" class="me-6">
+                        <v-img :src="itemImage"></v-img>
+                      </v-avatar>
+
+                      <div>
+                        <v-btn color="primary" class="me-3 mt-5" @click="$refs.refInputEl.click();">
+                          <v-icon class="d-sm-none">
+                            {{ uploadBtnTextMobile }}
+                          </v-icon>
+                          <span class="d-none d-sm-block">{{ uploadBtnText }}</span>
+                        </v-btn>
+
+                        <input ref="refInputEl" @change="uploadItemImage" type="file" accept=".jpeg,.png,.jpg,GIF"
+                          :hidden="true" />
+
+                        <p class="text-sm mt-5">
+                          Allowed JPG, GIF or PNG. Max size of 1MB
+                        </p>
+                      </div>
+                    </v-card-text>
+
+
                     <v-text-field v-model="dataItem.itemname" :rules="itemNameRules" label="Item Name" clearable
                       required>
                     </v-text-field>
@@ -217,6 +242,14 @@
         </v-chip>
       </template>
 
+      
+      <template v-slot:item.image="{ item }" class="text-center">
+        <v-avatar rounded size="50" class="ma-2">
+                <v-img :src="item.image"></v-img>
+        </v-avatar>
+        
+      </template>
+
 
       <!-- Table Actions Buttons -->
       <template v-slot:item.actions="{ item }">
@@ -252,349 +285,443 @@
 
 </template>
 <script>
-// icons
-import {
-  mdiPencil,
-  mdiDelete,
-  mdiCheckboxMarkedCircleOutline,
-  mdiMagnify,
-  mdiFilePdfBox,
-  mdiDotsVertical,
-  mdiBarcodeScan,
-  mdiPlus
-} from '@mdi/js'
+  // icons
+  import {
+    mdiPencil,
+    mdiDelete,
+    mdiCheckboxMarkedCircleOutline,
+    mdiMagnify,
+    mdiFilePdfBox,
+    mdiDotsVertical,
+    mdiBarcodeScan,
+    mdiPlus,
 
-// crud imports
-import db from '@/fb';
-// import { collection } from "firebase/firestore";
-import { StreamBarcodeReader } from "vue-barcode-reader";
-import {
-  addDoc,
-  setDoc,
-  getDocs,
-  doc,
-  deleteDoc,
-  onSnapshot,
-  updateDoc,
-  collection,
-  where,
-  query,
+    mdiAlertOutline, mdiCloudUploadOutline, mdiCheckCircle, mdiProgressDownload
+  } from '@mdi/js'
 
-} from '@firebase/firestore';
-
-
-const inventoryColRef = collection(db, "inventory");
-
-export default {
-  components: {
+  // crud imports
+  import db from '@/fb';
+  // import { collection } from "firebase/firestore";
+  import {
     StreamBarcodeReader
-  },
-  data: () => ({
+  } from "vue-barcode-reader";
+  import {
+    addDoc,
+    setDoc,
+    getDocs,
+    doc,
+    deleteDoc,
+    onSnapshot,
+    updateDoc,
+    collection,
+    where,
+    query,
 
-    loadingTable: true,
-    // icon data
-    editIcon: mdiPencil,
-    deleteIcon: mdiDelete,
-    successIcon: mdiCheckboxMarkedCircleOutline,
-    searchIcon: mdiMagnify,
-    pdfIcon: mdiFilePdfBox,
-    moreIcon: mdiDotsVertical,
-    barcodeIcon: mdiBarcodeScan,
-    plusIcon: mdiPlus,
+  } from '@firebase/firestore';
 
-    // modal data
-    dialog: false,
-    dialogDelete: false,
-    dialogScan: false,
-    dialogScanView: false,
+  
+  const inventoryColRef = collection(db, "inventory");
 
+  //upload image imports
+  import { ref, onMounted } from '@vue/composition-api';
+  import { getStorage, uploadBytes, ref as ref_storage, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+  const itemImage = ref('https://assumptaclinic.com/wp-content/uploads/2022/10/default-assumpta.jpg');
 
-    // Scan Modal
-    scanItemImage: 'https://assumptaclinic.com/wp-content/uploads/2022/10/profile-icon-default.jpeg',
-    scanItemName: 'Sample Name',
-    scanBarcode: '12312312312',
-    scanStorebox: '686',
-    scanTotalStocks: '454',
-    scanDisplayStocks: '565',
-    scanStatus: false,
-
-    //search and select data
-    search: '',
-    singleSelect: false,
-    selected: [],
-    expanded: [],
-    singleExpand: false,
-
-
-    // table header data
-    headers: [{
-      text: 'Item Name',
-      align: 'start',
-      value: 'itemname',
+  export default {
+    components: {
+      StreamBarcodeReader
     },
-    {
-      text: 'Barcode',
-      sortable: true,
-      value: 'barcode'
-    },
-    {
-      text: 'Storebox',
-      sortable: true,
-      value: 'storebox'
-    },
-    {
-      text: 'Total Stocks',
-      sortable: true,
-      value: 'total'
-    },
-    {
-      text: 'Display Stocks',
-      sortable: true,
-      value: 'display'
-    },
-    {
-      text: 'Actions',
-      value: 'actions',
-      sortable: true
-    },
-    ],
-    // table data
-    items: [],
-    itemIndex: -1,
-    currentItem: {
-      itemname: '',
-      barcode: '',
-      storebox: '',
-      total: 0,
-      display: 0,
-    },
-    defaultItem: {
-      itemname: '',
-      barcode: '',
-      storebox: '',
-      total: 0,
-      display: 0,
+    data: () => ({
+
+      loadingTable: true,
+      // icon data
+      editIcon: mdiPencil,
+      deleteIcon: mdiDelete,
+      successIcon: mdiCheckboxMarkedCircleOutline,
+      searchIcon: mdiMagnify,
+      pdfIcon: mdiFilePdfBox,
+      moreIcon: mdiDotsVertical,
+      barcodeIcon: mdiBarcodeScan,
+      plusIcon: mdiPlus,
+
+      // modal data
+      dialog: false,
+      dialogDelete: false,
+      dialogScan: false,
+      dialogScanView: false,
+
+
+      // Scan Modal
+      scanItemImage: 'https://assumptaclinic.com/wp-content/uploads/2022/10/profile-icon-default.jpeg',
+      scanItemName: 'Sample Name',
+      scanBarcode: '12312312312',
+      scanStorebox: '686',
+      scanTotalStocks: '454',
+      scanDisplayStocks: '565',
+      scanStatus: false,
+
+      //search and select data
+      search: '',
+      singleSelect: false,
+      selected: [],
+      expanded: [],
+      singleExpand: false,
+
+
+      // table header data
+      headers: [
+        {
+          text: 'Image',
+          align: 'start',
+          value: 'image',
+        },
+        {
+          text: 'Item Name',
+          value: 'itemname',
+        },
+        {
+          text: 'Barcode',
+          sortable: true,
+          value: 'barcode'
+        },
+        {
+          text: 'Storebox',
+          sortable: true,
+          value: 'storebox'
+        },
+        {
+          text: 'Total Stocks',
+          sortable: true,
+          value: 'total'
+        },
+        {
+          text: 'Display Stocks',
+          sortable: true,
+          value: 'display'
+        },
+        {
+          text: 'Actions',
+          value: 'actions',
+          sortable: true
+        },
+      ],
+      // table data
+      items: [],
+      itemIndex: -1,
+      currentItem: {
+        image: itemImage.value,
+        itemname: '',
+        barcode: '',
+        storebox: '',
+        total: 0,
+        display: 0,
+      },
+      defaultItem: {
+        image: itemImage.value,
+        itemname: '',
+        barcode: '',
+        storebox: '',
+        total: 0,
+        display: 0,
+      },
+
+      // add item
+      dataItem: {
+        image: itemImage.value,
+        itemname: '',
+        barcode: '',
+        storebox: '',
+        total: '',
+        display: '',
+      },
+
+      //rules
+      valid: true,
+      itemNameRules: [
+        v => !!v || 'This field is required',
+      ],
+
+      //edit item
+      itemId: null,
+      docRef: null,
+
+      //snackbar
+      snackbar: false,
+      timeout: 3000,
+      itemStatus: '',
+
+      //image
+      uploadLoading: false,
+      uploadBtnText: "Upload new photo",
+      //uploadBtnTextMobile: this.icons.mdiCloudUploadOutline
+      uploadBtnTextMobile: "Upload"
+
+    }),
+
+    props: {
+      accountData: {
+        type: Object,
+        default: () => { },
+      },
     },
 
-    // add item
-    dataItem: {
-      itemname: '',
-      barcode: '',
-      storebox: '',
-      total: '',
-      display: '',
-    },
-
-    //rules
-    valid: true,
-    itemNameRules: [
-      v => !!v || 'This field is required',
-    ],
-
-    //edit item
-    itemId: null,
-    docRef: null,
-
-    //snackbar
-    snackbar: false,
-    timeout: 3000,
-    itemStatus: '',
-
-  }),
-
-  computed: {
-    // to change modal to add or edit
-    formTitle() {
-      return this.itemIndex === -1 ? 'New Item' : 'Edit Item'
-    },
-  },
-
-  watch: {
-    dialog(val) {
-      val || this.close()
-    },
-    dialogDelete(val) {
-      val || this.closeDelete()
-    },
-    dialogScan(val) {
-      val || this.closeScan()
-    },
-    dialogScanView(val) {
-      val || this.closeScanView()
+    setup(props) {
+      return {
+      // status,
+      // userRole,
+      // userEmail,
+       itemImage,
+      // userFName,
+      // accountDataLocale,
+      // userVerified,
+      // resetForm,
+      icons: {
+        mdiAlertOutline,
+        mdiCloudUploadOutline,
+        mdiCheckCircle,
+        mdiProgressDownload,
+      },
     }
-  },
-
-  created() {
-    // to fetch data
-    this.initialize();
-
-  },
-
-  methods: {
-    async initialize() {
-      onSnapshot(inventoryColRef, (snapshot) => {
-        let items = []
-        snapshot.forEach((doc) => {
-          items.push({
-            ...doc.data(),
-            id: doc.id
-          })
-        });
-        this.items = items;
-        this.loadingTable = false;
-      })
+    },
+    computed: {
+      // to change modal to add or edit
+      formTitle() {
+        return this.itemIndex === -1 ? 'New Item' : 'Edit Item'
+      },
     },
 
-    // edit function
-    async editItem(item) {
-      this.itemIndex = this.items.indexOf(item)
-      if (this.itemIndex > -1) {
+    watch: {
+      dialog(val) {
+        val || this.close()
+      },
+      dialogDelete(val) {
+        val || this.closeDelete()
+      },
+      dialogScan(val) {
+        val || this.closeScan()
+      },
+      dialogScanView(val) {
+        val || this.closeScanView()
+      }
+    },
+
+    created() {
+      // to fetch data
+      this.initialize();
+
+    },
+
+    methods: {
+      async initialize() {
+        onSnapshot(inventoryColRef, (snapshot) => {
+          let items = []
+          snapshot.forEach((doc) => {
+            items.push({
+              ...doc.data(),
+              id: doc.id
+            })
+          });
+          this.items = items;
+          this.loadingTable = false;
+        })
+      },
+
+      // edit function
+      async editItem(item) {
+        this.itemIndex = this.items.indexOf(item)
+        if (this.itemIndex > -1) {
+          this.dataItem = Object.assign({}, item);
+          this.itemId = this.dataItem.id;
+          this.docRef = doc(inventoryColRef, this.itemId);
+          itemImage.value = this.dataItem.image;
+
+        }
+        this.dialog = true
+      },
+
+      // delete function
+      async deleteItem(item) {
         this.dataItem = Object.assign({}, item);
         this.itemId = this.dataItem.id;
         this.docRef = doc(inventoryColRef, this.itemId);
+        this.dialogDelete = true;
+      },
 
+      async deleteItemConfirm() {
+        this.items.splice(this.itemIndex, 1);
+        await deleteDoc(this.docRef);
+        this.closeDelete();
+        this.itemStatus = 'Deleted';
+        this.snackbar = true;
+        this.resetForm();
+      },
 
-      }
-      this.dialog = true
-    },
+      // close function for edit and add
+      close() {
+        this.resetForm();
+        this.dialog = false
+        this.$nextTick(() => {
+          this.currentItem = Object.assign({}, this.defaultItem)
+          this.itemIndex = -1
+        })
+        itemImage.value = 'https://assumptaclinic.com/wp-content/uploads/2022/10/default-assumpta.jpg';
+      },
 
-    // delete function
-    async deleteItem(item) {
-      this.dataItem = Object.assign({}, item);
-      this.itemId = this.dataItem.id;
-      this.docRef = doc(inventoryColRef, this.itemId);
-      this.dialogDelete = true;
-    },
+      // close function for delete
+      closeDelete() {
+        this.dialogDelete = false;
+        this.resetForm();
+        this.$nextTick(() => {
+          this.currentItem = Object.assign({}, this.defaultItem)
+          this.itemIndex = -1
+        })
+      },
 
-    async deleteItemConfirm() {
-      this.items.splice(this.itemIndex, 1);
-      await deleteDoc(this.docRef);
-      this.closeDelete();
-      this.itemStatus = 'Deleted';
-      this.snackbar = true;
-      this.resetForm();
-    },
+      // close function for scan
+      closeScan() {
+        this.dialogScan = false;
+      },
 
-    // close function for edit and add
-    close() {
-      this.resetForm();
-      this.dialog = false
-      this.$nextTick(() => {
-        this.currentItem = Object.assign({}, this.defaultItem)
-        this.itemIndex = -1
-      })
-    },
+      closeScanView() {
+        this.dialogScanView = false;
+        this.$router.go();
+      },
 
-    // close function for delete
-    closeDelete() {
-      this.dialogDelete = false;
-      this.resetForm();
-      this.$nextTick(() => {
-        this.currentItem = Object.assign({}, this.defaultItem)
-        this.itemIndex = -1
-      })
-    },
+      openBarcodeScanner() {
+        this.dialogScan = true;
+      },
 
-    // close function for scan
-    closeScan() {
-      this.dialogScan = false;
-    },
+      // function for edit and add
+      async save() {
+        if (this.itemIndex > -1) {
+          // edit function
+          if (this.$refs.form.validate()) {
+            await updateDoc(this.docRef, {
+              image: itemImage.value,
+              itemname: this.dataItem.itemname,
+              barcode: this.dataItem.barcode,
+              storebox: this.dataItem.storebox,
+              total: this.dataItem.total,
+              display: this.dataItem.display,
+            })
+            // await setDoc(this.docRef, this.dataItem);
+            this.close();
+            this.itemStatus = 'Updated';
+            this.snackbar = true;
+          }
 
-    closeScanView() {
-      this.dialogScanView = false;
-      this.$router.go();
-    },
+        } else {
+          // add function
+          if (this.$refs.form.validate()) {
+            // const addedDoc = await addDoc(inventoryColRef, this.$data.dataItem);
+            console.log(itemImage.value);
+            await addDoc(inventoryColRef, {
+              image: itemImage.value,
+              itemname: this.dataItem.itemname,
+              barcode: this.dataItem.barcode,
+              storebox: this.dataItem.storebox,
+              total: this.dataItem.total,
+              display: this.dataItem.display,
+            })
+            this.close();
+            this.itemStatus = 'Added';
+            this.snackbar = true;
 
-    openBarcodeScanner() {
-      this.dialogScan = true;
-    },
-
-    // function for edit and add
-    async save() {
-      if (this.itemIndex > -1) {
-        // edit function
-        if (this.$refs.form.validate()) {
-          await updateDoc(this.docRef, {
-            itemname: this.dataItem.itemname,
-            barcode: this.dataItem.barcode,
-            storebox: this.dataItem.storebox,
-            total: this.dataItem.total,
-            display: this.dataItem.display,
-          })
-          // await setDoc(this.docRef, this.dataItem);
-          this.close();
-          this.itemStatus = 'Updated';
-          this.snackbar = true;
-        }
-
-      } else {
-        // add function
-        if (this.$refs.form.validate()) {
-          // const addedDoc = await addDoc(inventoryColRef, this.$data.dataItem);
-          await addDoc(inventoryColRef, {
-            itemname: this.dataItem.itemname,
-            barcode: this.dataItem.barcode,
-            storebox: this.dataItem.storebox,
-            total: this.dataItem.total,
-            display: this.dataItem.display,
-          })
-          this.close();
-          this.itemStatus = 'Added';
-          this.snackbar = true;
+          }
 
         }
+      },
 
-      }
-    },
+      async onDecode(result) {
+        console.log(result);
+        const q = query(collection(db, "inventory"), where("barcode", "==", result));
+        const querySnapshot = await getDocs(q);
 
-    async onDecode(result) {
-      console.log(result);
-      const q = query(collection(db, "inventory"), where("barcode", "==", result));
-      const querySnapshot = await getDocs(q);
+        if (querySnapshot.empty) {
+          this.dialogScan = false;
+          this.dialogScanView = true;
+        } else {
+          querySnapshot.forEach((doc) => {
+            // doc.data() is never undefined for query doc snapshots
+            this.scanStatus = true;
+            this.scanBarcode = "" + doc.data().barcode;
+            this.scanDisplayStocks = "" + doc.data().display;
+            this.scanItemImage =
+            "https://assumptaclinic.com/wp-content/uploads/2022/10/profile-icon-default.jpeg";
+            this.scanItemName = "" + doc.data().itemname;
+            this.scanStorebox = "" + doc.data().storebox;
+            this.scanTotalStocks = "" + doc.data().total;
 
-      if (querySnapshot.empty) {
-        this.dialogScan = false;
-        this.dialogScanView = true;
-      } else {
-        querySnapshot.forEach((doc) => {
-          // doc.data() is never undefined for query doc snapshots
-          this.scanStatus = true;
-          this.scanBarcode = "" + doc.data().barcode;
-          this.scanDisplayStocks = "" + doc.data().display;
-          this.scanItemImage = "https://assumptaclinic.com/wp-content/uploads/2022/10/profile-icon-default.jpeg";
-          this.scanItemName = "" + doc.data().itemname;
-          this.scanStorebox = "" + doc.data().storebox;
-          this.scanTotalStocks = "" + doc.data().total;
+          });
+          this.dialogScan = false;
+          this.dialogScanView = true;
+        }
+      },
 
-        });
-        this.dialogScan = false;
-        this.dialogScanView = true;
-      }
-    },
+      onLoaded(result) {
+        console.log(result)
+      },
 
-    onLoaded(result) {
-      console.log(result)
-    },
+      validate() {
+        this.$refs.form.validate();
+      },
+      resetForm() {
+        this.$refs.form.reset();
+      },
+      getColor(total) {
+        if (total > 400) return 'primary'
+        else if (total > 200) return 'warning'
+        else if (total == null) return ''
+        else return 'error'
+      },
 
-    validate() {
-      this.$refs.form.validate();
+      //upload avatar
+      uploadItemImage(e) {
+      let file = e.target.files[0];
+      const storage = getStorage();
+      const storageRef = ref_storage(storage, 'inventories/' + file.name);
+
+      const uploadTask = uploadBytesResumable(storageRef, file);
+
+      uploadTask.on('state_changed',
+        (snapshot) => {
+          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          this.uploadBtnText = "Uploading: " + progress.toFixed(0) + '%';
+          //this.uploadBtnTextMobile = this.icons.mdiProgressDownload;
+          this.uploadBtnTextMobile = "Uploading: " + progress.toFixed(0) + '%';
+          switch (snapshot.state) {
+            case 'paused':
+              console.log('Upload is paused');
+              break;
+            case 'running':
+              console.log('Upload is running');
+              break;
+          }
+        },
+        (error) => {
+          // Handle unsuccessful uploads
+        },
+        () => {
+          // Handle successful uploads on complete
+          // For instance, get the download URL: https://firebasestorage.googleapis.com/...
+          this.uploadBtnText = 'Uploaded!';
+          //this.uploadBtnTextMobile = this.icons.mdiCheckCircle;
+          this.uploadBtnTextMobile = 'Photo Uploaded';
+          getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+            console.log('File available at', downloadURL);
+            itemImage.value = downloadURL;
+            
+          });
+        }
+      );
     },
-    resetForm() {
-      this.$refs.form.reset();
     },
-    getColor(total) {
-      if (total > 400) return 'primary'
-      else if (total > 200) return 'warning'
-      else if (total == null) return ''
-      else return 'error'
-    },
-  },
-}
+  }
 </script>
 <style scoped>
-tr {
-  text-align: center;
+  tr {
+    text-align: center;
 
 
-}
+  }
 </style>
