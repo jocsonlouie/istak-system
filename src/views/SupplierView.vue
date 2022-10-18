@@ -558,16 +558,15 @@
           columns,
           body: this.items,
           startY: 2.5,
-          styles: {
-            fontSize: 12,
-            cellWidth: 'wrap'
+          // theme: 'grid',
+          styles: {fillColor: [41, 212, 155],
+            textColor: [0, 0, 0], 
+            lineWidth: [0, 0, 0],
+            lineColor: [0, 0, 0]
           },
-          columnStyles:{
-            1: {
-              cellWidth: 'auto'
-            }
-          }
+          margin: { top: 10 },
         });
+        
 
       
         pdf.save('SupplierList.pdf')
