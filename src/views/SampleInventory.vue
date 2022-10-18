@@ -137,9 +137,10 @@
                     <!-- upload photo -->
                     <v-card-text class="d-flex justify-center">
                       <v-avatar rounded size="120" class="me-6">
-                        <v-img :src="itemImage"></v-img>
+                        <v-img :src="itemImage" ></v-img>
+                        
                       </v-avatar>
-
+                     
                       <div>
                         <v-btn color="primary" class="me-3 mt-5" @click="$refs.refInputEl.click();">
                           <v-icon class="d-sm-none">
@@ -453,8 +454,10 @@
       //image
       uploadLoading: false,
       uploadBtnText: "Upload new photo",
-      //uploadBtnTextMobile: this.icons.mdiCloudUploadOutline
-      uploadBtnTextMobile: "Upload"
+      //uploadBtnTextMobile: props.icons.mdiCloudUploadOutline
+      //uploadBtnTextMobile: "Upload"
+      uploadBtnTextMobile: mdiCloudUploadOutline
+      
 
     }),
 
@@ -687,8 +690,9 @@
         (snapshot) => {
           const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
           this.uploadBtnText = "Uploading: " + progress.toFixed(0) + '%';
-          //this.uploadBtnTextMobile = this.icons.mdiProgressDownload;
-          this.uploadBtnTextMobile = "Uploading: " + progress.toFixed(0) + '%';
+          this.uploadBtnTextMobile = mdiProgressDownload;
+          //this.uploadBtnTextMobile = "Uploading: " + progress.toFixed(0) + '%';
+     
           switch (snapshot.state) {
             case 'paused':
               console.log('Upload is paused');
@@ -704,9 +708,10 @@
         () => {
           // Handle successful uploads on complete
           // For instance, get the download URL: https://firebasestorage.googleapis.com/...
-          this.uploadBtnText = 'Uploaded!';
-          //this.uploadBtnTextMobile = this.icons.mdiCheckCircle;
-          this.uploadBtnTextMobile = 'Photo Uploaded';
+          this.uploadBtnText = 'Uploaded Successfully';
+       
+          this.uploadBtnTextMobile = mdiCheckCircle;
+          //this.uploadBtnTextMobile = 'Photo Uploaded';
           getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
             console.log('File available at', downloadURL);
             itemImage.value = downloadURL;
