@@ -67,6 +67,11 @@ const routes = [
     component: () => import('@/views/SupplierView.vue'),
   },
   {
+    path: '/barcode-management',
+    name: 'barcode-management',
+    component: () => import('@/views/BarcodesView.vue'),
+  },
+  {
     path: '/account-settings',
     name: 'account-settings',
     component: () => import('@/views/pages/account-settings/AccountSettings.vue'),
