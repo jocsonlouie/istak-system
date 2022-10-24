@@ -1,5 +1,6 @@
 <template>
   <v-card flat class="pa-3 mt-2">
+    
     <v-card-text class="d-flex">
       <v-avatar rounded size="120" class="me-6">
         <v-img :src="userAvatar"></v-img>
