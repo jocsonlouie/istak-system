@@ -118,7 +118,7 @@
           </v-dialog>
 
           <!-- Add & Edit Item Modal -->
-          <v-dialog v-model="dialog" max-width="500px">
+          <v-dialog v-model="dialog" max-width="900">
             <template v-slot:activator="{ on, attrs }">
               <v-btn color="primary" outlined class="" v-bind="attrs" v-on="on">
                 New Item
@@ -132,64 +132,117 @@
 
               <v-card-text>
                 <v-container>
+
                   <v-form ref="form">
 
-                    <!-- upload photo -->
-                    <v-card-text class="d-flex justify-center">
-                      <v-avatar rounded size="120" class="me-6">
-                        <v-img :src="itemImage" ></v-img>
-                        
-                      </v-avatar>
-                     
-                      <div>
-                        <v-btn color="primary" class="me-3 mt-5" @click="$refs.refInputEl.click();">
-                          <v-icon class="d-sm-none">
-                            {{ uploadBtnTextMobile }}
-                          </v-icon>
-                          <span class="d-none d-sm-block">{{ uploadBtnText }}</span>
-                        </v-btn>
+                    <div class="d-flex  justify-center align-center">
+                      <p class="mr-3 text-subtitle-1">Item Information</p>
+                      <v-divider></v-divider>
+                    </div>
 
-                        <input ref="refInputEl" @change="uploadItemImage" type="file" accept=".jpeg,.png,.jpg,GIF"
-                          :hidden="true" />
+                    <v-row no-gutters class="d-flex justify-center">
+                      <v-col cols="12" sm="3" class="ma-2 align-self-center">
+                        <v-card-text class="d-flex justify-center flex-column align-center mt-2">
+                          <v-avatar rounded size="80" class="">
+                            <v-img :src="itemImage"></v-img>
+                          </v-avatar>
+                          <div class="d-flex justify-center flex-column align-center">
+                            <v-btn color="primary" class="mt-3" small @click="$refs.refInputEl.click();">
+                              <v-icon class="d-sm-none">
+                                {{ uploadBtnTextMobile }}
+                              </v-icon>
+                              <span class="d-none d-sm-block">{{ uploadBtnText }}</span>
+                            </v-btn>
 
-                        <p class="text-sm mt-5">
-                          Allowed JPG, GIF or PNG. Max size of 1MB
-                        </p>
-                      </div>
-                    </v-card-text>
+                            <input ref="refInputEl" @change="uploadItemImage" type="file" accept=".jpeg,.png,.jpg,GIF"
+                              :hidden="true" />
+
+                            <p class="text-caption text-center mt-2">
+                              Allowed JPG, GIF or PNG. Max size of 1MB
+                            </p>
+                          </div>
+                        </v-card-text>
+                      </v-col>
+
+                      <v-col cols="12" sm="4" class="ma-2 align-self-center">
+                        <v-text-field v-model="dataItem.itemname" :rules="itemNameRules" label="Item Name" clearable
+                          required outlined dense>
+                        </v-text-field>
+
+                        <v-text-field v-model="dataItem.barcode" :rules="itemNameRules" label="Barcode" type="number"
+                          clearable outlined dense>
+                        </v-text-field>
+
+                        <v-text-field v-model="dataItem.retail" :rules="itemNameRules" label="Retail Price"
+                          type="number" clearable outlined dense>
+                        </v-text-field>
+                      </v-col>
+
+                      <v-col cols="12" sm="4" class="ma-2 align-self-center">
+                        <v-text-field v-model.number="dataItem.stockunit" :rules="itemNameRules" label="Stock Unit"
+                          clearable outlined dense>
+                        </v-text-field>
+
+                        <v-text-field v-model.number="dataItem.reorderlevel" :rules="itemNameRules"
+                          label="Reorder Level" type="number" clearable outlined dense>
+                        </v-text-field>
+
+                        <v-text-field v-model.number="dataItem.manufacturer" :rules="itemNameRules" label="Manufacturer"
+                          clearable outlined dense>
+                        </v-text-field>
+                      </v-col>
+                    </v-row>
+
+                    <div class="d-flex  justify-center align-center">
+                      <p class="mr-3 text-subtitle-1">Stock Information</p>
+                      <v-divider></v-divider>
+                    </div>
+
+                    <v-row no-gutters class="d-flex justify-center">
+                      <v-col cols="12" sm="3" class="ma-2">
+                        <v-text-field v-model.number="dataItem.availabletotal" label="Quantity" clearable outlined
+                          dense>
+                        </v-text-field>
+                        <v-text-field v-model.number="dataItem.unitcost" label="Unit Cost" clearable outlined dense>
+                        </v-text-field>
+                      </v-col>
+                      <v-col cols="12" sm="3" class="ma-2">
+                        <v-text-field v-model.number="dataItem.display" label="Quantity to Display" clearable outlined
+                          dense>
+                        </v-text-field>
+                        <v-text-field v-model.number="dataItem.totalcost" label="Total Cost" clearable outlined dense disabled>
+                        </v-text-field>
+                      </v-col>
+                      <v-col cols="12" sm="3" class="ma-2">
+                        <v-text-field v-model.number="dataItem.expiry" label="Expiry Date" clearable outlined dense>
+                        </v-text-field>
+                        <v-text-field v-model.number="dataItem.supplier" label="Supplier" clearable outlined dense>
+                        </v-text-field>
+                      </v-col>
+                    </v-row>
 
 
-                    <v-text-field v-model="dataItem.itemname" :rules="itemNameRules" label="Item Name" clearable
-                      required>
-                    </v-text-field>
 
-                    <v-text-field v-model="dataItem.barcode" :rules="itemNameRules" label="Barcode" type="number"
-                      clearable>
-                    </v-text-field>
 
-                    <v-text-field v-model="dataItem.storebox" :rules="itemNameRules" label="Storebox" clearable>
-                    </v-text-field>
 
-                    <v-text-field v-model.number="dataItem.total" :rules="itemNameRules" label="Total Stocks"
-                      type="number" clearable>
-                    </v-text-field>
-
-                    <v-text-field v-model.number="dataItem.display" :rules="itemNameRules" label="Display Stocks"
-                      type="number" clearable>
-                    </v-text-field>
 
                   </v-form>
                 </v-container>
               </v-card-text>
 
               <v-card-actions>
+                <v-btn color="error" @click="openDelete" v-if="showDelete">
+                  Delete</v-btn>
                 <v-spacer></v-spacer>
                 <v-btn color="secondary" @click="close">
                   Cancel
                 </v-btn>
                 <v-btn color="primary" @click="save">
                   Save</v-btn>
+                
+
               </v-card-actions>
+
             </v-card>
           </v-dialog>
           <!-- Round buttons -->
@@ -238,17 +291,17 @@
       </template>
 
       <template v-slot:item.total="{ item }" class="text-center">
-        <v-chip :color="getColor(item.total)" dark>
+        <v-chip :color="getColor(item.availabletotal, item.reorderlevel)" dark>
           {{ item.total }}
         </v-chip>
       </template>
 
-      
+
       <template v-slot:item.image="{ item }" class="text-center">
         <v-avatar rounded size="50" class="ma-2">
-                <v-img :src="item.image"></v-img>
+          <v-img :src="item.image"></v-img>
         </v-avatar>
-        
+
       </template>
 
 
@@ -258,9 +311,9 @@
           <v-btn color="primary" elevation="2" class="mr-2" fab x-small outlined @click="editItem(item)">
             <v-icon>{{ editIcon }}</v-icon>
           </v-btn>
-          <v-btn color="error" elevation="2" class="" fab x-small @click="deleteItem(item)">
+          <!-- <v-btn color="error" elevation="2" class="" fab x-small @click="deleteItem(item)">
             <v-icon>{{ deleteIcon }}</v-icon>
-          </v-btn>
+          </v-btn> -->
           <!-- <v-btn color="secondary" elevation="0" class="" x-small outlined>
             <v-icon class="mx-n16">{{ moreIcon }}</v-icon>
             
@@ -297,7 +350,10 @@
     mdiBarcodeScan,
     mdiPlus,
 
-    mdiAlertOutline, mdiCloudUploadOutline, mdiCheckCircle, mdiProgressDownload
+    mdiAlertOutline,
+    mdiCloudUploadOutline,
+    mdiCheckCircle,
+    mdiProgressDownload
   } from '@mdi/js'
 
   // crud imports
@@ -308,7 +364,6 @@
   } from "vue-barcode-reader";
   import {
     addDoc,
-    setDoc,
     getDocs,
     doc,
     deleteDoc,
@@ -320,13 +375,23 @@
 
   } from '@firebase/firestore';
 
-  
+
   const inventoryColRef = collection(db, "inventory");
 
   //upload image imports
-  import { ref, onMounted } from '@vue/composition-api';
-  import { getStorage, uploadBytes, ref as ref_storage, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+  import {
+    ref,
+    onMounted
+  } from '@vue/composition-api';
+  import {
+    getStorage,
+    uploadBytes,
+    ref as ref_storage,
+    uploadBytesResumable,
+    getDownloadURL
+  } from "firebase/storage";
   const itemImage = ref('https://assumptaclinic.com/wp-content/uploads/2022/10/default-assumpta.jpg');
+  const overallCost = ref(100)
 
   export default {
     components: {
@@ -367,11 +432,10 @@
       selected: [],
       expanded: [],
       singleExpand: false,
-
+      
 
       // table header data
-      headers: [
-        {
+      headers: [{
           text: 'Image',
           align: 'start',
           value: 'image',
@@ -386,20 +450,25 @@
           value: 'barcode'
         },
         {
-          text: 'Storebox',
+          text: 'Retail Price',
           sortable: true,
-          value: 'storebox'
+          value: 'retail'
         },
         {
-          text: 'Total Stocks',
+          text: 'Available/Total Stocks',
           sortable: true,
-          value: 'total'
+          value: 'availabletotal'
         },
         {
-          text: 'Display Stocks',
+          text: 'On Display',
           sortable: true,
           value: 'display'
         },
+        // {
+        //   text: 'Item Status', //expired stocks?
+        //   sortable: true,
+        //   value: 'itemstatus'
+        // },
         {
           text: 'Actions',
           value: 'actions',
@@ -413,17 +482,33 @@
         image: itemImage.value,
         itemname: '',
         barcode: '',
-        storebox: '',
-        total: 0,
+        retail: '',
+        stockunit: '',
+        reorderlevel: '',
+        manufacturer: '',
+
+        availabletotal: 0,
+        unitcost: 0,
         display: 0,
+        totalcost: overallCost.value,
+        expiry: 'na',
+        supplier: 'na',
       },
       defaultItem: {
         image: itemImage.value,
         itemname: '',
         barcode: '',
-        storebox: '',
-        total: 0,
+        retail: '',
+        stockunit: '',
+        reorderlevel: '',
+        manufacturer: '',
+
+        availabletotal: 0,
+        unitcost: 0,
         display: 0,
+        totalcost: overallCost.value,
+        expiry: 'na',
+        supplier: 'na',
       },
 
       // add item
@@ -431,9 +516,17 @@
         image: itemImage.value,
         itemname: '',
         barcode: '',
-        storebox: '',
-        total: '',
-        display: '',
+        retail: '',
+        stockunit: '',
+        reorderlevel: '',
+        manufacturer: '',
+
+        availabletotal: 0,
+        unitcost: 0,
+        display: 0,
+        totalcost: overallCost.value,
+        expiry: 'na',
+        supplier: 'na',
       },
 
       //rules
@@ -456,35 +549,38 @@
       uploadBtnText: "Upload new photo",
       //uploadBtnTextMobile: props.icons.mdiCloudUploadOutline
       //uploadBtnTextMobile: "Upload"
-      uploadBtnTextMobile: mdiCloudUploadOutline
-      
+      uploadBtnTextMobile: mdiCloudUploadOutline,
 
+      //show delete button
+      showDelete: false,
+
+     
     }),
 
     props: {
       accountData: {
         type: Object,
-        default: () => { },
+        default: () => {},
       },
     },
 
     setup(props) {
       return {
-      // status,
-      // userRole,
-      // userEmail,
-       itemImage,
-      // userFName,
-      // accountDataLocale,
-      // userVerified,
-      // resetForm,
-      icons: {
-        mdiAlertOutline,
-        mdiCloudUploadOutline,
-        mdiCheckCircle,
-        mdiProgressDownload,
-      },
-    }
+        // status,
+        // userRole,
+        // userEmail,
+        itemImage,
+        // userFName,
+        // accountDataLocale,
+        // userVerified,
+        // resetForm,
+        icons: {
+          mdiAlertOutline,
+          mdiCloudUploadOutline,
+          mdiCheckCircle,
+          mdiProgressDownload,
+        },
+      }
     },
     computed: {
       // to change modal to add or edit
@@ -537,17 +633,14 @@
           this.itemId = this.dataItem.id;
           this.docRef = doc(inventoryColRef, this.itemId);
           itemImage.value = this.dataItem.image;
-
+          this.showDelete = true;
         }
         this.dialog = true
       },
 
-      // delete function
-      async deleteItem(item) {
-        this.dataItem = Object.assign({}, item);
-        this.itemId = this.dataItem.id;
-        this.docRef = doc(inventoryColRef, this.itemId);
+      openDelete(){
         this.dialogDelete = true;
+
       },
 
       async deleteItemConfirm() {
@@ -557,7 +650,25 @@
         this.itemStatus = 'Deleted';
         this.snackbar = true;
         this.resetForm();
+        this.dialog = false;
       },
+
+      // delete function
+      // async deleteItem(item) {
+      //   this.dataItem = Object.assign({}, item);
+      //   this.itemId = this.dataItem.id;
+      //   this.docRef = doc(inventoryColRef, this.itemId);
+      //   this.dialogDelete = true;
+      // },
+
+      // async deleteItemConfirm() {
+      //   this.items.splice(this.itemIndex, 1);
+      //   await deleteDoc(this.docRef);
+      //   this.closeDelete();
+      //   this.itemStatus = 'Deleted';
+      //   this.snackbar = true;
+      //   this.resetForm();
+      // },
 
       // close function for edit and add
       close() {
@@ -568,6 +679,7 @@
           this.itemIndex = -1
         })
         itemImage.value = 'https://assumptaclinic.com/wp-content/uploads/2022/10/default-assumpta.jpg';
+        this.showDelete = false;
       },
 
       // close function for delete
@@ -600,12 +712,26 @@
           // edit function
           if (this.$refs.form.validate()) {
             await updateDoc(this.docRef, {
+              // image: itemImage.value,
+              // itemname: this.dataItem.itemname,
+              // barcode: this.dataItem.barcode,
+              // storebox: this.dataItem.storebox,
+              // total: this.dataItem.total,
+              // display: this.dataItem.display,
               image: itemImage.value,
               itemname: this.dataItem.itemname,
               barcode: this.dataItem.barcode,
-              storebox: this.dataItem.storebox,
-              total: this.dataItem.total,
+              retail: this.dataItem.retail,
+              stockunit: this.dataItem.stockunit,
+              reorderlevel: this.dataItem.reorderlevel,
+              manufacturer: this.dataItem.manufacturer,
+
+              availabletotal: this.dataItem.availabletotal,
+              unitcost: this.dataItem.unitcost,
               display: this.dataItem.display,
+              totalcost: this.dataItem.totalcost,
+              expiry: this.dataItem.expiry,
+              supplier: this.dataItem.supplier,
             })
             // await setDoc(this.docRef, this.dataItem);
             this.close();
@@ -619,12 +745,26 @@
             // const addedDoc = await addDoc(inventoryColRef, this.$data.dataItem);
             console.log(itemImage.value);
             await addDoc(inventoryColRef, {
+              // image: itemImage.value,
+              // itemname: this.dataItem.itemname,
+              // barcode: this.dataItem.barcode,
+              // storebox: this.dataItem.storebox,
+              // total: this.dataItem.total,
+              // display: this.dataItem.display,
               image: itemImage.value,
               itemname: this.dataItem.itemname,
               barcode: this.dataItem.barcode,
-              storebox: this.dataItem.storebox,
-              total: this.dataItem.total,
+              retail: this.dataItem.retail,
+              stockunit: this.dataItem.stockunit,
+              reorderlevel: this.dataItem.reorderlevel,
+              manufacturer: this.dataItem.manufacturer,
+
+              availabletotal: this.dataItem.availabletotal,
+              unitcost: this.dataItem.unitcost,
               display: this.dataItem.display,
+              totalcost: this.dataItem.totalcost,
+              expiry: this.dataItem.expiry,
+              supplier: this.dataItem.supplier,
             })
             this.close();
             this.itemStatus = 'Added';
@@ -650,7 +790,7 @@
             this.scanBarcode = "" + doc.data().barcode;
             this.scanDisplayStocks = "" + doc.data().display;
             this.scanItemImage =
-            "https://assumptaclinic.com/wp-content/uploads/2022/10/profile-icon-default.jpeg";
+              "https://assumptaclinic.com/wp-content/uploads/2022/10/profile-icon-default.jpeg";
             this.scanItemName = "" + doc.data().itemname;
             this.scanStorebox = "" + doc.data().storebox;
             this.scanTotalStocks = "" + doc.data().total;
@@ -671,55 +811,55 @@
       resetForm() {
         this.$refs.form.reset();
       },
-      getColor(total) {
-        if (total > 400) return 'primary'
-        else if (total > 200) return 'warning'
+      getColor(total, reorder) {
+        if (total > reorder) return 'primary'
+        else if (total < reorder) return 'error'
         else if (total == null) return ''
         else return 'error'
       },
 
       //upload avatar
       uploadItemImage(e) {
-      let file = e.target.files[0];
-      const storage = getStorage();
-      const storageRef = ref_storage(storage, 'inventories/' + file.name);
+        let file = e.target.files[0];
+        const storage = getStorage();
+        const storageRef = ref_storage(storage, 'inventories/' + file.name);
 
-      const uploadTask = uploadBytesResumable(storageRef, file);
+        const uploadTask = uploadBytesResumable(storageRef, file);
 
-      uploadTask.on('state_changed',
-        (snapshot) => {
-          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          this.uploadBtnText = "Uploading: " + progress.toFixed(0) + '%';
-          this.uploadBtnTextMobile = mdiProgressDownload;
-          //this.uploadBtnTextMobile = "Uploading: " + progress.toFixed(0) + '%';
-     
-          switch (snapshot.state) {
-            case 'paused':
-              console.log('Upload is paused');
-              break;
-            case 'running':
-              console.log('Upload is running');
-              break;
+        uploadTask.on('state_changed',
+          (snapshot) => {
+            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            this.uploadBtnText = "Uploading: " + progress.toFixed(0) + '%';
+            this.uploadBtnTextMobile = mdiProgressDownload;
+            //this.uploadBtnTextMobile = "Uploading: " + progress.toFixed(0) + '%';
+
+            switch (snapshot.state) {
+              case 'paused':
+                console.log('Upload is paused');
+                break;
+              case 'running':
+                console.log('Upload is running');
+                break;
+            }
+          },
+          (error) => {
+            // Handle unsuccessful uploads
+          },
+          () => {
+            // Handle successful uploads on complete
+            // For instance, get the download URL: https://firebasestorage.googleapis.com/...
+            this.uploadBtnText = 'Uploaded Successfully';
+
+            this.uploadBtnTextMobile = mdiCheckCircle;
+            //this.uploadBtnTextMobile = 'Photo Uploaded';
+            getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+              console.log('File available at', downloadURL);
+              itemImage.value = downloadURL;
+
+            });
           }
-        },
-        (error) => {
-          // Handle unsuccessful uploads
-        },
-        () => {
-          // Handle successful uploads on complete
-          // For instance, get the download URL: https://firebasestorage.googleapis.com/...
-          this.uploadBtnText = 'Uploaded Successfully';
-       
-          this.uploadBtnTextMobile = mdiCheckCircle;
-          //this.uploadBtnTextMobile = 'Photo Uploaded';
-          getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-            console.log('File available at', downloadURL);
-            itemImage.value = downloadURL;
-            
-          });
-        }
-      );
-    },
+        );
+      },
     },
   }
 </script>
