@@ -97,8 +97,16 @@
 import db from '@/fb';
 import { mdiGoogle, mdiEyeOutline, mdiEyeOffOutline } from '@mdi/js'
 import { onMounted, ref } from '@vue/composition-api'
-import { getAuth, GoogleAuthProvider, createUserWithEmailAndPassword, signInWithPopup } from "firebase/auth";
+import { getAuth, GoogleAuthProvider, createUserWithEmailAndPassword, signInWithPopup, onAuthStateChanged } from "firebase/auth";
+import {
+  getDocs,
+  collection,
+  where,
+  query,
+  doc,
+  setDoc
 
+} from '@firebase/firestore';
 const isPasswordVisible = ref(false)
 const email = ref('')
 const password = ref('')
@@ -112,6 +120,28 @@ export default {
     text: errMsg.value,
     timeout: 3000,
   }),
+
+  beforeCreate() {
+    let auth = getAuth();
+
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        // console.log(user.uid)
+        const q = query(collection(db, "users"));
+        const querySnapshot = await getDocs(q);
+        querySnapshot.forEach((doc) => {
+          // doc.data() is never undefined for query doc snapshots
+          // console.log(doc.data().email);
+          if (user.uid === doc.id) {
+            if (doc.data().role !== "Inventory Admin") {
+              alert("No Access: Must be admin to access this page.");
+              this.$router.push('/dashboard');
+            };
+          }
+        });
+      }
+    });
+  },
   setup() {
 
     const socialLink = [

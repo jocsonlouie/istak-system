@@ -46,7 +46,7 @@
       </v-list-item>
 
       <!-- Settings -->
-      <v-list-item link>
+      <v-list-item link to="/account-settings">
         <v-list-item-icon class="me-2">
           <v-icon size="22">
             {{ icons.mdiCogOutline }}
@@ -117,13 +117,12 @@ export default {
           // userDisplayName.value = user.displayName;
           // userPhoto.value = user.photoURL;
           // console.log(userPhoto.value);
-
+          // console.log(user)
           const q = query(collection(db, "users"));
           const querySnapshot = await getDocs(q);
           querySnapshot.forEach((doc) => {
             // doc.data() is never undefined for query doc snapshots
             // console.log(doc.data().email);
-            console.log(doc.id, user.uid)
             if (user.uid === doc.id) {
               userDisplayName.value = doc.data().name;
               userPhoto.value = doc.data().avatar;
