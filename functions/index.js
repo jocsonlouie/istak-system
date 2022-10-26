@@ -5,8 +5,8 @@ admin.initializeApp();
 exports.newUserSignUp = functions.auth.user().onCreate((user) => {
     return admin.firestore().collection("users").doc(user.uid).set({
         email: user.email,
-        name: "Clinic",
-        avatar: "https://assumptaclinic.com/wp-content/uploads/2022/10/default-assumpta.jpg",
+        name: user.displayName !== null ? user.displayName : "Clinic",
+        avatar: user.photoURL !== null ? user.photoURL : "https://assumptaclinic.com/wp-content/uploads/2022/10/profile-icon-default.jpeg",
         role: "Non-Inventory Staff"
     });
 });

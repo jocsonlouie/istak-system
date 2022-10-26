@@ -20,6 +20,7 @@ const routes = [
     meta: {
       layout: 'blank',
       requiresAuth: true,
+      requiresAdmin: true,
     },
   },
   {
