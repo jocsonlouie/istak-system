@@ -200,8 +200,8 @@
 
                     <v-row no-gutters class="d-flex justify-center">
                       <v-col cols="12" sm="3" class="ma-2">
-                        <v-text-field v-model.number="dataItem.available" label="Quantity (excluding display)" clearable outlined
-                          dense> 
+                        <v-text-field v-model.number="dataItem.available" label="Quantity (excluding display)" clearable
+                          outlined dense>
                         </v-text-field>
                         <v-text-field v-model.number="dataItem.unitcost" label="Unit Cost" clearable outlined dense>
                         </v-text-field>
@@ -239,7 +239,7 @@
                 </v-btn>
                 <v-btn color="primary" @click="save">
                   Save</v-btn>
-                
+
 
               </v-card-actions>
 
@@ -290,9 +290,12 @@
         </v-toolbar>
       </template>
 
-      <template v-slot:item.total="{ item }" class="text-center">
-        <v-chip :color="getColor(item.available, item.reorderlevel)" dark>
-          {{ item.total }}
+      <template v-slot:item.totalstocks="{ item }" class="text-center">
+        <v-chip :color="getColor(item.totalstocks, item.reorderlevel)" dark>
+          <v-icon left color="white">
+           {{ numberIcon }}
+          </v-icon>
+          {{ item.totalstocks }}
         </v-chip>
       </template>
 
@@ -310,6 +313,9 @@
         <div class="d-flex flex-row align-center">
           <v-btn color="primary" elevation="2" class="mr-2" fab x-small outlined @click="editItem(item)">
             <v-icon>{{ editIcon }}</v-icon>
+          </v-btn>
+          <v-btn color="primary" elevation="2" class="mr-2" fab x-small >
+            <v-icon>{{ consumeIcon }}</v-icon>
           </v-btn>
           <!-- <v-btn color="error" elevation="2" class="" fab x-small @click="deleteItem(item)">
             <v-icon>{{ deleteIcon }}</v-icon>
@@ -349,11 +355,12 @@
     mdiDotsVertical,
     mdiBarcodeScan,
     mdiPlus,
-
+    mdiHandHeart,
+    mdiCircle,
     mdiAlertOutline,
     mdiCloudUploadOutline,
     mdiCheckCircle,
-    mdiProgressDownload
+    mdiProgressDownload,
   } from '@mdi/js'
 
   // crud imports
@@ -391,7 +398,7 @@
     getDownloadURL
   } from "firebase/storage";
   const itemImage = ref('https://assumptaclinic.com/wp-content/uploads/2022/10/default-assumpta.jpg');
-  
+
   export default {
     components: {
       StreamBarcodeReader
@@ -408,6 +415,8 @@
       moreIcon: mdiDotsVertical,
       barcodeIcon: mdiBarcodeScan,
       plusIcon: mdiPlus,
+      numberIcon: mdiCircle,
+      consumeIcon: mdiHandHeart,
 
       // modal data
       dialog: false,
@@ -431,7 +440,7 @@
       selected: [],
       expanded: [],
       singleExpand: false,
-      
+
 
       // table header data
       headers: [{
@@ -561,7 +570,7 @@
       //show delete button
       showDelete: false,
 
-     
+
     }),
 
     props: {
@@ -645,7 +654,7 @@
         this.dialog = true
       },
 
-      openDelete(){
+      openDelete() {
         this.dialogDelete = true;
 
       },
@@ -820,10 +829,9 @@
       resetForm() {
         this.$refs.form.reset();
       },
-      getColor(total, reorder) {
-        if (total > reorder) return 'primary'
-        else if (total < reorder) return 'error'
-        else if (total == null) return ''
+      getColor(totalstocks, reorderlevel) {
+        if (totalstocks > reorderlevel) return 'primary'
+        else if (totalstocks == null) return ''
         else return 'error'
       },
 
