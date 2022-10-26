@@ -1,6 +1,6 @@
 <template>
   <v-fade-transition mode="out-in">
-    <v-icon :key="toggle_dark_mode" @click="toggle_dark_mode">
+    <v-icon :key="this.$vuetify.theme.dark" @click="toggle_dark_mode">
       {{ this.$vuetify.theme.dark ? icons.mdiWeatherSunny : icons.mdiWeatherNight }}
     </v-icon>
   </v-fade-transition>
