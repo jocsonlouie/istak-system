@@ -200,8 +200,8 @@
 
                     <v-row no-gutters class="d-flex justify-center">
                       <v-col cols="12" sm="3" class="ma-2">
-                        <v-text-field v-model.number="dataItem.availabletotal" label="Quantity" clearable outlined
-                          dense>
+                        <v-text-field v-model.number="dataItem.available" label="Quantity (excluding display)" clearable outlined
+                          dense> 
                         </v-text-field>
                         <v-text-field v-model.number="dataItem.unitcost" label="Unit Cost" clearable outlined dense>
                         </v-text-field>
@@ -210,7 +210,7 @@
                         <v-text-field v-model.number="dataItem.display" label="Quantity to Display" clearable outlined
                           dense>
                         </v-text-field>
-                        <v-text-field v-model.number="dataItem.totalcost" label="Total Cost" clearable outlined dense disabled>
+                        <v-text-field v-model.number="dataItem.totalcost" label="Total Cost" clearable outlined dense>
                         </v-text-field>
                       </v-col>
                       <v-col cols="12" sm="3" class="ma-2">
@@ -291,7 +291,7 @@
       </template>
 
       <template v-slot:item.total="{ item }" class="text-center">
-        <v-chip :color="getColor(item.availabletotal, item.reorderlevel)" dark>
+        <v-chip :color="getColor(item.available, item.reorderlevel)" dark>
           {{ item.total }}
         </v-chip>
       </template>
@@ -391,8 +391,7 @@
     getDownloadURL
   } from "firebase/storage";
   const itemImage = ref('https://assumptaclinic.com/wp-content/uploads/2022/10/default-assumpta.jpg');
-  const overallCost = ref(100)
-
+  
   export default {
     components: {
       StreamBarcodeReader
@@ -455,14 +454,19 @@
           value: 'retail'
         },
         {
-          text: 'Available/Total Stocks',
+          text: 'Available Stocks',
           sortable: true,
-          value: 'availabletotal'
+          value: 'available'
         },
         {
           text: 'On Display',
           sortable: true,
           value: 'display'
+        },
+        {
+          text: 'Total Stocks',
+          sortable: true,
+          value: 'totalstocks'
         },
         // {
         //   text: 'Item Status', //expired stocks?
@@ -487,10 +491,11 @@
         reorderlevel: '',
         manufacturer: '',
 
-        availabletotal: 0,
+        available: 0,
         unitcost: 0,
         display: 0,
-        totalcost: overallCost.value,
+        totalstocks: 0,
+        totalcost: 0,
         expiry: 'na',
         supplier: 'na',
       },
@@ -503,10 +508,11 @@
         reorderlevel: '',
         manufacturer: '',
 
-        availabletotal: 0,
+        available: 0,
         unitcost: 0,
         display: 0,
-        totalcost: overallCost.value,
+        totalstocks: 0,
+        totalcost: 0,
         expiry: 'na',
         supplier: 'na',
       },
@@ -521,10 +527,11 @@
         reorderlevel: '',
         manufacturer: '',
 
-        availabletotal: 0,
+        available: 0,
         unitcost: 0,
         display: 0,
-        totalcost: overallCost.value,
+        totalstocks: 0,
+        totalcost: 0,
         expiry: 'na',
         supplier: 'na',
       },
@@ -726,9 +733,10 @@
               reorderlevel: this.dataItem.reorderlevel,
               manufacturer: this.dataItem.manufacturer,
 
-              availabletotal: this.dataItem.availabletotal,
+              available: this.dataItem.available,
               unitcost: this.dataItem.unitcost,
               display: this.dataItem.display,
+              totalstocks: this.dataItem.available + this.dataItem.display,
               totalcost: this.dataItem.totalcost,
               expiry: this.dataItem.expiry,
               supplier: this.dataItem.supplier,
@@ -759,9 +767,10 @@
               reorderlevel: this.dataItem.reorderlevel,
               manufacturer: this.dataItem.manufacturer,
 
-              availabletotal: this.dataItem.availabletotal,
+              available: this.dataItem.available,
               unitcost: this.dataItem.unitcost,
               display: this.dataItem.display,
+              totalstocks: this.dataItem.available + this.dataItem.display,
               totalcost: this.dataItem.totalcost,
               expiry: this.dataItem.expiry,
               supplier: this.dataItem.supplier,
