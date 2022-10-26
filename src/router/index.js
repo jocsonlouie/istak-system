@@ -63,6 +63,11 @@ const routes = [
     component: () => import('@/views/SampleInventory.vue'),
   },
   {
+    path: '/custom-inventory',
+    name: 'CustomInventory',
+    component: () => import('@/views/CustomInventoryView.vue'),
+  },
+  {
     path: '/supplier-list',
     name: 'SupplierList',
     component: () => import('@/views/SupplierView.vue'),

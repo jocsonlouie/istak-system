@@ -2,7 +2,7 @@
     <div class="d-flex justify-center flex-column w-screen">
         <div class="upper-btns mb-5 d-flex">
             <v-row no-gutters class="d-flex justify-center align-center">
-                <v-col cols="12" sm="5" md="2" class="ma-1">
+                <v-col cols="12" sm="5" md="2" class="pa-1">
                     <v-dialog v-model="scanDialog" persistent max-width="500">
                         <template v-slot:activator="{ on, attrs }">
                             <v-card class=" bg-white d-flex justify-center align-center flex-column" height="200"
@@ -93,7 +93,7 @@
                     </v-dialog>
 
                 </v-col>
-                <v-col cols="12" sm="5" md="2" class="ma-1">
+                <v-col cols="12" sm="5" md="2" class="pa-1">
                     <v-dialog v-model="generateDialog" persistent max-width="500">
                         <template v-slot:activator="{ on, attrs }">
                             <v-card class=" bg-white d-flex justify-center align-center flex-column" height="200"
@@ -113,7 +113,7 @@
                         </v-card>
                     </v-dialog>
                 </v-col>
-                <v-col cols="12" sm="4" md="2" class="ma-1 ">
+                <v-col cols="12" sm="4" md="2" class="pa-1 ">
                     <v-card class="d-flex justify-center mb-2" height="95">
                         <v-row no-gutters class="pa-2 text-center text-sm-start">
                             <v-col cols="12" xs="1" sm="3" md="3" class="d-flex justify-center flex-column">
@@ -142,7 +142,7 @@
 
 
                 </v-col>
-                <v-col cols="12" sm="6" md="5" class="ma-1">
+                <v-col cols="12" sm="6" md="6" class="pa-1">
                     <v-card class=" bg-white d-flex flex-column pa-4" height="200">
                         <p>Barcode Transactions per day</p>
 
