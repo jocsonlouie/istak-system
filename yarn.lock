@@ -3499,6 +3499,11 @@
     "browserslist" "^4.16.7"
     "semver" "7.0.0"
 
+"core-js@^2.6.5":
+  "integrity" "sha512-Kb2wC0fvsWfQrgk8HU5lW6U/Lcs8+9aaYcy4ZFc6DDlo4nZ7n70dEgE5rtR0oG6ufKDUnrwfWL1mXR5ljDatrQ=="
+  "resolved" "https://registry.npmjs.org/core-js/-/core-js-2.6.12.tgz"
+  "version" "2.6.12"
+
 "core-js@^3.6.0", "core-js@^3.6.5", "core-js@^3.8.3":
   "integrity" "sha512-AAkP8i35EbefU+JddyWi12AWE9f2N/qr/pwnDtWz4nyUIBGMJPX99ANFFRSw6FefM374lDujdtLDyhN2A/btHw=="
   "resolved" "https://registry.npmjs.org/core-js/-/core-js-3.16.1.tgz"
@@ -8382,6 +8387,11 @@
     "unicode-match-property-ecmascript" "^1.0.4"
     "unicode-match-property-value-ecmascript" "^1.2.0"
 
+"register-service-worker@^1.6.2":
+  "integrity" "sha512-CiD3ZSanZqcMPRhtfct5K9f7i3OLCcBBWsJjLh1gW9RO/nS94sVzY59iS+fgYBOBqaBpf4EzfqUF3j9IG+xo8A=="
+  "resolved" "https://registry.npmjs.org/register-service-worker/-/register-service-worker-1.7.2.tgz"
+  "version" "1.7.2"
+
 "regjsgen@^0.5.1":
   "integrity" "sha512-OFFT3MfrH90xIW8OOSyUrk6QHD5E9JOTeGodiJeBS3J6IwlgzJMNE/1bZklWz5oTg+9dCMyEetclvCVXOPoN3A=="
   "resolved" "https://registry.npmjs.org/regjsgen/-/regjsgen-0.5.2.tgz"
@@ -10038,7 +10048,18 @@
     "vue-hot-reload-api" "^2.3.0"
     "vue-style-loader" "^4.1.0"
 
-"vue-router@^3.2.0":
+"vue-media-recorder@^0.1.25":
+  "integrity" "sha512-5rrml+FeVgbBdv2x/3WqrNaD9QTq7O9ZugXjbN7DQtvUCzyZo4s9Fvze2QmMmEY0I+KcwQb1Eq5mp6Jn4rD23g=="
+  "resolved" "https://registry.npmjs.org/vue-media-recorder/-/vue-media-recorder-0.1.25.tgz"
+  "version" "0.1.25"
+  dependencies:
+    "core-js" "^2.6.5"
+    "register-service-worker" "^1.6.2"
+    "vue" "^2.6.10"
+    "vue-router" "^3.0.3"
+    "vuex" "^3.0.1"
+
+"vue-router@^3.0.3", "vue-router@^3.2.0":
   "integrity" "sha512-807gn82hTnjCYGrnF3eNmIw/dk7/GE4B5h69BlyCK9KHASwSloD1Sjcn06zg9fVG4fYH2DrsNBZkpLtb25WtaQ=="
   "resolved" "https://registry.npmjs.org/vue-router/-/vue-router-3.5.2.tgz"
   "version" "3.5.2"
@@ -10064,7 +10085,7 @@
   "resolved" "https://registry.npmjs.org/vue-template-es2015-compiler/-/vue-template-es2015-compiler-1.9.1.tgz"
   "version" "1.9.1"
 
-"vue@^2 || ^3.0.0-0", "vue@^2.0.0", "vue@^2.6.11", "vue@^2.6.4", "vue@>= 2.5 < 2.7":
+"vue@^2 || ^3.0.0-0", "vue@^2.0.0", "vue@^2.6.10", "vue@^2.6.11", "vue@^2.6.4", "vue@>= 2.5 < 2.7":
   "integrity" "sha512-x2284lgYvjOMj3Za7kqzRcUSxBboHqtgRE2zlos1qWaOye5yUmHn42LB1250NJBLRwEcdrB0JRwyPTEPhfQjiQ=="
   "resolved" "https://registry.npmjs.org/vue/-/vue-2.6.14.tgz"
   "version" "2.6.14"
@@ -10083,7 +10104,7 @@
   "resolved" "https://registry.npmjs.org/vuetify/-/vuetify-2.5.8.tgz"
   "version" "2.5.8"
 
-"vuex@^3.4.0":
+"vuex@^3.0.1", "vuex@^3.4.0":
   "integrity" "sha512-ETW44IqCgBpVomy520DT5jf8n0zoCac+sxWnn+hMe/CzaSejb/eVw2YToiXYX+Ex/AuHHia28vWTq4goAexFbw=="
   "resolved" "https://registry.npmjs.org/vuex/-/vuex-3.6.2.tgz"
   "version" "3.6.2"
