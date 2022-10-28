@@ -32,41 +32,18 @@
 
                     <!-- Update Inventory -->
                     <v-dialog v-model="updateDialog" persistent max-width="500">
-
-                          <!-- Update inventory -->
                           <v-card class="d-flex justify-center flex-column pa-md-10">
                             <v-chip color="primary" class="d-flex justify-center font-weight-bold text-h6 pa-5 mb-4">Update
                                 Inventory
                             </v-chip>
-                            <v-text-field label="Inventory Name" :rules="fieldRules" clearable filled hint="Enter New Inventory Name"></v-text-field>
+                            <v-text-field :rules="fieldRules" clearable filled hint="Enter New Inventory Name"></v-text-field>
 
                             <v-card-actions class="mx-auto">
                                 <v-spacer></v-spacer>
                                 <v-btn color="secondary" @click="updateDialog = false">
                                     Cancel
                                 </v-btn>
-                                <v-btn color="primary">
-                                    Update</v-btn>
-
-                            </v-card-actions>
-                        </v-card>
-
-                    </v-dialog>
-
-                     <!-- Update Inventory -->
-                    <v-dialog v-model="updateDialog" persistent max-width="500">
-                          <v-card class="d-flex justify-center flex-column pa-md-10">
-                            <v-chip color="primary" class="d-flex justify-center font-weight-bold text-h6 pa-5 mb-4">Update
-                                Inventory
-                            </v-chip>
-                            <v-text-field label="Inventory Name" :rules="fieldRules" clearable filled hint="Enter New Inventory Name"></v-text-field>
-
-                            <v-card-actions class="mx-auto">
-                                <v-spacer></v-spacer>
-                                <v-btn color="secondary" @click="updateDialog = false">
-                                    Cancel
-                                </v-btn>
-                                <v-btn color="primary">
+                                <v-btn color="primary" @click="updateDialog = false">
                                     Update</v-btn>
 
                             </v-card-actions>
@@ -75,18 +52,16 @@
                     </v-dialog>
 
                       <!-- Delete Inventory-->
-                      <v-dialog v-model="updateDialog" persistent max-width="500">
+                      <v-dialog v-model="deleteDialog" persistent max-width="500">
                         <v-card class="d-flex justify-center flex-column pa-md-10">
-                            <v-chip color="primary" class="d-flex justify-center font-weight-bold text-h6 pa-5 mb-4">Are you sure you want
-                                to DELETE 
-                            </v-chip>
+                            <p class="text-h10">Are you sure you want to DELETE 'Vaccines' Inventory</p>
                             <v-card-actions class="mx-auto">
                                 <v-spacer></v-spacer>
-                                <v-btn color="secondary" @click="updateDialog = false">
+                                <v-btn color="secondary" @click="deleteDialog = false">
                                     Cancel
                                 </v-btn>
-                                <v-btn color="primary">
-                                    Update</v-btn>
+                                <v-btn color="primary"  @click="deleteDialog = false">
+                                Delete</v-btn>
 
                             </v-card-actions>
                         </v-card>
@@ -165,15 +140,15 @@
         <div class="inventories">
             <v-row no-gutters class="d-flex justify-center align-center">
                 <v-col cols="13" sm="5" md="3" class="pa-1" v-for="inventory in inventories" :key="inventory.name">
-                    <v-card class=" bg-white d-flex justify-center flex-column pa-4 " height="200"  @click="gotoInventory">
-                        <div class="justify-end d-flex mt-4 " >
-                            <v-btn color="error"  fab outlined  x-small class="mr-1">
+                    <div class="justify-end d-flex mt-4 " >
+                            <v-btn color="error"  fab outlined  x-small class="mr-1"  @click="deleteDialog = !deleteDialog">
                                 <v-icon>{{ deleteIcon }}</v-icon>
                             </v-btn>
-                            <v-btn color="primary" fab outlined x-small>
+                            <v-btn color="primary" fab outlined x-small @click="updateDialog = !updateDialog">
                                 <v-icon>{{ editIcon }}</v-icon>
                             </v-btn>
                         </div>
+                    <v-card class=" bg-white d-flex justify-center flex-column pa-4 " height="200"  @click="gotoInventory">
                         <div class="d-flex justify-center flex-column text-center py-10">
                             <p class="text-subtitle-1">{{ inventory.name }}</p>
                         </div>
@@ -203,6 +178,8 @@
     export default {
         data: () => ({
             addDialog: false,
+            updateDialog: false,
+            deleteDialog: false,
 
             valid: true,
             fieldRules: [
@@ -219,7 +196,7 @@
             editIcon: mdiPencil,
             
             //modal
-            updateDialog: false,
+          
 
             //inventories
             inventories: [{
