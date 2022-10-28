@@ -539,6 +539,12 @@ export default {
         }
     },
 
+    methods: {
+
+        onLoaded(result) {
+        console.log(result)
+      },
+
     //upload avatar
     uploadItemImage(e) {
         let file = e.target.files[0];
@@ -580,6 +586,7 @@ export default {
         );
     },
 
+    }
 }
 </script>
 <style>
