@@ -51,8 +51,8 @@
                                                 width="450">
                                                 <v-card-title class="-d-flex justify-start pa-0 my-3 overflow-hidden">
 
-                                                    <StreamBarcodeReader max-width="" @decode="onDecode"
-                                                        @loaded="onLoaded" stop>
+                                                    <StreamBarcodeReader max-width="250" @decode="onDecode"
+                                                        @loaded="onLoaded">
                                                     </StreamBarcodeReader>
 
                                                 </v-card-title>
@@ -190,7 +190,7 @@
                                             <v-text-field value="0000110125" label="Barcode" outlined clearable>
                                             </v-text-field>
                                             <v-text-field value="NOBIVAC DHPPI L4 (CANINE)" label="Item Name" outlined
-                                            clearable>
+                                                clearable>
                                             </v-text-field>
                                             <v-text-field value="Vaccines" label="Inventory" outlined clearable>
                                             </v-text-field>
@@ -205,16 +205,16 @@
                                                         </v-text-field>
                                                         <v-btn color="primary" outlined class="mb-7">
                                                             SEE RECEIPTS</v-btn>
-                                                        <v-text-field label="Stock on Display" value="45" outlined dense
-                                                        >
+                                                        <v-text-field label="Stock on Display" value="45" outlined
+                                                            dense>
                                                         </v-text-field>
                                                     </v-col>
                                                     <v-col cols="12" sm="3" class="ma-2">
                                                         <v-text-field label="Price" value="541.58" outlined dense
-                                                        clearable>
+                                                            clearable>
                                                         </v-text-field>
                                                         <v-text-field label="Storebox" value="ABC-123" outlined dense
-                                                        clearable>
+                                                            clearable>
                                                         </v-text-field>
                                                         <v-text-field label="Expiry Date" value="09/05/2023" outlined
                                                             dense clearable>
@@ -225,7 +225,7 @@
                                                             outlined dense clearable>
                                                         </v-text-field>
                                                         <v-text-field label="Brand" value="Nobivac" outlined dense
-                                                        clearable>
+                                                            clearable>
                                                         </v-text-field>
                                                         <v-text-field label="Supplier" value="Medical Supplier Inc."
                                                             outlined dense clearable>
@@ -289,7 +289,7 @@
                                                 width="450">
                                                 <v-card-title class="-d-flex justify-start pa-0 my-3 overflow-hidden">
 
-                                                    <StreamBarcodeReader max-width="" @decode="onDecode"
+                                                    <StreamBarcodeReader max-width="200" @decode="onDecode"
                                                         @loaded="onLoaded" stop>
                                                     </StreamBarcodeReader>
 
@@ -542,49 +542,51 @@ export default {
     methods: {
 
         onLoaded(result) {
-        console.log(result)
-      },
+            console.log(result)
+        },
 
-    //upload avatar
-    uploadItemImage(e) {
-        let file = e.target.files[0];
-        const storage = getStorage();
-        const storageRef = ref_storage(storage, 'inventories/' + file.name);
+        //upload avatar
+        uploadItemImage(e) {
+            let file = e.target.files[0];
+            const storage = getStorage();
+            const storageRef = ref_storage(storage, 'inventories/' + file.name);
 
-        const uploadTask = uploadBytesResumable(storageRef, file);
+            const uploadTask = uploadBytesResumable(storageRef, file);
 
-        uploadTask.on('state_changed',
-            (snapshot) => {
-                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                this.uploadBtnText = "Uploading: " + progress.toFixed(0) + '%';
-                this.uploadBtnTextMobile = mdiProgressDownload;
-                //this.uploadBtnTextMobile = "Uploading: " + progress.toFixed(0) + '%';
+            uploadTask.on('state_changed',
+                (snapshot) => {
+                    const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                    this.uploadBtnText = "Uploading: " + progress.toFixed(0) + '%';
+                    this.uploadBtnTextMobile = mdiProgressDownload;
+                    //this.uploadBtnTextMobile = "Uploading: " + progress.toFixed(0) + '%';
 
-                switch (snapshot.state) {
-                    case 'paused':
-                        console.log('Upload is paused');
-                        break;
-                    case 'running':
-                        console.log('Upload is running');
-                        break;
+                    switch (snapshot.state) {
+                        case 'paused':
+                            console.log('Upload is paused');
+                            break;
+                        case 'running':
+                            console.log('Upload is running');
+                            break;
+                    }
+                },
+                (error) => {
+                },
+                () => {
+
+                    this.uploadBtnText = 'Uploaded Successfully';
+
+                    this.uploadBtnTextMobile = mdiCheckCircle;
+                    //this.uploadBtnTextMobile = 'Photo Uploaded';
+                    getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+                        console.log('File available at', downloadURL);
+                        itemImage.value = downloadURL;
+
+                    });
                 }
-            },
-            (error) => {
-            },
-            () => {
+            );
+        },
 
-                this.uploadBtnText = 'Uploaded Successfully';
-
-                this.uploadBtnTextMobile = mdiCheckCircle;
-                //this.uploadBtnTextMobile = 'Photo Uploaded';
-                getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-                    console.log('File available at', downloadURL);
-                    itemImage.value = downloadURL;
-
-                });
-            }
-        );
-    },
+        onDecode(result) { console.log(result) },
 
     }
 }
