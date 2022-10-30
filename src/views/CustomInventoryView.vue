@@ -70,10 +70,6 @@
                     </v-dialog>
 
 
-
-
-
-
                 </v-col>
                 <v-col cols="12" sm="6" md="3" class="pa-1">
                     <v-card class=" bg-white d-flex flex-column pa-4 justify-center align-center" height="200">
@@ -144,35 +140,43 @@
                 <v-col cols="13" xs="16" sm="6" md="3" class="pa-1" v-for="inventory in inventories"
                     :key="inventory.name">
 
-                    <!-- <v-card>
-                        <div class="d-flex flex-no-wrap justify-space-between">
-                            <div>
-                                <v-card-title class="text-h6">{{ inventory.name }}</v-card-title>
-
-                                <v-card-subtitle>{{ inventory.totalitems }} items, {{ inventory.totalstocks }}
-                                    stocks</v-card-subtitle>
-
-                                <v-card-actions>
-
-                                    <v-btn outlined rounded small>
-                                        View inventory
-                                    </v-btn>
-                                </v-card-actions>
-                            </div>
-
-                            <v-avatar class="ma-3" size="125" tile>
-                                <v-img src="@/assets/images/pages/card-basic-influencer.png"></v-img>
-                            </v-avatar>
-                        </div>
-                    </v-card> -->
-                    <v-card>
+                    <!--  @click="gotoInventory" -->
+                    <v-card @click="gotoInventory">
                         <v-img src="@/assets/images/pages/card-basic-influencer.png" height="150" />
                         <v-card-title>
                             {{ inventory.name }}
+                            <v-spacer></v-spacer>
+                            <v-menu bottom left>
+                                <template v-slot:activator="{ on, attrs }">
+                                    <v-btn icon v-bind="attrs" v-on="on">
+                                        <v-icon>
+                                            {{ settingsIcon }}
+                                        </v-icon>
+                                    </v-btn>
+                                </template>
+
+                                <v-list>
+                                    <v-list-item>
+                                        <v-btn color="error" outlined small block class="me-2 mb-2"
+                                            @click="deleteDialog = !deleteDialog">
+                                            <v-icon>{{ deleteIcon }}</v-icon>
+                                            Delete
+                                        </v-btn>
+
+                                    </v-list-item>
+                                    <v-list-item>
+                                        <v-btn color="primary" outlined small block
+                                            @click="updateDialog = !updateDialog">
+                                            <v-icon>{{ editIcon }}</v-icon>
+                                            Edit
+                                        </v-btn>
+                                    </v-list-item>
+                                </v-list>
+                            </v-menu>
                         </v-card-title>
                         <v-card-subtitle>{{ inventory.totalitems }} items, {{ inventory.totalstocks }}
                             stocks</v-card-subtitle>
-                        <v-card-text>
+                        <!-- <v-card-actions>
 
                             <div class="d-flex justify-start flex-wrap">
                                 <v-btn color="error" fab outlined x-small class="me-2 mb-2"
@@ -184,9 +188,10 @@
                                 </v-btn>
                             </div>
 
-                        </v-card-text>
+                        </v-card-actions> -->
                     </v-card>
-                    <!-- <div class="justify-end d-flex mt-4 " >
+
+             <!-- <div class="justify-end d-flex mt-4 " >
                             <v-btn color="error"  fab outlined  x-small class="mr-1"  @click="deleteDialog = !deleteDialog">
                                 <v-icon>{{ deleteIcon }}</v-icon>
                             </v-btn>
@@ -219,6 +224,7 @@ import {
     mdiPlus,
     mdiDelete,
     mdiPencil,
+    mdiDotsVertical
 } from '@mdi/js'
 
 export default {
@@ -240,6 +246,7 @@ export default {
         addIcon: mdiPlus,
         deleteIcon: mdiDelete,
         editIcon: mdiPencil,
+        settingsIcon: mdiDotsVertical,
 
         //modal
 
