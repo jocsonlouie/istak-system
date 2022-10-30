@@ -165,14 +165,14 @@
                             </v-avatar>
                         </div>
                     </v-card> -->
-                    <v-card>
+                    <v-card @click="gotoInventory">
                         <v-img src="@/assets/images/pages/card-basic-influencer.png" height="150" />
                         <v-card-title>
                             {{ inventory.name }}
                         </v-card-title>
                         <v-card-subtitle>{{ inventory.totalitems }} items, {{ inventory.totalstocks }}
                             stocks</v-card-subtitle>
-                        <v-card-text>
+                        <v-card-actions>
 
                             <div class="d-flex justify-start flex-wrap">
                                 <v-btn color="error" fab outlined x-small class="me-2 mb-2"
@@ -184,7 +184,7 @@
                                 </v-btn>
                             </div>
 
-                        </v-card-text>
+                        </v-card-actions>
                     </v-card>
                     <!-- <div class="justify-end d-flex mt-4 " >
                             <v-btn color="error"  fab outlined  x-small class="mr-1"  @click="deleteDialog = !deleteDialog">
