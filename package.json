@@ -1,29 +1,12 @@
 {
   "name": "istak-assumpta-dog-and-cat-clinic",
-  "description": "Production ready carefully crafted most comprehensive admin template",
-  "license": "MIT",
   "version": "1.0.3",
+  "private": false,
+  "description": "Production ready carefully crafted most comprehensive admin template",
   "author": {
     "name": "ThemeSelection",
     "url": "https://themeselection.com/"
   },
-  "bugs": {
-    "url": "https://github.com/themeselection/materio-vuetify-vuejs-admin-template-free/issues"
-  },
-  "private": false,
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/themeselection/materio-vuetify-vuejs-admin-template-free"
-  },
-  "homepage": "https://themeselection.com/demo/materio-vuetify-vuejs-admin-template-free/demo/",
-  "keywords": [
-    "free template",
-    "vuejs admin",
-    "free admin template",
-    "free vuejs theme",
-    "free vuejs admin",
-    "free vuejs template"
-  ],
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
@@ -40,6 +23,7 @@
     "firebase": "^9.10.0",
     "jspdf": "^2.5.1",
     "jspdf-autotable": "^3.5.25",
+    "register-service-worker": "^1.7.1",
     "vue": "^2.6.11",
     "vue-apexcharts": "^1.6.2",
     "vue-barcode-reader": "^1.0.2",
@@ -51,6 +35,7 @@
   "devDependencies": {
     "@vue/cli-plugin-babel": "~4.5.0",
     "@vue/cli-plugin-eslint": "~4.5.0",
+    "@vue/cli-plugin-pwa": "4.5.8",
     "@vue/cli-plugin-router": "~4.5.0",
     "@vue/cli-plugin-vuex": "~4.5.0",
     "@vue/cli-service": "~4.5.0",
@@ -64,5 +49,22 @@
     "vue-cli-plugin-vuetify": "~2.4.2",
     "vue-template-compiler": "^2.6.11",
     "vuetify-loader": "^1.7.0"
+  },
+  "bugs": {
+    "url": "https://github.com/themeselection/materio-vuetify-vuejs-admin-template-free/issues"
+  },
+  "homepage": "https://themeselection.com/demo/materio-vuetify-vuejs-admin-template-free/demo/",
+  "keywords": [
+    "free template",
+    "vuejs admin",
+    "free admin template",
+    "free vuejs theme",
+    "free vuejs admin",
+    "free vuejs template"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/themeselection/materio-vuetify-vuejs-admin-template-free"
   }
 }
