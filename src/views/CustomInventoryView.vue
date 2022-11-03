@@ -71,19 +71,19 @@
 
 
                 </v-col>
-                <v-col cols="12" sm="6" md="3" class="pa-1">
+                <v-col cols="12" sm="7" md="3" class="pa-1">
                     <v-card class=" bg-white d-flex flex-column pa-4 justify-center align-center" height="200">
                         <p class="">All</p>
 
                     </v-card>
                 </v-col>
-                <v-col cols="12" sm="4" md="3" class="pa-1 ">
-                    <v-card class="d-flex justify-center mb-2" height="95">
+                <v-col cols="12" sm="6" md="3" class="pa-1 ">
+                    <v-card class=" mb-2" height="95">
                         <v-row no-gutters class="pa-2 text-center text-sm-start">
-                            <v-col cols="12" xs="1" sm="3" md="3" class="d-flex justify-center flex-column">
+                            <v-col cols="12" xs="1" sm="3" md="3" class="align-self-center pl-2 pl-md-4">
                                 <v-icon class="" color="primary">{{ tInventoryIcon }}</v-icon>
                             </v-col>
-                            <v-col cols="12" xs="4" sm="9" md="9" class="align-self-center">
+                            <v-col cols="12" xs="4" sm="9" md="9" class="align-self-center  pl-2 pl-md-4">
                                 <p class="text-caption mb-n1 mt-4">Total Inventories</p>
                                 <p class="text-subtitle-1">8 inventories</p>
 
@@ -91,12 +91,12 @@
                         </v-row>
 
                     </v-card>
-                    <v-card class="d-flex justify-center" height="95">
+                    <v-card class="" height="95">
                         <v-row no-gutters class="pa-2 text-center text-sm-start">
-                            <v-col cols="12" xs="1" sm="3" md="3" class="d-flex justify-center flex-column">
+                            <v-col cols="12" xs="1" sm="3" md="3" class="align-self-center  pl-2 pl-md-4">
                                 <v-icon class="" color="primary">{{ tStocksIcon }}</v-icon>
                             </v-col>
-                            <v-col cols="12" xs="4" sm="9" md="9" class="align-self-center">
+                            <v-col cols="12" xs="4" sm="9" md="9" class="align-self-center  pl-2 pl-md-4">
                                 <p class="text-caption mb-n1 mt-4">Total Stocks</p>
                                 <p class="text-subtitle-1">1441 stocks</p>
 
@@ -106,13 +106,13 @@
 
 
                 </v-col>
-                <v-col cols="12" sm="4" md="3" class="pa-1 ">
-                    <v-card class="d-flex justify-center mb-2" height="95">
+                <v-col cols="12" sm="6" md="3" class="pa-1 ">
+                    <v-card class=" mb-2" height="95">
                         <v-row no-gutters class="pa-2 text-center text-sm-start">
-                            <v-col cols="12" xs="1" sm="3" md="3" class="d-flex justify-center flex-column">
+                            <v-col cols="12" xs="1" sm="3" md="3" class="align-self-center  pl-2 pl-md-4">
                                 <v-icon class="" color="primary">{{ tItemIcon }}</v-icon>
                             </v-col>
-                            <v-col cols="12" xs="4" sm="9" md="9" class="align-self-center">
+                            <v-col cols="12" xs="4" sm="9" md="9" class="align-self-center  ">
                                 <p class="text-caption mb-n1 mt-4">Total Items</p>
                                 <p class="text-subtitle-1">147 items</p>
 
@@ -120,9 +120,9 @@
                         </v-row>
 
                     </v-card>
-                    <v-card class="d-flex justify-center" height="95">
+                    <v-card class="" height="95">
                         <v-row no-gutters class="pa-2 text-center text-sm-start">
-                            <v-col cols="12" xs="1" sm="3" md="3" class="d-flex justify-center flex-column">
+                            <v-col cols="12" xs="1" sm="3" md="3" class="align-self-center  pl-2 pl-md-4">
                                 <v-icon class="" color="primary">{{ nItemIcon }}</v-icon>
                             </v-col>
                             <v-col cols="12" xs="4" sm="9" md="9" class="align-self-center">
