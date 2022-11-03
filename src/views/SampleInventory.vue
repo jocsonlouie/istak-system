@@ -839,14 +839,20 @@
         this.dialogAddStocks = false;
       },
 
-      additionalStocks() {
+      async additionalStocks() {
         this.totalAvailable = parseInt(this.dataItem.available) + parseInt(this.stkStore);
 
         this.totalDisplay = parseInt(this.dataItem.display) + parseInt(this.stkAdd);
 
-        console.log("Add Available:" + this.dataItem.available + "+" + this.stkStore + "=" + this.totalAvailable);
+        await updateDoc(this.docRef, {
+              display: this.totalDisplay,
+              available: this.totalAvailable,
+              totalstocks: this.totalAvailable + this.totalDisplay,
+            });
 
+        console.log("Add Available:" + this.dataItem.available + "+" + this.stkStore + "=" + this.totalAvailable);
         console.log("Add Display:" + this.dataItem.display + "+" + this.stkAdd + "=" + this.totalDisplay);
+        console.log("Item Stocks Added Successfully!")
 
         this.resetForm();
         this.closeAddStocks();
