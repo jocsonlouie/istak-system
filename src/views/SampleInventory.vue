@@ -313,6 +313,62 @@
               </v-card-actions>
             </v-card>
           </v-dialog>
+
+          <v-dialog v-model="dialogAddStocks" max-width="500px">
+            <v-card class="pa-5 d-flex flex-column justify-center">
+              <v-chip color="primary" class="d-flex justify-center font-weight-bold text-h6 pa-5 mb-6">Add Stocks
+              </v-chip>
+              <div class="mx-5 mx-sm-10">
+                <v-form ref="form">
+                  <v-text-field v-model="dataItem.itemname" label="Item Name" dense readonly class="mb-4">
+                  </v-text-field>
+                  <p class="text-caption">Current Available Stocks: {{dataItem.available}}</p>
+                  <v-text-field v-model="stkStore" :rules="itemNameRules" label="Quantity to Store" outlined dense
+                    type="number">
+                  </v-text-field>
+                  <p class="text-caption">Current On Display Stocks: {{dataItem.display}}</p>
+                  <v-text-field v-model="stkAdd" :rules="itemNameRules" label="Quantity to Display" outlined dense
+                    type="number">
+                  </v-text-field>
+                </v-form>
+
+              </div>
+              <v-card-actions class="mb-n5">
+                <v-spacer></v-spacer>
+                <v-btn color="secondary" @click="closeAddStocks">Cancel</v-btn>
+                <v-btn color="primary" @click="additionalStocks">Add Stock</v-btn>
+                <v-spacer></v-spacer>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
+
+          <v-dialog v-model="dialogConsume" max-width="500px">
+            <v-card class="pa-5 d-flex flex-column justify-center">
+              <v-chip color="secondary" class="d-flex justify-center font-weight-bold text-h6 pa-5 mb-6">Consume Stocks
+              </v-chip>
+              <div class="mx-5 mx-sm-10">
+                <v-form ref="form">
+                  <v-text-field v-model="dataItem.itemname" label="Item Name" dense readonly class="mb-4">
+                  </v-text-field>
+
+                  <v-text-field v-model="stkConsume" :rules="itemNameRules" label="Quantity to Consume" outlined dense
+                    type="number">
+                  </v-text-field>
+                  <p class="text-caption">Current Available Stocks: {{dataItem.available}}</p>
+                  <p class="text-caption">Current On Display Stocks: {{dataItem.display}}</p>
+                  <v-select :items="consumeWhere" v-model="stkWhere" label="Consume in" outlined dense :rules="itemNameRules" ></v-select>
+
+                </v-form>
+
+              </div>
+              <v-card-actions class="mb-n5">
+                <v-spacer></v-spacer>
+                <v-btn color="secondary" @click="closeConsume">Cancel</v-btn>
+                <v-btn color="primary" @click="consumingStocks">Consume</v-btn>
+                <v-spacer></v-spacer>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
         </v-toolbar>
       </template>
 
@@ -340,12 +396,15 @@
           <v-btn color="primary" elevation="2" class="mr-2" fab x-small outlined @click="editItem(item)">
             <v-icon>{{ editIcon }}</v-icon>
           </v-btn>
-          <v-btn color="primary" elevation="2" class="mr-2" fab x-small>
+          <!-- <v-btn color="primary" elevation="2" class="mr-2" fab x-small>
+            <v-icon>{{ consumeIcon }}</v-icon>
+          </v-btn> -->
+          <v-btn color="primary" elevation="2" class="mr-2" fab x-small @click="addStocks(item)">
+            <v-icon>{{ addIcon }}</v-icon>
+          </v-btn>
+          <v-btn color="secondary" elevation="2" class="" fab x-small @click="consumeStocks(item)">
             <v-icon>{{ consumeIcon }}</v-icon>
           </v-btn>
-          <!-- <v-btn color="error" elevation="2" class="" fab x-small @click="deleteItem(item)">
-            <v-icon>{{ deleteIcon }}</v-icon>
-          </v-btn> -->
           <!-- <v-btn color="secondary" elevation="0" class="" x-small outlined>
             <v-icon class="mx-n16">{{ moreIcon }}</v-icon>
             
@@ -371,627 +430,715 @@
 
 </template>
 <script>
-// icons
-import {
-  mdiPencil,
-  mdiDelete,
-  mdiCheckboxMarkedCircleOutline,
-  mdiMagnify,
-  mdiFilePdfBox,
-  mdiDotsVertical,
-  mdiBarcodeScan,
-  mdiPlus,
-  mdiHandHeart,
-  mdiCircle,
-  mdiAlertOutline,
-  mdiCloudUploadOutline,
-  mdiCamera,
-  mdiCheckCircle,
-  mdiProgressDownload,
-} from '@mdi/js'
+  // icons
+  import {
+    mdiPencil,
+    mdiDelete,
+    mdiCheckboxMarkedCircleOutline,
+    mdiMagnify,
+    mdiFilePdfBox,
+    mdiDotsVertical,
+    mdiBarcodeScan,
+    mdiPlus,
+    mdiHandHeart,
+    mdiCircle,
+    mdiAlertOutline,
+    mdiCloudUploadOutline,
+    mdiCamera,
+    mdiCheckCircle,
+    mdiProgressDownload,
+    mdiPlusBoxMultiple,
+    mdiAutorenew
+  } from '@mdi/js'
 
-// crud imports
-import db from '@/fb';
-// import { collection } from "firebase/firestore";
-import {
-  StreamBarcodeReader
-} from "vue-barcode-reader";
-import {
-  addDoc,
-  getDocs,
-  doc,
-  deleteDoc,
-  onSnapshot,
-  updateDoc,
-  collection,
-  where,
-  query,
+  // crud imports
+  import db from '@/fb';
+  // import { collection } from "firebase/firestore";
+  import {
+    StreamBarcodeReader
+  } from "vue-barcode-reader";
+  import {
+    addDoc,
+    getDocs,
+    doc,
+    deleteDoc,
+    onSnapshot,
+    updateDoc,
+    collection,
+    where,
+    query,
 
-} from '@firebase/firestore';
-import "vue-media-recorder/src/assets/scss/main.scss";
-import { PhotoCapture } from "vue-media-recorder";
-
-
-const inventoryColRef = collection(db, "inventory");
-
-//upload image imports
-import {
-  ref,
-  onMounted
-} from '@vue/composition-api';
-import {
-  getStorage,
-  uploadBytes,
-  ref as ref_storage,
-  uploadBytesResumable,
-  getDownloadURL,
-  uploadString
-} from "firebase/storage";
-const itemImage = ref('https://assumptaclinic.com/wp-content/uploads/2022/10/default-assumpta.jpg');
-
-export default {
-  components: {
-    StreamBarcodeReader,
+  } from '@firebase/firestore';
+  import "vue-media-recorder/src/assets/scss/main.scss";
+  import {
     PhotoCapture
-  },
-  data: () => ({
-
-    imageBase64: null,
-
-    loadingTable: true,
-    // icon data
-    editIcon: mdiPencil,
-    deleteIcon: mdiDelete,
-    successIcon: mdiCheckboxMarkedCircleOutline,
-    searchIcon: mdiMagnify,
-    pdfIcon: mdiFilePdfBox,
-    moreIcon: mdiDotsVertical,
-    barcodeIcon: mdiBarcodeScan,
-    plusIcon: mdiPlus,
-    numberIcon: mdiCircle,
-    consumeIcon: mdiHandHeart,
-
-    // modal data
-    dialog: false,
-    dialogDelete: false,
-    dialogScan: false,
-    dialogScanView: false,
-    capturePhoto: false,
+  } from "vue-media-recorder";
 
 
-    // Scan Modal
-    scanItemImage: 'https://assumptaclinic.com/wp-content/uploads/2022/10/profile-icon-default.jpeg',
-    scanItemName: 'Sample Name',
-    scanBarcode: '12312312312',
-    scanStorebox: '686',
-    scanTotalStocks: '454',
-    scanDisplayStocks: '565',
-    scanStatus: false,
+  const inventoryColRef = collection(db, "inventory");
 
-    //search and select data
-    search: '',
-    singleSelect: false,
-    selected: [],
-    expanded: [],
-    singleExpand: false,
+  //upload image imports
+  import {
+    ref,
+    onMounted
+  } from '@vue/composition-api';
+  import {
+    getStorage,
+    uploadBytes,
+    ref as ref_storage,
+    uploadBytesResumable,
+    getDownloadURL,
+    uploadString
+  } from "firebase/storage";
+  const itemImage = ref('https://assumptaclinic.com/wp-content/uploads/2022/10/default-assumpta.jpg');
 
-
-    // table header data
-    headers: [{
-      text: 'Image',
-      align: 'start',
-      value: 'image',
+  export default {
+    components: {
+      StreamBarcodeReader,
+      PhotoCapture
     },
-    {
-      text: 'Item Name',
-      value: 'itemname',
-    },
-    {
-      text: 'Barcode',
-      sortable: true,
-      value: 'barcode'
-    },
-    {
-      text: 'Retail Price',
-      sortable: true,
-      value: 'retail'
-    },
-    {
-      text: 'Available Stocks',
-      sortable: true,
-      value: 'available'
-    },
-    {
-      text: 'On Display',
-      sortable: true,
-      value: 'display'
-    },
-    {
-      text: 'Total Stocks',
-      sortable: true,
-      value: 'totalstocks'
-    },
-    // {
-    //   text: 'Item Status', //expired stocks?
-    //   sortable: true,
-    //   value: 'itemstatus'
-    // },
-    {
-      text: 'Actions',
-      value: 'actions',
-      sortable: true
-    },
-    ],
-    // table data
-    items: [],
-    itemIndex: -1,
-    currentItem: {
-      image: itemImage.value,
-      itemname: '',
-      barcode: '',
-      retail: '',
-      stockunit: '',
-      reorderlevel: '',
-      manufacturer: '',
+    data: () => ({
 
-      available: 0,
-      unitcost: 0,
-      display: 0,
-      totalstocks: 0,
-      totalcost: 0,
-      expiry: 'na',
-      supplier: 'na',
-    },
-    defaultItem: {
-      image: itemImage.value,
-      itemname: '',
-      barcode: '',
-      retail: '',
-      stockunit: '',
-      reorderlevel: '',
-      manufacturer: '',
+      imageBase64: null,
 
-      available: 0,
-      unitcost: 0,
-      display: 0,
-      totalstocks: 0,
-      totalcost: 0,
-      expiry: 'na',
-      supplier: 'na',
-    },
+      loadingTable: true,
+      // icon data
+      editIcon: mdiPencil,
+      deleteIcon: mdiDelete,
+      successIcon: mdiCheckboxMarkedCircleOutline,
+      searchIcon: mdiMagnify,
+      pdfIcon: mdiFilePdfBox,
+      moreIcon: mdiDotsVertical,
+      barcodeIcon: mdiBarcodeScan,
+      plusIcon: mdiPlus,
+      numberIcon: mdiCircle,
+      addIcon: mdiPlusBoxMultiple,
+      consumeIcon: mdiAutorenew,
 
-    // add item
-    dataItem: {
-      image: itemImage.value,
-      itemname: '',
-      barcode: '',
-      retail: '',
-      stockunit: '',
-      reorderlevel: '',
-      manufacturer: '',
-
-      available: 0,
-      unitcost: 0,
-      display: 0,
-      totalstocks: 0,
-      totalcost: 0,
-      expiry: 'na',
-      supplier: 'na',
-    },
-
-    //rules
-    valid: true,
-    itemNameRules: [
-      v => !!v || 'This field is required',
-    ],
-
-    //edit item
-    itemId: null,
-    docRef: null,
-
-    //snackbar
-    snackbar: false,
-    timeout: 3000,
-    itemStatus: '',
-
-    //image
-    uploadLoading: false,
-    uploadBtnText: "Upload new photo",
-    //uploadBtnTextMobile: props.icons.mdiCloudUploadOutline
-    //uploadBtnTextMobile: "Upload"
-    uploadBtnTextMobile: mdiCloudUploadOutline,
-    uploadTakePicture: mdiCamera,
-
-    //show delete button
-    showDelete: false,
+      // modal data
+      dialog: false,
+      dialogDelete: false,
+      dialogScan: false,
+      dialogScanView: false,
+      capturePhoto: false,
+      dialogAddStocks: false,
+      dialogConsume: false,
 
 
-  }),
+      // Scan Modal
+      scanItemImage: 'https://assumptaclinic.com/wp-content/uploads/2022/10/profile-icon-default.jpeg',
+      scanItemName: 'Sample Name',
+      scanBarcode: '12312312312',
+      scanStorebox: '686',
+      scanTotalStocks: '454',
+      scanDisplayStocks: '565',
+      scanStatus: false,
 
-  props: {
-    accountData: {
-      type: Object,
-      default: () => { },
-    },
-  },
+      //search and select data
+      search: '',
+      singleSelect: false,
+      selected: [],
+      expanded: [],
+      singleExpand: false,
 
-  setup(props) {
-    return {
-      // status,
-      // userRole,
-      // userEmail,
-      itemImage,
 
-      // userFName,
-      // accountDataLocale,
-      // userVerified,
-      // resetForm,
-      icons: {
-        mdiAlertOutline,
-        mdiCloudUploadOutline,
-        mdiCheckCircle,
-        mdiProgressDownload,
+      // table header data
+      headers: [{
+          text: 'Image',
+          align: 'start',
+          value: 'image',
+        },
+        {
+          text: 'Item Name',
+          value: 'itemname',
+        },
+        {
+          text: 'Barcode',
+          sortable: true,
+          value: 'barcode'
+        },
+        {
+          text: 'Retail Price',
+          sortable: true,
+          value: 'retail'
+        },
+        {
+          text: 'Available Stocks',
+          sortable: true,
+          value: 'available'
+        },
+        {
+          text: 'On Display',
+          sortable: true,
+          value: 'display'
+        },
+        {
+          text: 'Total Stocks',
+          sortable: true,
+          value: 'totalstocks'
+        },
+        // {
+        //   text: 'Item Status', //expired stocks?
+        //   sortable: true,
+        //   value: 'itemstatus'
+        // },
+        {
+          text: 'Actions',
+          value: 'actions',
+          sortable: true
+        },
+      ],
+      // table data
+      items: [],
+      itemIndex: -1,
+      currentItem: {
+        image: itemImage.value,
+        itemname: '',
+        barcode: '',
+        retail: '',
+        stockunit: '',
+        reorderlevel: '',
+        manufacturer: '',
+
+        available: 0,
+        unitcost: 0,
+        display: 0,
+        totalstocks: 0,
+        totalcost: 0,
+        expiry: 'na',
+        supplier: 'na',
       },
-    }
-  },
-  computed: {
-    // to change modal to add or edit
-    formTitle() {
-      return this.itemIndex === -1 ? 'New Item' : 'Edit Item'
+      defaultItem: {
+        image: itemImage.value,
+        itemname: '',
+        barcode: '',
+        retail: '',
+        stockunit: '',
+        reorderlevel: '',
+        manufacturer: '',
+
+        available: 0,
+        unitcost: 0,
+        display: 0,
+        totalstocks: 0,
+        totalcost: 0,
+        expiry: 'na',
+        supplier: 'na',
+      },
+
+      // add item
+      dataItem: {
+        image: itemImage.value,
+        itemname: '',
+        barcode: '',
+        retail: '',
+        stockunit: '',
+        reorderlevel: '',
+        manufacturer: '',
+
+        available: 0,
+        unitcost: 0,
+        display: 0,
+        totalstocks: 0,
+        totalcost: 0,
+        expiry: 'na',
+        supplier: 'na',
+      },
+
+      //rules
+      valid: true,
+      itemNameRules: [
+        v => !!v || 'This field is required',
+      ],
+
+      //edit item
+      itemId: null,
+      docRef: null,
+
+      //snackbar
+      snackbar: false,
+      timeout: 3000,
+      itemStatus: '',
+
+      //image
+      uploadLoading: false,
+      uploadBtnText: "Upload new photo",
+      //uploadBtnTextMobile: props.icons.mdiCloudUploadOutline
+      //uploadBtnTextMobile: "Upload"
+      uploadBtnTextMobile: mdiCloudUploadOutline,
+      uploadTakePicture: mdiCamera,
+
+      //show delete button
+      showDelete: false,
+
+      //stocks
+      stkAdd: '',
+      stkConsume: '',
+      stkStore: '',
+      stkWhere: '',
+      consumeWhere: [
+        'Stocks on Display', 'Stocks on Stored'
+      ],
+      totalAvailable: 0,
+      totalDisplay: 0,
+      consumeAvailable: 0,
+      consumeDisplay: 0,
+
+    }),
+
+    props: {
+      accountData: {
+        type: Object,
+        default: () => {},
+      },
     },
-  },
 
-  watch: {
-    dialog(val) {
-      val || this.close()
-    },
-    dialogDelete(val) {
-      val || this.closeDelete()
-    },
-    dialogScan(val) {
-      val || this.closeScan()
-    },
-    dialogScanView(val) {
-      val || this.closeScanView()
-    },
-    capturePhoto(val) {
-      val || this.closeCapturePhoto();
-    }
-  },
+    setup(props) {
+      return {
+        // status,
+        // userRole,
+        // userEmail,
+        itemImage,
 
-  created() {
-    // to fetch data
-    this.initialize();
-
-  },
-
-  methods: {
-    async initialize() {
-      onSnapshot(inventoryColRef, (snapshot) => {
-        let items = []
-        snapshot.forEach((doc) => {
-          items.push({
-            ...doc.data(),
-            id: doc.id
-          })
-        });
-        this.items = items;
-        this.loadingTable = false;
-      })
-    },
-
-
-    dataURLtoFile(dataurl, filename) {
-
-      var arr = dataurl.split(','),
-        mime = arr[0].match(/:(.*?);/)[1],
-        bstr = atob(arr[1]),
-        n = bstr.length,
-        u8arr = new Uint8Array(n);
-
-      while (n--) {
-        u8arr[n] = bstr.charCodeAt(n);
+        // userFName,
+        // accountDataLocale,
+        // userVerified,
+        // resetForm,
+        icons: {
+          mdiAlertOutline,
+          mdiCloudUploadOutline,
+          mdiCheckCircle,
+          mdiProgressDownload,
+        },
       }
-
-      return new File([u8arr], filename, { type: mime });
+    },
+    computed: {
+      // to change modal to add or edit
+      formTitle() {
+        return this.itemIndex === -1 ? 'New Item' : 'Edit Item'
+      },
     },
 
-    done(picture) {
-      this.closeCapturePhoto();
-      var currentdate = new Date(); 
-      let file = this.dataURLtoFile(picture, "inventory" + currentdate);
-      const storage = getStorage();
-      const storageRef = ref_storage(storage, 'inventories/' + file.name);
+    watch: {
+      dialog(val) {
+        val || this.close()
+      },
+      dialogDelete(val) {
+        val || this.closeDelete()
+      },
+      dialogScan(val) {
+        val || this.closeScan()
+      },
+      dialogScanView(val) {
+        val || this.closeScanView()
+      },
+      capturePhoto(val) {
+        val || this.closeCapturePhoto();
+      },
+      dialogAddStocks(val) {
+        val || this.closeAddStocks();
+      },
+      dialogConsume(val) {
+        val || this.closeConsume();
+      }
+    },
 
-      const uploadTask = uploadBytesResumable(storageRef, file, 'data_url');
+    created() {
+      // to fetch data
+      this.initialize();
 
-      uploadTask.on('state_changed',
-        (snapshot) => {
-          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          this.uploadBtnText = "Uploading: " + progress.toFixed(0) + '%';
-          this.uploadBtnTextMobile = mdiProgressDownload;
-          //this.uploadBtnTextMobile = "Uploading: " + progress.toFixed(0) + '%';
+    },
 
-          switch (snapshot.state) {
-            case 'paused':
-              console.log('Upload is paused');
-              break;
-            case 'running':
-              console.log('Upload is running');
-              break;
-          }
-        },
-        (error) => {
-          // Handle unsuccessful uploads
-        },
-        () => {
-          // Handle successful uploads on complete
-          // For instance, get the download URL: https://firebasestorage.googleapis.com/...
-          this.uploadBtnText = 'Uploaded Successfully';
-
-          this.uploadBtnTextMobile = mdiCheckCircle;
-          //this.uploadBtnTextMobile = 'Photo Uploaded';
-          getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-            console.log('File available at', downloadURL);
-            itemImage.value = downloadURL;
-
+    methods: {
+      async initialize() {
+        onSnapshot(inventoryColRef, (snapshot) => {
+          let items = []
+          snapshot.forEach((doc) => {
+            items.push({
+              ...doc.data(),
+              id: doc.id
+            })
           });
-        }
-      );
-    },
+          this.items = items;
+          this.loadingTable = false;
+        })
+      },
 
-    // edit function
-    async editItem(item) {
-      this.itemIndex = this.items.indexOf(item)
-      if (this.itemIndex > -1) {
+
+      dataURLtoFile(dataurl, filename) {
+
+        var arr = dataurl.split(','),
+          mime = arr[0].match(/:(.*?);/)[1],
+          bstr = atob(arr[1]),
+          n = bstr.length,
+          u8arr = new Uint8Array(n);
+
+        while (n--) {
+          u8arr[n] = bstr.charCodeAt(n);
+        }
+
+        return new File([u8arr], filename, {
+          type: mime
+        });
+      },
+
+      done(picture) {
+        this.closeCapturePhoto();
+        var currentdate = new Date();
+        let file = this.dataURLtoFile(picture, "inventory" + currentdate);
+        const storage = getStorage();
+        const storageRef = ref_storage(storage, 'inventories/' + file.name);
+
+        const uploadTask = uploadBytesResumable(storageRef, file, 'data_url');
+
+        uploadTask.on('state_changed',
+          (snapshot) => {
+            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            this.uploadBtnText = "Uploading: " + progress.toFixed(0) + '%';
+            this.uploadBtnTextMobile = mdiProgressDownload;
+            //this.uploadBtnTextMobile = "Uploading: " + progress.toFixed(0) + '%';
+
+            switch (snapshot.state) {
+              case 'paused':
+                console.log('Upload is paused');
+                break;
+              case 'running':
+                console.log('Upload is running');
+                break;
+            }
+          },
+          (error) => {
+            // Handle unsuccessful uploads
+          },
+          () => {
+            // Handle successful uploads on complete
+            // For instance, get the download URL: https://firebasestorage.googleapis.com/...
+            this.uploadBtnText = 'Uploaded Successfully';
+
+            this.uploadBtnTextMobile = mdiCheckCircle;
+            //this.uploadBtnTextMobile = 'Photo Uploaded';
+            getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+              console.log('File available at', downloadURL);
+              itemImage.value = downloadURL;
+
+            });
+          }
+        );
+      },
+
+      //add stocks
+      async addStocks(item) {
         this.dataItem = Object.assign({}, item);
         this.itemId = this.dataItem.id;
         this.docRef = doc(inventoryColRef, this.itemId);
-        itemImage.value = this.dataItem.image;
-        this.showDelete = true;
-      }
-      this.dialog = true
-    },
+        this.dialogAddStocks = true;
+      },
 
-    openDelete() {
-      this.dialogDelete = true;
+      closeAddStocks() {
+        this.dialogAddStocks = false;
+      },
 
-    },
+      additionalStocks() {
+        this.totalAvailable = parseInt(this.dataItem.available) + parseInt(this.stkStore);
 
-    async deleteItemConfirm() {
-      this.items.splice(this.itemIndex, 1);
-      await deleteDoc(this.docRef);
-      this.closeDelete();
-      this.itemStatus = 'Deleted';
-      this.snackbar = true;
-      this.resetForm();
-      this.dialog = false;
-    },
+        this.totalDisplay = parseInt(this.dataItem.display) + parseInt(this.stkAdd);
 
-    // delete function
-    // async deleteItem(item) {
-    //   this.dataItem = Object.assign({}, item);
-    //   this.itemId = this.dataItem.id;
-    //   this.docRef = doc(inventoryColRef, this.itemId);
-    //   this.dialogDelete = true;
-    // },
+        console.log("Add Available:" + this.dataItem.available + "+" + this.stkStore + "=" + this.totalAvailable);
 
-    // async deleteItemConfirm() {
-    //   this.items.splice(this.itemIndex, 1);
-    //   await deleteDoc(this.docRef);
-    //   this.closeDelete();
-    //   this.itemStatus = 'Deleted';
-    //   this.snackbar = true;
-    //   this.resetForm();
-    // },
+        console.log("Add Display:" + this.dataItem.display + "+" + this.stkAdd + "=" + this.totalDisplay);
 
-    // close function for edit and add
-    close() {
-      this.resetForm();
-      this.dialog = false
-      this.$nextTick(() => {
-        this.currentItem = Object.assign({}, this.defaultItem)
-        this.itemIndex = -1
-      })
-      itemImage.value = 'https://assumptaclinic.com/wp-content/uploads/2022/10/default-assumpta.jpg';
-      this.showDelete = false;
-    },
+        this.resetForm();
+        this.closeAddStocks();
+        this.itemStatus = 'Stocks Added';
+        this.snackbar = true;
+      },
 
-    // close function for delete
-    closeDelete() {
-      this.dialogDelete = false;
-      this.resetForm();
-      this.$nextTick(() => {
-        this.currentItem = Object.assign({}, this.defaultItem)
-        this.itemIndex = -1
-      })
-    },
+      //consume stocks
+      async consumeStocks(item) {
+        this.dataItem = Object.assign({}, item);
+        this.itemId = this.dataItem.id;
+        this.docRef = doc(inventoryColRef, this.itemId);
+        this.dialogConsume = true;
 
-    // close function for scan
-    closeScan() {
-      this.dialogScan = false;
-    },
+      },
 
-    closeScanView() {
-      this.dialogScanView = false;
-      this.$router.go();
-    },
+      closeConsume() {
+        this.dialogConsume = false;
+      },
 
-    closeCapturePhoto() {
-      this.capturePhoto = false;
-    },
-
-    openCapturePhoto() {
-      this.capturePhoto = true;
-    },
-
-    openBarcodeScanner() {
-      this.dialogScan = true;
-    },
-
-    // function for edit and add
-    async save() {
-      if (this.itemIndex > -1) {
-        // edit function
+      consumingStocks() {
         if (this.$refs.form.validate()) {
-          await updateDoc(this.docRef, {
-            // image: itemImage.value,
-            // itemname: this.dataItem.itemname,
-            // barcode: this.dataItem.barcode,
-            // storebox: this.dataItem.storebox,
-            // total: this.dataItem.total,
-            // display: this.dataItem.display,
-            image: itemImage.value,
-            itemname: this.dataItem.itemname,
-            barcode: this.dataItem.barcode,
-            retail: this.dataItem.retail,
-            stockunit: this.dataItem.stockunit,
-            reorderlevel: this.dataItem.reorderlevel,
-            manufacturer: this.dataItem.manufacturer,
+           this.consumeAvailable = parseInt(this.dataItem.available - parseInt(this.stkConsume));
+        this.consumeDisplay = parseInt(this.dataItem.display - parseInt(this.stkConsume));
 
-            available: this.dataItem.available,
-            unitcost: this.dataItem.unitcost,
-            display: this.dataItem.display,
-            totalstocks: this.dataItem.available + this.dataItem.display,
-            totalcost: this.dataItem.totalcost,
-            expiry: this.dataItem.expiry,
-            supplier: this.dataItem.supplier,
-          })
-          // await setDoc(this.docRef, this.dataItem);
-          this.close();
-          this.itemStatus = 'Updated';
-          this.snackbar = true;
+        if (this.stkWhere == 'Stocks on Display') {
+          console.log("Consume Display: " + this.dataItem.display + "-" + this.stkConsume + "=" + this.consumeDisplay);
 
+        } else if (this.stkWhere == 'Stocks on Stored') {
+          console.log("Consume Available: " + this.dataItem.available + "-" + this.stkConsume + "=" + this
+            .consumeAvailable);
         }
 
-      } else {
-        // add function
-        if (this.$refs.form.validate()) {
-          // const addedDoc = await addDoc(inventoryColRef, this.$data.dataItem);
-          console.log(itemImage.value);
-          await addDoc(inventoryColRef, {
-            // image: itemImage.value,
-            // itemname: this.dataItem.itemname,
-            // barcode: this.dataItem.barcode,
-            // storebox: this.dataItem.storebox,
-            // total: this.dataItem.total,
-            // display: this.dataItem.display,
-            image: itemImage.value,
-            itemname: this.dataItem.itemname,
-            barcode: this.dataItem.barcode,
-            retail: this.dataItem.retail,
-            stockunit: this.dataItem.stockunit,
-            reorderlevel: this.dataItem.reorderlevel,
-            manufacturer: this.dataItem.manufacturer,
-
-            available: this.dataItem.available,
-            unitcost: this.dataItem.unitcost,
-            display: this.dataItem.display,
-            totalstocks: this.dataItem.available + this.dataItem.display,
-            totalcost: this.dataItem.totalcost,
-            expiry: this.dataItem.expiry,
-            supplier: this.dataItem.supplier,
-          })
-          this.close();
-          this.itemStatus = 'Added';
-          this.snackbar = true;
-
+        this.resetForm();
+        this.closeConsume();
+        this.itemStatus = 'Stocks Consumed';
+        this.snackbar = true;
         }
+       
+      },
 
-      }
-    },
+      // edit function
+      async editItem(item) {
+        this.itemIndex = this.items.indexOf(item)
+        if (this.itemIndex > -1) {
+          this.dataItem = Object.assign({}, item);
+          this.itemId = this.dataItem.id;
+          this.docRef = doc(inventoryColRef, this.itemId);
+          itemImage.value = this.dataItem.image;
+          this.showDelete = true;
+        }
+        this.dialog = true
+      },
 
-    async onDecode(result) {
-      console.log(result);
-      const q = query(collection(db, "inventory"), where("barcode", "==", result));
-      const querySnapshot = await getDocs(q);
+      openDelete() {
+        this.dialogDelete = true;
 
-      if (querySnapshot.empty) {
+      },
+
+      async deleteItemConfirm() {
+        this.items.splice(this.itemIndex, 1);
+        await deleteDoc(this.docRef);
+        this.closeDelete();
+        this.itemStatus = 'Deleted';
+        this.snackbar = true;
+        this.resetForm();
+        this.dialog = false;
+      },
+
+      // delete function
+      // async deleteItem(item) {
+      //   this.dataItem = Object.assign({}, item);
+      //   this.itemId = this.dataItem.id;
+      //   this.docRef = doc(inventoryColRef, this.itemId);
+      //   this.dialogDelete = true;
+      // },
+
+      // async deleteItemConfirm() {
+      //   this.items.splice(this.itemIndex, 1);
+      //   await deleteDoc(this.docRef);
+      //   this.closeDelete();
+      //   this.itemStatus = 'Deleted';
+      //   this.snackbar = true;
+      //   this.resetForm();
+      // },
+
+      // close function for edit and add
+      close() {
+        this.resetForm();
+        this.dialog = false
+        this.$nextTick(() => {
+          this.currentItem = Object.assign({}, this.defaultItem)
+          this.itemIndex = -1
+        })
+        itemImage.value = 'https://assumptaclinic.com/wp-content/uploads/2022/10/default-assumpta.jpg';
+        this.showDelete = false;
+      },
+
+      // close function for delete
+      closeDelete() {
+        this.dialogDelete = false;
+        this.resetForm();
+        this.$nextTick(() => {
+          this.currentItem = Object.assign({}, this.defaultItem)
+          this.itemIndex = -1
+        })
+      },
+
+      // close function for scan
+      closeScan() {
         this.dialogScan = false;
-        this.dialogScanView = true;
-      } else {
-        querySnapshot.forEach((doc) => {
-          // doc.data() is never undefined for query doc snapshots
-          this.scanStatus = true;
-          this.scanBarcode = "" + doc.data().barcode;
-          this.scanDisplayStocks = "" + doc.data().display;
-          this.scanItemImage =
-            "https://assumptaclinic.com/wp-content/uploads/2022/10/profile-icon-default.jpeg";
-          this.scanItemName = "" + doc.data().itemname;
-          this.scanStorebox = "" + doc.data().storebox;
-          this.scanTotalStocks = "" + doc.data().total;
+      },
 
-        });
-        this.dialogScan = false;
-        this.dialogScanView = true;
-      }
-    },
+      closeScanView() {
+        this.dialogScanView = false;
+        this.$router.go();
+      },
 
-    onLoaded(result) {
-      console.log(result)
-    },
+      closeCapturePhoto() {
+        this.capturePhoto = false;
+      },
 
-    validate() {
-      this.$refs.form.validate();
-    },
-    resetForm() {
-      this.$refs.form.reset();
-    },
-    getColor(totalstocks, reorderlevel) {
-      if (totalstocks > reorderlevel) return 'primary'
-      else if (totalstocks == null) return ''
-      else return 'error'
-    },
+      openCapturePhoto() {
+        this.capturePhoto = true;
+      },
 
-    //upload avatar
-    uploadItemImage(e) {
-      let file = e.target.files[0];
-      const storage = getStorage();
-      const storageRef = ref_storage(storage, 'inventories/' + file.name);
+      openBarcodeScanner() {
+        this.dialogScan = true;
+      },
 
-      const uploadTask = uploadBytesResumable(storageRef, file);
+      // function for edit and add
+      async save() {
+        if (this.itemIndex > -1) {
+          // edit function
+          if (this.$refs.form.validate()) {
+            await updateDoc(this.docRef, {
+              // image: itemImage.value,
+              // itemname: this.dataItem.itemname,
+              // barcode: this.dataItem.barcode,
+              // storebox: this.dataItem.storebox,
+              // total: this.dataItem.total,
+              // display: this.dataItem.display,
+              image: itemImage.value,
+              itemname: this.dataItem.itemname,
+              barcode: this.dataItem.barcode,
+              retail: this.dataItem.retail,
+              stockunit: this.dataItem.stockunit,
+              reorderlevel: this.dataItem.reorderlevel,
+              manufacturer: this.dataItem.manufacturer,
 
-      uploadTask.on('state_changed',
-        (snapshot) => {
-          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          this.uploadBtnText = "Uploading: " + progress.toFixed(0) + '%';
-          this.uploadBtnTextMobile = mdiProgressDownload;
-          //this.uploadBtnTextMobile = "Uploading: " + progress.toFixed(0) + '%';
+              available: this.dataItem.available,
+              unitcost: this.dataItem.unitcost,
+              display: this.dataItem.display,
+              totalstocks: this.dataItem.available + this.dataItem.display,
+              totalcost: this.dataItem.totalcost,
+              expiry: this.dataItem.expiry,
+              supplier: this.dataItem.supplier,
+            })
+            // await setDoc(this.docRef, this.dataItem);
+            this.close();
+            this.itemStatus = 'Updated';
+            this.snackbar = true;
 
-          switch (snapshot.state) {
-            case 'paused':
-              console.log('Upload is paused');
-              break;
-            case 'running':
-              console.log('Upload is running');
-              break;
           }
-        },
-        (error) => {
-          // Handle unsuccessful uploads
-        },
-        () => {
-          // Handle successful uploads on complete
-          // For instance, get the download URL: https://firebasestorage.googleapis.com/...
-          this.uploadBtnText = 'Uploaded Successfully';
 
-          this.uploadBtnTextMobile = mdiCheckCircle;
-          //this.uploadBtnTextMobile = 'Photo Uploaded';
-          getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-            console.log('File available at', downloadURL);
-            itemImage.value = downloadURL;
+        } else {
+          // add function
+          if (this.$refs.form.validate()) {
+            // const addedDoc = await addDoc(inventoryColRef, this.$data.dataItem);
+            console.log(itemImage.value);
+            await addDoc(inventoryColRef, {
+              // image: itemImage.value,
+              // itemname: this.dataItem.itemname,
+              // barcode: this.dataItem.barcode,
+              // storebox: this.dataItem.storebox,
+              // total: this.dataItem.total,
+              // display: this.dataItem.display,
+              image: itemImage.value,
+              itemname: this.dataItem.itemname,
+              barcode: this.dataItem.barcode,
+              retail: this.dataItem.retail,
+              stockunit: this.dataItem.stockunit,
+              reorderlevel: this.dataItem.reorderlevel,
+              manufacturer: this.dataItem.manufacturer,
+
+              available: this.dataItem.available,
+              unitcost: this.dataItem.unitcost,
+              display: this.dataItem.display,
+              totalstocks: this.dataItem.available + this.dataItem.display,
+              totalcost: this.dataItem.totalcost,
+              expiry: this.dataItem.expiry,
+              supplier: this.dataItem.supplier,
+            })
+            this.close();
+            this.itemStatus = 'Added';
+            this.snackbar = true;
+
+          }
+
+        }
+      },
+
+      async onDecode(result) {
+        console.log(result);
+        const q = query(collection(db, "inventory"), where("barcode", "==", result));
+        const querySnapshot = await getDocs(q);
+
+        if (querySnapshot.empty) {
+          this.dialogScan = false;
+          this.dialogScanView = true;
+        } else {
+          querySnapshot.forEach((doc) => {
+            // doc.data() is never undefined for query doc snapshots
+            this.scanStatus = true;
+            this.scanBarcode = "" + doc.data().barcode;
+            this.scanDisplayStocks = "" + doc.data().display;
+            this.scanItemImage =
+              "https://assumptaclinic.com/wp-content/uploads/2022/10/profile-icon-default.jpeg";
+            this.scanItemName = "" + doc.data().itemname;
+            this.scanStorebox = "" + doc.data().storebox;
+            this.scanTotalStocks = "" + doc.data().total;
 
           });
+          this.dialogScan = false;
+          this.dialogScanView = true;
         }
-      );
+      },
+
+      onLoaded(result) {
+        console.log(result)
+      },
+
+      validate() {
+        this.$refs.form.validate();
+      },
+      resetForm() {
+        this.$refs.form.reset();
+      },
+      getColor(totalstocks, reorderlevel) {
+        if (totalstocks > reorderlevel) return 'primary'
+        else if (totalstocks == null) return ''
+        else return 'error'
+      },
+
+      //upload avatar
+      uploadItemImage(e) {
+        let file = e.target.files[0];
+        const storage = getStorage();
+        const storageRef = ref_storage(storage, 'inventories/' + file.name);
+
+        const uploadTask = uploadBytesResumable(storageRef, file);
+
+        uploadTask.on('state_changed',
+          (snapshot) => {
+            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            this.uploadBtnText = "Uploading: " + progress.toFixed(0) + '%';
+            this.uploadBtnTextMobile = mdiProgressDownload;
+            //this.uploadBtnTextMobile = "Uploading: " + progress.toFixed(0) + '%';
+
+            switch (snapshot.state) {
+              case 'paused':
+                console.log('Upload is paused');
+                break;
+              case 'running':
+                console.log('Upload is running');
+                break;
+            }
+          },
+          (error) => {
+            // Handle unsuccessful uploads
+          },
+          () => {
+            // Handle successful uploads on complete
+            // For instance, get the download URL: https://firebasestorage.googleapis.com/...
+            this.uploadBtnText = 'Uploaded Successfully';
+
+            this.uploadBtnTextMobile = mdiCheckCircle;
+            //this.uploadBtnTextMobile = 'Photo Uploaded';
+            getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+              console.log('File available at', downloadURL);
+              itemImage.value = downloadURL;
+
+            });
+          }
+        );
+      },
     },
-  },
-}
+  }
 </script>
 <style scoped>
-tr {
-  text-align: center;
+  tr {
+    text-align: center;
 
 
-}
+  }
 </style>
