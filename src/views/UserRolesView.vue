@@ -47,139 +47,6 @@
           </v-text-field>
           <v-spacer></v-spacer>
 
-          <!-- Barcode Scan Button -->
-          <v-btn
-            color="primary"
-            elevation="2"
-            class="mr-2 hidden-sm-and-down"
-            @click="openBarcodeScanner"
-            >Barcode Scan
-          </v-btn>
-
-          <!-- Scan Barcode Modal -->
-          <v-dialog v-model="dialogScan" max-width="550px">
-            <v-card class="pa-5 d-flex flex-column justify-center">
-              <v-chip
-                color="primary"
-                class="d-flex justify-center rounded-pill font-weight-bold text-h6 pa-5 "
-                >Scan barcode
-              </v-chip>
-              <v-card-title
-                class="-d-flex justify-center pa-0 rounded-lg my-3 overflow-hidden"
-              >
-                <StreamBarcodeReader
-                  @decode="onDecode"
-                  @loaded="onLoaded"
-                  stop
-                ></StreamBarcodeReader>
-              </v-card-title>
-
-              <v-card-actions class="mb-n5">
-                <v-spacer></v-spacer>
-                <v-btn color="secondary" @click="closeScan">Cancel</v-btn>
-                <v-spacer></v-spacer>
-              </v-card-actions>
-            </v-card>
-          </v-dialog>
-
-          <!-- Scan View Modal -->
-          <v-dialog v-model="dialogScanView" max-width="550px">
-            <v-card flat class="pa-3 mt-2">
-              <v-chip
-                color="primary"
-                class="d-flex justify-center rounded-pill mb-4 font-weight-bold text-h6 pa-5 "
-              >
-                Scan Result
-              </v-chip>
-              <div v-if="scanStatus">
-                <v-card-text class="d-flex align-center">
-                  <v-avatar rounded size="120" class="me-6">
-                    <v-img :src="scanItemImage"></v-img>
-                  </v-avatar>
-                  <!-- upload photo -->
-                  <div class="align-center">
-                    <h1 class="headline mt-5">
-                      {{ scanItemName }}
-                    </h1>
-                    <p class="text-sm">
-                      {{ scanBarcode }}
-                    </p>
-                  </div>
-                </v-card-text>
-                <v-card-text>
-                  <v-form class="multi-col-validation mt-6">
-                    <v-row>
-                      <v-col md="6" cols="12">
-                        <v-text-field
-                          v-model="scanBarcode"
-                          label="Barcode"
-                          dense
-                          outlined
-                          readonly
-                        ></v-text-field>
-                      </v-col>
-                      <v-col md="6" cols="12">
-                        <v-text-field
-                          v-model="scanItemName"
-                          label="Item name"
-                          dense
-                          outlined
-                          readonly
-                        ></v-text-field>
-                      </v-col>
-                      <v-col cols="12" md="6">
-                        <v-text-field
-                          v-model="scanDisplayStocks"
-                          label="Display Stocks"
-                          dense
-                          outlined
-                          readonly
-                        >
-                        </v-text-field>
-                      </v-col>
-                      <v-col cols="12" md="6">
-                        <v-text-field
-                          v-model="scanStorebox"
-                          dense
-                          label="Storebox"
-                          outlined
-                          readonly
-                        ></v-text-field>
-                      </v-col>
-                      <v-col cols="12" md="6">
-                        <v-text-field
-                          v-model="scanTotalStocks"
-                          dense
-                          label="Total Stocks"
-                          outlined
-                          readonly
-                        >
-                        </v-text-field>
-                      </v-col>
-                    </v-row>
-                  </v-form>
-                </v-card-text>
-              </div>
-
-              <!-- alert -->
-              <v-col cols="12" v-else>
-                <v-alert color="info" text class="mb-0">
-                  <div class="d-flex align-start">
-                    <v-icon color="info">
-                      {{ barcodeIcon }}
-                    </v-icon>
-
-                    <div class="ms-3">
-                      <p class="text-base font-weight-medium mb-1">
-                        No Item Found.
-                      </p>
-                    </div>
-                  </div>
-                </v-alert>
-              </v-col>
-            </v-card>
-          </v-dialog>
-
           <!-- Capture Photo modal -->
           <v-dialog v-model="capturePhoto" max-width="550px">
             <v-card class="pa-5 d-flex flex-column justify-center">
@@ -211,29 +78,19 @@
           </v-dialog>
 
           <!-- Add & Edit Item Modal -->
-          <v-dialog v-model="dialog" max-width="900">
-            <template v-slot:activator="{ on, attrs }">
-              <v-btn color="primary" outlined class="" v-bind="attrs" v-on="on">
-                New Item
-              </v-btn>
-            </template>
+          <v-dialog v-model="dialog" max-width="650">
             <v-card>
               <v-card-title class="d-flex justify-center ">
                 <v-chip
                   color="primary"
                   class="d-flex justify-center font-weight-bold text-h6 pa-5"
-                  >{{ formTitle }}
+                  >Edit User
                 </v-chip>
               </v-card-title>
 
               <v-card-text>
                 <v-container>
                   <v-form ref="form">
-                    <div class="d-flex  justify-center align-center">
-                      <p class="mr-3 text-subtitle-1">Item Information</p>
-                      <v-divider></v-divider>
-                    </div>
-
                     <v-row no-gutters class="d-flex justify-center">
                       <v-col cols="12" sm="3" class="ma-2 align-self-center">
                         <v-card-text
@@ -289,12 +146,11 @@
                         </v-card-text>
                       </v-col>
 
-                      <v-col cols="12" sm="4" class="ma-2 align-self-center">
+                      <v-col cols="12" sm="6" class="ma-2 align-self-center">
                         <v-text-field
-                          v-model="dataItem.itemname"
+                          v-model="dataItem.email"
                           :rules="itemNameRules"
-                          label="Item Name"
-                          clearable
+                          label="Email"
                           required
                           outlined
                           dense
@@ -302,121 +158,22 @@
                         </v-text-field>
 
                         <v-text-field
-                          v-model="dataItem.barcode"
+                          v-model="dataItem.name"
                           :rules="itemNameRules"
-                          label="Barcode"
-                          type="number"
-                          clearable
+                          label="Name"
                           outlined
                           dense
                         >
                         </v-text-field>
 
-                        <v-text-field
-                          v-model="dataItem.retail"
+                        <v-select
+                          v-model="dataItem.role"
+                          dense
+                          outlined
+                          label="Role"
+                          :items="status"
                           :rules="itemNameRules"
-                          label="Retail Price"
-                          type="number"
-                          clearable
-                          outlined
-                          dense
-                        >
-                        </v-text-field>
-                      </v-col>
-
-                      <v-col cols="12" sm="4" class="ma-2 align-self-center">
-                        <v-text-field
-                          v-model.number="dataItem.stockunit"
-                          :rules="itemNameRules"
-                          label="Stock Unit"
-                          clearable
-                          outlined
-                          dense
-                        >
-                        </v-text-field>
-
-                        <v-text-field
-                          v-model.number="dataItem.reorderlevel"
-                          :rules="itemNameRules"
-                          label="Reorder Level"
-                          type="number"
-                          clearable
-                          outlined
-                          dense
-                        >
-                        </v-text-field>
-
-                        <v-text-field
-                          v-model.number="dataItem.manufacturer"
-                          :rules="itemNameRules"
-                          label="Manufacturer"
-                          clearable
-                          outlined
-                          dense
-                        >
-                        </v-text-field>
-                      </v-col>
-                    </v-row>
-
-                    <div class="d-flex  justify-center align-center">
-                      <p class="mr-3 text-subtitle-1">Stock Information</p>
-                      <v-divider></v-divider>
-                    </div>
-
-                    <v-row no-gutters class="d-flex justify-center">
-                      <v-col cols="12" sm="3" class="ma-2">
-                        <v-text-field
-                          v-model.number="dataItem.available"
-                          label="Quantity (excluding display)"
-                          clearable
-                          outlined
-                          dense
-                        >
-                        </v-text-field>
-                        <v-text-field
-                          v-model.number="dataItem.unitcost"
-                          label="Unit Cost"
-                          clearable
-                          outlined
-                          dense
-                        >
-                        </v-text-field>
-                      </v-col>
-                      <v-col cols="12" sm="3" class="ma-2">
-                        <v-text-field
-                          v-model.number="dataItem.display"
-                          label="Quantity to Display"
-                          clearable
-                          outlined
-                          dense
-                        >
-                        </v-text-field>
-                        <v-text-field
-                          v-model.number="dataItem.totalcost"
-                          label="Total Cost"
-                          clearable
-                          outlined
-                          dense
-                        >
-                        </v-text-field>
-                      </v-col>
-                      <v-col cols="12" sm="3" class="ma-2">
-                        <v-text-field
-                          v-model.number="dataItem.expiry"
-                          label="Expiry Date"
-                          clearable
-                          outlined
-                          dense
-                        >
-                        </v-text-field>
-                        <v-text-field
-                          v-model.number="dataItem.supplier"
-                          label="Supplier"
-                          clearable
-                          outlined
-                          dense
-                        >
-                        </v-text-field>
+                        ></v-select>
                       </v-col>
                     </v-row>
                   </v-form>
@@ -435,59 +192,6 @@
               </v-card-actions>
             </v-card>
           </v-dialog>
-          <!-- Round buttons -->
-          <v-btn
-            color="white"
-            elevation="2"
-            class="ml-2 primary hidden-sm-and-up"
-            fab
-            small
-            outlined
-            @click="openBarcodeScanner"
-          >
-            <v-icon>{{ barcodeIcon }}</v-icon>
-          </v-btn>
-          <!-- <v-dialog v-model="dialog" max-width="500px">
-            <template v-slot:activator="{ on, attrs }">
-              <v-btn color="primary" elevation="2" class="ml-2 hidden-md-and-up" fab small outlined v-bind="attrs"
-                v-on="on">
-                <v-icon>{{ plusIcon }}</v-icon>
-              </v-btn>
-            </template>
-          </v-dialog> -->
-          <v-btn
-            color="primary"
-            elevation="2"
-            class="ml-2 hidden-sm-and-down"
-            fab
-            small
-            outlined
-          >
-            <v-icon>{{ pdfIcon }}</v-icon>
-          </v-btn>
-          <v-btn
-            color="primary"
-            elevation="2"
-            class="ml-2 hidden-sm-and-down"
-            fab
-            small
-            outlined
-          >
-            <v-icon>{{ editIcon }}</v-icon>
-          </v-btn>
-          <v-btn
-            color="error"
-            elevation="2"
-            class="ml-2 hidden-sm-and-down"
-            fab
-            small
-          >
-            <v-icon>{{ deleteIcon }}</v-icon>
-          </v-btn>
-          <!-- <v-switch
-          v-model="singleExpand"
-          class="mt-2" x-small
-        ></v-switch> -->
 
           <!-- Delete Item Modal -->
           <v-dialog v-model="dialogDelete" max-width="500px">
@@ -514,18 +218,18 @@
         </v-toolbar>
       </template>
 
-      <template v-slot:item.totalstocks="{ item }" class="text-center">
-        <v-chip :color="getColor(item.totalstocks, item.reorderlevel)" dark>
+      <template v-slot:item.role="{ item }" class="text-center">
+        <v-chip :color="getColor(item.role)" dark>
           <v-icon left color="white">
             {{ numberIcon }}
           </v-icon>
-          {{ item.totalstocks }}
+          {{ item.role }}
         </v-chip>
       </template>
 
-      <template v-slot:item.image="{ item }" class="text-center">
+      <template v-slot:item.avatar="{ item }" class="text-center">
         <v-avatar rounded size="50" class="ma-2">
-          <v-img :src="item.image"></v-img>
+          <v-img :src="item.avatar"></v-img>
         </v-avatar>
       </template>
 
@@ -543,16 +247,6 @@
           >
             <v-icon>{{ editIcon }}</v-icon>
           </v-btn>
-          <v-btn color="primary" elevation="2" class="mr-2" fab x-small>
-            <v-icon>{{ consumeIcon }}</v-icon>
-          </v-btn>
-          <!-- <v-btn color="error" elevation="2" class="" fab x-small @click="deleteItem(item)">
-            <v-icon>{{ deleteIcon }}</v-icon>
-          </v-btn> -->
-          <!-- <v-btn color="secondary" elevation="0" class="" x-small outlined>
-            <v-icon class="mx-n16">{{ moreIcon }}</v-icon>
-            
-          </v-btn> -->
         </div>
       </template>
       <!-- Reset Button if No Data -->
@@ -591,6 +285,7 @@ import {
 import db from "@/fb";
 // import { collection } from "firebase/firestore";
 import { StreamBarcodeReader } from "vue-barcode-reader";
+import { getAuth, deleteUser } from "firebase/auth";
 import {
   addDoc,
   getDocs,
@@ -605,7 +300,7 @@ import {
 import "vue-media-recorder/src/assets/scss/main.scss";
 import { PhotoCapture } from "vue-media-recorder";
 
-const inventoryColRef = collection(db, "inventory");
+const inventoryColRef = collection(db, "users");
 
 //upload image imports
 import { ref, onMounted } from "@vue/composition-api";
@@ -617,6 +312,7 @@ import {
   getDownloadURL,
   uploadString,
 } from "firebase/storage";
+import { getFunctions, httpsCallable } from "firebase/functions";
 const itemImage = ref(
   "https://assumptaclinic.com/wp-content/uploads/2022/10/default-assumpta.jpg"
 );
@@ -669,44 +365,26 @@ export default {
     // table header data
     headers: [
       {
-        text: "Image",
+        text: "Avatar",
         align: "start",
-        value: "image",
+        sortable: false,
+        value: "avatar",
       },
       {
-        text: "Item Name",
-        value: "itemname",
-      },
-      {
-        text: "Barcode",
+        text: "Email",
         sortable: true,
-        value: "barcode",
+        value: "email",
       },
       {
-        text: "Retail Price",
+        text: "Name",
         sortable: true,
-        value: "retail",
+        value: "name",
       },
       {
-        text: "Available Stocks",
+        text: "Role",
+        value: "role",
         sortable: true,
-        value: "available",
       },
-      {
-        text: "On Display",
-        sortable: true,
-        value: "display",
-      },
-      {
-        text: "Total Stocks",
-        sortable: true,
-        value: "totalstocks",
-      },
-      // {
-      //   text: 'Item Status', //expired stocks?
-      //   sortable: true,
-      //   value: 'itemstatus'
-      // },
       {
         text: "Actions",
         value: "actions",
@@ -717,57 +395,24 @@ export default {
     items: [],
     itemIndex: -1,
     currentItem: {
-      image: itemImage.value,
-      itemname: "",
-      barcode: "",
-      retail: "",
-      stockunit: "",
-      reorderlevel: "",
-      manufacturer: "",
-
-      available: 0,
-      unitcost: 0,
-      display: 0,
-      totalstocks: 0,
-      totalcost: 0,
-      expiry: "na",
-      supplier: "na",
+      avatar: itemImage.value,
+      email: "",
+      name: "",
+      role: "",
     },
     defaultItem: {
-      image: itemImage.value,
-      itemname: "",
-      barcode: "",
-      retail: "",
-      stockunit: "",
-      reorderlevel: "",
-      manufacturer: "",
-
-      available: 0,
-      unitcost: 0,
-      display: 0,
-      totalstocks: 0,
-      totalcost: 0,
-      expiry: "na",
-      supplier: "na",
+      avatar: itemImage.value,
+      email: "",
+      name: "",
+      role: "",
     },
 
     // add item
     dataItem: {
-      image: itemImage.value,
-      itemname: "",
-      barcode: "",
-      retail: "",
-      stockunit: "",
-      reorderlevel: "",
-      manufacturer: "",
-
-      available: 0,
-      unitcost: 0,
-      display: 0,
-      totalstocks: 0,
-      totalcost: 0,
-      expiry: "na",
-      supplier: "na",
+      avatar: itemImage.value,
+      email: "",
+      name: "",
+      role: "",
     },
 
     //rules
@@ -803,8 +448,14 @@ export default {
   },
 
   setup(props) {
+    const status = [
+      "Inventory Admin",
+      "Inventory Staff",
+      "Non-Inventory Staff",
+      "Can't Access",
+    ];
     return {
-      // status,
+      status,
       // userRole,
       // userEmail,
       itemImage,
@@ -820,12 +471,6 @@ export default {
         mdiProgressDownload,
       },
     };
-  },
-  computed: {
-    // to change modal to add or edit
-    formTitle() {
-      return this.itemIndex === -1 ? "New Item" : "Edit Item";
-    },
   },
 
   watch: {
@@ -883,9 +528,9 @@ export default {
     done(picture) {
       this.closeCapturePhoto();
       var currentdate = new Date();
-      let file = this.dataURLtoFile(picture, "inventory" + currentdate);
+      let file = this.dataURLtoFile(picture, "user" + currentdate);
       const storage = getStorage();
-      const storageRef = ref_storage(storage, "inventories/" + file.name);
+      const storageRef = ref_storage(storage, "avatars/" + file.name);
 
       const uploadTask = uploadBytesResumable(storageRef, file, "data_url");
 
@@ -932,7 +577,7 @@ export default {
         this.dataItem = Object.assign({}, item);
         this.itemId = this.dataItem.id;
         this.docRef = doc(inventoryColRef, this.itemId);
-        itemImage.value = this.dataItem.image;
+        itemImage.value = this.dataItem.avatar;
         this.showDelete = true;
       }
       this.dialog = true;
@@ -944,30 +589,20 @@ export default {
 
     async deleteItemConfirm() {
       this.items.splice(this.itemIndex, 1);
-      await deleteDoc(this.docRef);
-      this.closeDelete();
-      this.itemStatus = "Deleted";
-      this.snackbar = true;
-      this.resetForm();
-      this.dialog = false;
+      // await deleteDoc(this.docRef);
+      const functions = getFunctions();
+      const deleteUser = httpsCallable(functions, "deleteUser");
+      deleteUser(this.itemId).then((result) => {
+        // Read result of the Cloud Function.
+        /** @type {any} */
+        const data = result.data;
+        this.closeDelete();
+        this.itemStatus = "Deleted";
+        this.snackbar = true;
+        this.resetForm();
+        this.dialog = false;
+      });
     },
-
-    // delete function
-    // async deleteItem(item) {
-    //   this.dataItem = Object.assign({}, item);
-    //   this.itemId = this.dataItem.id;
-    //   this.docRef = doc(inventoryColRef, this.itemId);
-    //   this.dialogDelete = true;
-    // },
-
-    // async deleteItemConfirm() {
-    //   this.items.splice(this.itemIndex, 1);
-    //   await deleteDoc(this.docRef);
-    //   this.closeDelete();
-    //   this.itemStatus = 'Deleted';
-    //   this.snackbar = true;
-    //   this.resetForm();
-    // },
 
     // close function for edit and add
     close() {
@@ -1020,27 +655,10 @@ export default {
         // edit function
         if (this.$refs.form.validate()) {
           await updateDoc(this.docRef, {
-            // image: itemImage.value,
-            // itemname: this.dataItem.itemname,
-            // barcode: this.dataItem.barcode,
-            // storebox: this.dataItem.storebox,
-            // total: this.dataItem.total,
-            // display: this.dataItem.display,
-            image: itemImage.value,
-            itemname: this.dataItem.itemname,
-            barcode: this.dataItem.barcode,
-            retail: this.dataItem.retail,
-            stockunit: this.dataItem.stockunit,
-            reorderlevel: this.dataItem.reorderlevel,
-            manufacturer: this.dataItem.manufacturer,
-
-            available: this.dataItem.available,
-            unitcost: this.dataItem.unitcost,
-            display: this.dataItem.display,
-            totalstocks: this.dataItem.available + this.dataItem.display,
-            totalcost: this.dataItem.totalcost,
-            expiry: this.dataItem.expiry,
-            supplier: this.dataItem.supplier,
+            avatar: itemImage.value,
+            name: this.dataItem.name,
+            role: this.dataItem.role,
+            email: this.dataItem.email,
           });
           // await setDoc(this.docRef, this.dataItem);
           this.close();
@@ -1053,27 +671,10 @@ export default {
           // const addedDoc = await addDoc(inventoryColRef, this.$data.dataItem);
           console.log(itemImage.value);
           await addDoc(inventoryColRef, {
-            // image: itemImage.value,
-            // itemname: this.dataItem.itemname,
-            // barcode: this.dataItem.barcode,
-            // storebox: this.dataItem.storebox,
-            // total: this.dataItem.total,
-            // display: this.dataItem.display,
-            image: itemImage.value,
-            itemname: this.dataItem.itemname,
-            barcode: this.dataItem.barcode,
-            retail: this.dataItem.retail,
-            stockunit: this.dataItem.stockunit,
-            reorderlevel: this.dataItem.reorderlevel,
-            manufacturer: this.dataItem.manufacturer,
-
-            available: this.dataItem.available,
-            unitcost: this.dataItem.unitcost,
-            display: this.dataItem.display,
-            totalstocks: this.dataItem.available + this.dataItem.display,
-            totalcost: this.dataItem.totalcost,
-            expiry: this.dataItem.expiry,
-            supplier: this.dataItem.supplier,
+            avatar: itemImage.value,
+            name: this.dataItem.name,
+            role: this.dataItem.role,
+            email: this.dataItem.email,
           });
           this.close();
           this.itemStatus = "Added";
@@ -1120,10 +721,10 @@ export default {
     resetForm() {
       this.$refs.form.reset();
     },
-    getColor(totalstocks, reorderlevel) {
-      if (totalstocks > reorderlevel) return "primary";
-      else if (totalstocks == null) return "";
-      else return "error";
+    getColor(role) {
+      if (role == "Inventory Admin") return "success";
+      else if (role == null) return "";
+      else return "primary";
     },
 
     //upload avatar
