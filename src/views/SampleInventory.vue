@@ -678,7 +678,7 @@
       stkStore: '',
       stkWhere: '',
       consumeWhere: [
-        'Stocks on Display', 'Stocks on Stored'
+        'On Display Stocks', 'Available Stocks'
       ],
       totalAvailable: 0,
       totalDisplay: 0,
@@ -845,10 +845,10 @@
         this.totalDisplay = parseInt(this.dataItem.display) + parseInt(this.stkAdd);
 
         await updateDoc(this.docRef, {
-              display: this.totalDisplay,
-              available: this.totalAvailable,
-              totalstocks: this.totalAvailable + this.totalDisplay,
-            });
+          display: this.totalDisplay,
+          available: this.totalAvailable,
+          totalstocks: this.totalAvailable + this.totalDisplay,
+        });
 
         console.log("Add Available:" + this.dataItem.available + "+" + this.stkStore + "=" + this.totalAvailable);
         console.log("Add Display:" + this.dataItem.display + "+" + this.stkAdd + "=" + this.totalDisplay);
@@ -882,7 +882,7 @@
           this.consumeAvailable = parseInt(this.dataItem.available - parseInt(this.stkConsume));
           this.consumeDisplay = parseInt(this.dataItem.display - parseInt(this.stkConsume));
 
-          if (this.stkWhere == 'Stocks on Display') {
+          if (this.stkWhere == 'On Display Stocks') {
             await updateDoc(this.docRef, {
               display: this.consumeDisplay,
               totalstocks: this.consumeDisplay + this.dataItem.available,
@@ -891,7 +891,7 @@
               .consumeDisplay);
             console.log("Consumed Successfully");
 
-          } else if (this.stkWhere == 'Stocks on Stored') {
+          } else if (this.stkWhere == 'Available Stocks') {
             await updateDoc(this.docRef, {
               available: this.consumeAvailable,
               totalstocks: this.consumeAvailable + this.dataItem.display,
