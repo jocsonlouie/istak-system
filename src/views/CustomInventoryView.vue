@@ -11,13 +11,20 @@
                                 <p>New Inventory</p>
                             </v-card>
                         </template>
+
                         <!-- Add inventory -->
                         <v-card class="d-flex justify-center flex-column pa-md-10">
-                            <v-chip color="primary" class="d-flex justify-center font-weight-bold text-h6 pa-5 mb-4">New
-                                Inventory
-                            </v-chip>
-                            <v-text-field label="Inventory Name" :rules="fieldRules" clearable filled></v-text-field>
-
+                            <v-card-title class="d-flex justify-center ">
+                                <v-chip color="primary" class="d-flex justify-center font-weight-bold text-h6 pa-5">
+                                    Add Inventory
+                                </v-chip>
+                            </v-card-title>
+                            <v-container class="my-5 px-12">
+                                <v-form ref="form">
+                                    <v-text-field label="Inventory Name" :rules="fieldRules" clearable outlined></v-text-field>
+                                </v-form>
+                            </v-container>
+                                
                             <v-card-actions class="mx-auto">
                                 <v-spacer></v-spacer>
                                 <v-btn color="secondary" @click="addDialog = false">
@@ -33,12 +40,16 @@
                     <!-- Update Inventory -->
                     <v-dialog v-model="updateDialog" persistent max-width="500">
                         <v-card class="d-flex justify-center flex-column pa-md-10">
-                            <v-chip color="primary" class="d-flex justify-center font-weight-bold text-h6 pa-5 mb-4">
-                                Update
-                                Inventory
-                            </v-chip>
-                            <v-text-field :rules="fieldRules" clearable filled hint="Enter New Inventory Name">
-                            </v-text-field>
+                           <v-card-title class="d-flex justify-center ">
+                                <v-chip color="primary" class="d-flex justify-center font-weight-bold text-h6 pa-5">
+                                    Edit Inventory
+                                </v-chip>
+                            </v-card-title>
+                            <v-container class="my-5 px-12">
+                                <v-form ref="form">
+                                    <v-text-field label="New Inventory Name" :rules="fieldRules" clearable outlined></v-text-field>
+                                </v-form>
+                            </v-container>
 
                             <v-card-actions class="mx-auto">
                                 <v-spacer></v-spacer>
@@ -56,7 +67,19 @@
                     <!-- Delete Inventory-->
                     <v-dialog v-model="deleteDialog" persistent max-width="500">
                         <v-card class="d-flex justify-center flex-column pa-md-10">
-                            <p class="text-h10">Are you sure you want to DELETE 'Vaccines' Inventory</p>
+                            <v-card-title class="d-flex justify-center ">
+                                <v-chip color="error" class="d-flex justify-center font-weight-bold text-h6 pa-5">
+                                    Delete Inventory
+                                </v-chip>
+                            </v-card-title>
+                            <v-container class="my-5 px-10 text-center">
+                                <v-form ref="form text-center">
+                                    <p class="text-center">Are you sure you want to delete this inventory?</p>
+              <p class="text-center font-weight-bold text-h5">'Vaccines'</p>
+                                </v-form>
+                            </v-container>
+
+                            
                             <v-card-actions class="mx-auto">
                                 <v-spacer></v-spacer>
                                 <v-btn color="secondary" @click="deleteDialog = false">
