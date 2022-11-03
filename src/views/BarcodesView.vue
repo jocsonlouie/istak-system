@@ -38,7 +38,7 @@
                                             </v-btn>
                                             <v-btn color="primary" large class="mb-2"
                                                 @click="deductDialog = !deductDialog">
-                                                Deduct Quantity
+                                                Consume Stocks
                                             </v-btn>
                                             <v-btn color="primary" large class="mb-2"
                                                 @click="deleteDialog = !deleteDialog">
@@ -77,7 +77,7 @@
                                     </div>
 
                                     <v-row no-gutters class="d-flex justify-center">
-                                        <v-col cols="12" sm="8"  class="ma-2 align-self-center">
+                                        <v-col cols="12" sm="8" class="ma-2 align-self-center">
                                             <v-card-title
                                                 class="-d-flex justify-center pa-0 rounded-lg my-3 overflow-hidden">
                                                 <StreamBarcodeReader @decode="onDecode" @loaded="onLoaded" stop>
@@ -161,103 +161,106 @@
                     </v-dialog>
 
                     <!-- dialog for editing -->
-                    <v-dialog v-model="editDialog" max-width="1005px">
-                        <v-card class="pa-5 d-flex flex-column justify-center">
-                            <v-chip color="primary" class="d-flex justify-center font-weight-bold text-h6 pa-5">Edit
-                                Item Information
-                            </v-chip>
-                            <v-container class="my-5">
-                                <v-card flat class="">
-                                    <v-row row wrp>
-                                        <v-col cols="12" md="6">
-                                            <!-- Scan Barcode Modal -->
-                                            <v-card class="pa-5 d-flex flex-column justify-start" height="340"
-                                                width="450">
-                                                <v-card-title class="-d-flex justify-start pa-0 my-3 overflow-hidden">
+                    <v-dialog v-model="editDialog" max-width="900px">
+                        <v-card class="">
+                            <v-card-title class="d-flex justify-center ">
+                                <v-chip color="primary" class="d-flex justify-center font-weight-bold text-h6 pa-5">Edit
+                                    Item Information
+                                </v-chip>
+                            </v-card-title>
 
-                                                    <StreamBarcodeReader max-width="" @decode="onDecode"
-                                                        @loaded="onLoaded" stop>
-                                                    </StreamBarcodeReader>
+                            <v-container class="my-5 px-12">
+                                <v-form ref="form">
 
-                                                </v-card-title>
-                                            </v-card>
+                                    <div class="d-flex  justify-center align-center">
+                                        <p class="mr-3 text-subtitle-1">Scan Barcode</p>
+                                        <v-divider></v-divider>
+                                    </div>
+
+                                    <v-row no-gutters class="d-flex justify-center">
+                                        <v-col cols="12" sm="8" class="ma-2 align-self-center">
+                                            <v-card-title
+                                                class="-d-flex justify-center pa-0 rounded-lg my-3 overflow-hidden">
+                                                <StreamBarcodeReader @decode="onDecode" @loaded="onLoaded" stop>
+                                                </StreamBarcodeReader>
+                                            </v-card-title>
                                         </v-col>
-                                        <v-col xs="2">
-                                            <!-- upload photo -->
-                                            <v-card-text class="mt-10">
-                                                <v-avatar rounded size="120" class="me-6">
-                                                    <v-img :src="itemImage"></v-img>
-                                                </v-avatar>
-
-                                                <div>
-                                                    <v-btn color="primary" class="me-3 mt-5"
-                                                        @click="$refs.refInputEl.click();">
-                                                        <v-icon class="d-sm-none">
-                                                            {{ uploadBtnTextMobile }}
-                                                        </v-icon>
-                                                        <span class="d-none d-sm-block">{{ uploadBtnText }}</span>
-                                                    </v-btn>
-
-                                                    <input ref="refInputEl" @change="uploadItemImage" type="file"
-                                                        accept=".jpeg,.png,.jpg,GIF" :hidden="true" />
-                                                </div>
-                                            </v-card-text>
-                                        </v-col>
-                                        <v-col class="mt-10" xs="2">
-                                            <v-text-field value="0000110125" label="Barcode" outlined clearable>
-                                            </v-text-field>
-                                            <v-text-field value="NOBIVAC DHPPI L4 (CANINE)" label="Item Name" outlined
-                                                clearable>
-                                            </v-text-field>
-                                            <v-text-field value="Vaccines" label="Inventory" outlined clearable>
-                                            </v-text-field>
-                                        </v-col>
-                                        <v-container class="my-5">
-                                            <v-card flat class="px-3">
-
-                                                <v-row no-gutters class="d-flex justify-center">
-                                                    <v-col cols="12" sm="3" class="ma-2">
-                                                        <v-text-field label="Total Stocks (including on display)"
-                                                            value="43" outlined dense clearable>
-                                                        </v-text-field>
-                                                        <v-btn color="primary" outlined class="mb-7">
-                                                            SEE RECEIPTS</v-btn>
-                                                        <v-text-field label="Stock on Display" value="45" outlined
-                                                            dense>
-                                                        </v-text-field>
-                                                    </v-col>
-                                                    <v-col cols="12" sm="3" class="ma-2">
-                                                        <v-text-field label="Price" value="541.58" outlined dense
-                                                            clearable>
-                                                        </v-text-field>
-                                                        <v-text-field label="Storebox" value="ABC-123" outlined dense
-                                                            clearable>
-                                                        </v-text-field>
-                                                        <v-text-field label="Expiry Date" value="09/05/2023" outlined
-                                                            dense clearable>
-                                                        </v-text-field>
-                                                    </v-col>
-                                                    <v-col cols="12" sm="3" class="ma-2">
-                                                        <v-text-field label="Low Stock Quantity Indicator" value="5"
-                                                            outlined dense clearable>
-                                                        </v-text-field>
-                                                        <v-text-field label="Brand" value="Nobivac" outlined dense
-                                                            clearable>
-                                                        </v-text-field>
-                                                        <v-text-field label="Supplier" value="Medical Supplier Inc."
-                                                            outlined dense clearable>
-                                                        </v-text-field>
-                                                    </v-col>
-                                                </v-row>
-                                            </v-card>
-                                        </v-container>
                                     </v-row>
 
-                                </v-card>
+
+                                    <div class="d-flex  justify-center align-center">
+                                        <p class="mr-3 text-subtitle-1">Item Information</p>
+                                        <v-divider></v-divider>
+                                    </div>
+
+                                    <v-row no-gutters class="d-flex justify-center">
+                                        <v-col cols="12" sm="3" class="ma-2 align-self-center">
+                                            <v-card-text class="d-flex justify-center flex-column align-center mt-2">
+                                                <v-avatar rounded size="80" class="">
+                                                    <v-img :src="itemImage"></v-img>
+                                                </v-avatar>
+                                            </v-card-text>
+                                        </v-col>
+
+                                        <v-col cols="12" sm="4" class="ma-2 align-self-center">
+                                            <v-text-field label="Item Name" clearable outlined dense
+                                                :rules="itemNameRules">
+                                            </v-text-field>
+
+                                            <v-text-field label="Barcode" type="number" clearable outlined dense
+                                                :rules="itemNameRules">
+                                            </v-text-field>
+
+                                            <v-text-field label="Retail Price" type="number" clearable outlined dense
+                                                :rules="itemNameRules">
+                                            </v-text-field>
+                                        </v-col>
+
+                                        <v-col cols="12" sm="4" class="ma-2 align-self-center">
+                                            <v-text-field label="Stock Unit" clearable outlined dense
+                                                :rules="itemNameRules">
+                                            </v-text-field>
+
+                                            <v-text-field label="Reorder Level" type="number" clearable outlined dense
+                                                :rules="itemNameRules">
+                                            </v-text-field>
+
+                                            <v-text-field label="Manufacturer" clearable outlined dense
+                                                :rules="itemNameRules">
+                                            </v-text-field>
+                                        </v-col>
+                                    </v-row>
+
+                                    <div class="d-flex  justify-center align-center">
+                                        <p class="mr-3 text-subtitle-1">Stock Information</p>
+                                        <v-divider></v-divider>
+                                    </div>
+
+                                    <v-row no-gutters class="d-flex justify-center">
+                                        <v-col cols="12" sm="3" class="ma-2">
+                                            <v-text-field label="Quantity (excluding display)" clearable outlined dense>
+                                            </v-text-field>
+                                            <v-text-field label="Unit Cost" outlined dense clearable>
+                                            </v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" sm="3" class="ma-2">
+                                            <v-text-field label="Quantity to Display" outlined dense clearable>
+                                            </v-text-field>
+                                            <v-text-field label="Total Cost" outlined dense clearable>
+                                            </v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" sm="3" class="ma-2">
+                                            <v-text-field label="Expiry Date" outlined dense clearable>
+                                            </v-text-field>
+                                            <v-text-field label="Supplier" outlined dense clearable>
+                                            </v-text-field>
+                                        </v-col>
+                                    </v-row>
+                                </v-form>
                             </v-container>
                             <v-card-actions>
                                 <v-spacer></v-spacer>
-                                <v-btn color="primary" @click="editDialog = false">EDIT</v-btn>
+                                <v-btn color="primary" @click="editDialog = false">SAVE</v-btn>
                                 <v-btn color="secondary" @click="editDialog = false">CANCEL</v-btn>
                                 <v-spacer></v-spacer>
                             </v-card-actions>
@@ -265,34 +268,55 @@
                     </v-dialog>
 
                     <!-- dialog for deducting -->
-                    <v-dialog v-model="deductDialog" max-width="800px">
-                        <v-card class="pa-5 d-flex flex-column justify-center">
-                            <v-chip color="primary" class="d-flex justify-center font-weight-bold text-h6 pa-5">
-                                Deduct Quantity
-                            </v-chip>
-                            <!-- Scan Barcode Modal -->
-                            <v-card class="pa-5 d-flex justify-center" height="340" width="750">
-                                <v-card-title class="-d-flex justify-center pa-0 rounded-lg my-3 overflow-hidden">
-                                    <StreamBarcodeReader @decode="onDecode" @loaded="onLoaded" stop>
-                                    </StreamBarcodeReader>
-                                </v-card-title>
-                            </v-card>
-                            <div class="barcode-table">
-                                <v-data-table :headers="headers" :items="items" sort-by="name" class="elevation-1 pt-3"
-                                    item-key="itemname" :loading="loadingTable">
-                                </v-data-table>
-                            </div>
+                    <v-dialog v-model="deductDialog" max-width="900px">
+                        <v-card class="">
+                            <v-card-title class="d-flex justify-center ">
+                                <v-chip color="primary" class="d-flex justify-center font-weight-bold text-h6 pa-5">
+                                    Consume Stocks
+                                </v-chip>
+                            </v-card-title>
 
+                            <v-container class="my-5 px-12">
+                                <v-form ref="form">
+                                    <div class="d-flex  justify-center align-center">
+                                        <p class="mr-3 text-subtitle-1">Stock Information</p>
+                                        <v-divider></v-divider>
+                                    </div>
+
+                                    <v-row no-gutters class="d-flex justify-center">
+                                        <v-col cols="12" sm="12" class="d-flex justify-center flex-column flex-sm-row">
+                                            <v-card-text
+                                                class="-d-flex justify-center pa-0 rounded-lg my-3 overflow-hidden">
+                                                <StreamBarcodeReader @decode="onDecode" @loaded="onLoaded" stop>
+                                                </StreamBarcodeReader>
+                                            </v-card-text>
+                                            <v-card-text class="d-flex justify-center flex-column align-center mt-2">
+                                    
+                                                <v-avatar rounded size="180" class="">
+                                                    <v-img :src="itemImage"></v-img>
+                                                </v-avatar>
+                                                <p></p>
+                                            </v-card-text>
+                                        </v-col>
+                                        <v-col cols="12" sm="12" class=" align-self-center">
+                                            <v-data-table :headers="headers" :items="items" sort-by="name"
+                                                class="elevation-1 pt-3" item-key="itemname" :loading="loadingTable">
+                                            </v-data-table>
+                                        </v-col>
+                                    </v-row>
+                                </v-form>
+                            </v-container>
                             <v-card-actions>
                                 <v-spacer></v-spacer>
-                                <v-btn color="primary" class="mt-5" @click="deductDialog = false">DONE</v-btn>
+                                <v-btn color="primary" @click="deductDialog = false">DONE</v-btn>
+                                <v-btn color="secondary" @click="deductDialog = false">CANCEL</v-btn>
                                 <v-spacer></v-spacer>
                             </v-card-actions>
                         </v-card>
                     </v-dialog>
 
                     <!-- dialog for deleting -->
-                    <v-dialog v-model="deleteDialog" max-width="1005px">
+                    <!-- <v-dialog v-model="deleteDialog" max-width="1005px">
                         <v-card class="pa-5 d-flex flex-column justify-center">
                             <v-chip color="primary" class="d-flex justify-center font-weight-bold text-h6 pa-5">
                                 Delete Item
@@ -301,7 +325,7 @@
                                 <v-card flat class="">
                                     <v-row row wrp>
                                         <v-col cols="12" md="6">
-                                            <!-- Scan Barcode Modal -->
+                                         
                                             <v-card class="pa-5 d-flex flex-column justify-start" height="340"
                                                 width="450">
                                                 <v-card-title class="-d-flex justify-start pa-0 my-3 overflow-hidden">
@@ -317,7 +341,7 @@
                                             <p class="fled-x justify-center font-weight-black text-h7">Are you
                                                 sure you
                                                 want to DELETE 'NOBIVAC DHPPI L4' ITEM?</p>
-                                            <!-- upload photo -->
+                                     
                                             <v-card-text class="mt-10">
                                                 <v-avatar rounded size="200" class="me-6">
                                                     <v-img :src="itemImage"></v-img>
@@ -340,6 +364,50 @@
                             <v-card-actions>
                                 <v-spacer></v-spacer>
                                 <v-btn color="primary" @click="deleteDialog = false">DELETE</v-btn>
+                                <v-btn color="secondary" @click="deleteDialog = false">CANCEL</v-btn>
+                                <v-spacer></v-spacer>
+                            </v-card-actions>
+                        </v-card>
+                    </v-dialog> -->
+                    <v-dialog v-model="deleteDialog" max-width="900px">
+                        <v-card class="">
+                            <v-card-title class="d-flex justify-center ">
+                                <v-chip color="error" class="d-flex justify-center font-weight-bold text-h6 pa-5">
+                                    Delete Item
+                                </v-chip>
+                            </v-card-title>
+
+                            <v-container class="my-5 px-12">
+                                <v-form ref="form">
+                                    <div class="d-flex  justify-center align-center">
+                                        <p class="mr-3 text-subtitle-1">Stock Information</p>
+                                        <v-divider></v-divider>
+                                    </div>
+
+                                    <v-row no-gutters class="d-flex justify-center">
+                                        <v-col cols="12" sm="12" class="d-flex justify-center flex-column flex-sm-row">
+                                            <v-card-text
+                                                class="-d-flex justify-center pa-0 rounded-lg my-3 overflow-hidden">
+                                                <StreamBarcodeReader @decode="onDecode" @loaded="onLoaded" stop>
+                                                </StreamBarcodeReader>
+                                            </v-card-text>
+                                            <v-card-text class="d-flex justify-center flex-column align-center mt-2">
+                                                <p class="text-center font-weight-black text-h7">Are you
+                                                sure you
+                                                want to delete <br></br><span class="text-h5">'NOBIVAC DHPPI L4'</span> item?</p>
+                                                <v-avatar rounded size="150" class="">
+                                                    <v-img :src="itemImage"></v-img>
+                                                </v-avatar>
+                                                
+                                            </v-card-text>
+                                        </v-col>
+                                      
+                                    </v-row>
+                                </v-form>
+                            </v-container>
+                            <v-card-actions>
+                                <v-spacer></v-spacer>
+                                <v-btn color="primary" @click="deleteDialog = false">YES</v-btn>
                                 <v-btn color="secondary" @click="deleteDialog = false">CANCEL</v-btn>
                                 <v-spacer></v-spacer>
                             </v-card-actions>
@@ -455,7 +523,6 @@
     </div>
 </template>
 <script>
-
     import {
         mdiBarcodeScan,
         mdiBarcode,
@@ -570,6 +637,12 @@
             singleSelect: false,
             selected: [],
             loadingTable: false,
+
+            //rules
+            valid: true,
+            itemNameRules: [
+                v => !!v || 'This field is required',
+            ],
 
 
         }),
