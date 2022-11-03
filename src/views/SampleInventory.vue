@@ -356,7 +356,8 @@
                   </v-text-field>
                   <p class="text-caption">Current Available Stocks: {{dataItem.available}}</p>
                   <p class="text-caption">Current On Display Stocks: {{dataItem.display}}</p>
-                  <v-select :items="consumeWhere" v-model="stkWhere" label="Consume in" outlined dense :rules="itemNameRules" ></v-select>
+                  <v-select :items="consumeWhere" v-model="stkWhere" label="Consume in" outlined dense
+                    :rules="itemNameRules"></v-select>
 
                 </v-form>
 
@@ -863,28 +864,43 @@
       },
 
       closeConsume() {
+        this.$nextTick(() => {
+          this.currentItem = Object.assign({}, this.defaultItem)
+        })
         this.dialogConsume = false;
       },
 
-      consumingStocks() {
+      async consumingStocks() {
         if (this.$refs.form.validate()) {
-           this.consumeAvailable = parseInt(this.dataItem.available - parseInt(this.stkConsume));
-        this.consumeDisplay = parseInt(this.dataItem.display - parseInt(this.stkConsume));
 
-        if (this.stkWhere == 'Stocks on Display') {
-          console.log("Consume Display: " + this.dataItem.display + "-" + this.stkConsume + "=" + this.consumeDisplay);
+          this.consumeAvailable = parseInt(this.dataItem.available - parseInt(this.stkConsume));
+          this.consumeDisplay = parseInt(this.dataItem.display - parseInt(this.stkConsume));
 
-        } else if (this.stkWhere == 'Stocks on Stored') {
-          console.log("Consume Available: " + this.dataItem.available + "-" + this.stkConsume + "=" + this
-            .consumeAvailable);
+          if (this.stkWhere == 'Stocks on Display') {
+            await updateDoc(this.docRef, {
+              display: this.consumeDisplay,
+              totalstocks: this.consumeDisplay + this.dataItem.available,
+            });
+            console.log("Consume Display: " + this.dataItem.display + "-" + this.stkConsume + "=" + this
+              .consumeDisplay);
+            console.log("Consumed Successfully");
+
+          } else if (this.stkWhere == 'Stocks on Stored') {
+            await updateDoc(this.docRef, {
+              available: this.consumeAvailable,
+              totalstocks: this.consumeAvailable + this.dataItem.display,
+            });
+            console.log("Consume Available: " + this.dataItem.available + "-" + this.stkConsume + "=" + this
+              .consumeAvailable);
+            console.log("Consumed Successfully");
+          }
+
+          this.resetForm();
+          this.closeConsume();
+          this.itemStatus = 'Stocks Consumed';
+          this.snackbar = true;
         }
 
-        this.resetForm();
-        this.closeConsume();
-        this.itemStatus = 'Stocks Consumed';
-        this.snackbar = true;
-        }
-       
       },
 
       // edit function
