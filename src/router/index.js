@@ -86,6 +86,14 @@ const routes = [
     },
   },
   {
+    path: '/user-roles',
+    name: 'user-roles',
+    component: () => import('@/views/UserRolesView.vue'),
+    meta: {
+      requiresAuth: true,
+    },
+  },
+  {
     path: '/pages/login',
     name: 'pages-login',
     component: () => import('@/views/pages/Login.vue'),

@@ -8,9 +8,19 @@ module.exports = {
     "eslint:recommended",
     "google",
   ],
+  parserOptions: {
+    ecmaVersion: 2017,
+    sourceType: "module",
+    ecmaFeatures: {
+      jsx: true,
+      generators: true,
+      experimentalObjectRestSpread: true
+    }
+  },
   rules: {
     "quotes": ["error", "double"],
     "indent": "off",
     "comma-dangle": "off",
+    "object-curly-spacing": ["error", "always"],
   },
 };

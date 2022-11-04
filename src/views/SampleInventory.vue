@@ -1,12 +1,18 @@
 <template>
   <div class="sample-iv">
     <!-- Success Alert -->
-    <v-snackbar v-model="snackbar" :timeout="timeout" top color="primary" outlined rounded="pill">
+    <v-snackbar
+      v-model="snackbar"
+      :timeout="timeout"
+      top
+      color="primary"
+      outlined
+      rounded="pill"
+    >
       <v-icon color="primary">{{ successIcon }}</v-icon>
 
       Item {{ itemStatus }} Successfully!
       <template v-slot:action="{ attrs2 }">
-
         <v-spacer></v-spacer>
         <v-btn color="primary" text v-bind="attrs2" @click="snackbar = false">
           Dismiss
@@ -15,31 +21,57 @@
     </v-snackbar>
 
     <!-- Data Table -->
-    <v-data-table :headers="headers" :items="items" sort-by="name" class="elevation-1 pt-3" :search="search"
-      v-model="selected" :single-select="singleSelect" item-key="itemname" show-select :loading="loadingTable">
-
+    <v-data-table
+      :headers="headers"
+      :items="items"
+      sort-by="name"
+      class="elevation-1 pt-3"
+      :search="search"
+      v-model="selected"
+      :single-select="singleSelect"
+      item-key="itemname"
+      show-select
+      :loading="loadingTable"
+    >
       <template v-slot:top>
         <v-toolbar flat>
           <!-- Table Top Functions -->
           <v-switch v-model="singleSelect" class="mb-n6 mr-4"></v-switch>
           <v-icon class="mr-2">{{ searchIcon }}</v-icon>
-          <v-text-field v-model="search" label="Search Item..." single-line hide-details>
-
+          <v-text-field
+            v-model="search"
+            label="Search Item..."
+            single-line
+            hide-details
+          >
           </v-text-field>
           <v-spacer></v-spacer>
 
           <!-- Barcode Scan Button -->
-          <v-btn color="primary" elevation="2" class="mr-2 hidden-sm-and-down" @click="openBarcodeScanner">Barcode Scan
+          <v-btn
+            color="primary"
+            elevation="2"
+            class="mr-2 hidden-sm-and-down"
+            @click="openBarcodeScanner"
+            >Barcode Scan
           </v-btn>
 
           <!-- Scan Barcode Modal -->
           <v-dialog v-model="dialogScan" max-width="550px">
             <v-card class="pa-5 d-flex flex-column justify-center">
-              <v-chip color="primary" class="d-flex justify-center rounded-pill font-weight-bold text-h6 pa-5 ">Scan
-                barcode
+              <v-chip
+                color="primary"
+                class="d-flex justify-center rounded-pill font-weight-bold text-h6 pa-5 "
+                >Scan barcode
               </v-chip>
-              <v-card-title class="-d-flex justify-center pa-0 rounded-lg my-3 overflow-hidden">
-                <StreamBarcodeReader @decode="onDecode" @loaded="onLoaded" stop></StreamBarcodeReader>
+              <v-card-title
+                class="-d-flex justify-center pa-0 rounded-lg my-3 overflow-hidden"
+              >
+                <StreamBarcodeReader
+                  @decode="onDecode"
+                  @loaded="onLoaded"
+                  stop
+                ></StreamBarcodeReader>
               </v-card-title>
 
               <v-card-actions class="mb-n5">
@@ -53,9 +85,11 @@
           <!-- Scan View Modal -->
           <v-dialog v-model="dialogScanView" max-width="550px">
             <v-card flat class="pa-3 mt-2">
-              <v-chip color="primary" class="d-flex justify-center rounded-pill mb-4 font-weight-bold text-h6 pa-5 ">
-                Scan
-                Result
+              <v-chip
+                color="primary"
+                class="d-flex justify-center rounded-pill mb-4 font-weight-bold text-h6 pa-5 "
+              >
+                Scan Result
               </v-chip>
               <div v-if="scanStatus">
                 <v-card-text class="d-flex align-center">
@@ -76,20 +110,50 @@
                   <v-form class="multi-col-validation mt-6">
                     <v-row>
                       <v-col md="6" cols="12">
-                        <v-text-field v-model="scanBarcode" label="Barcode" dense outlined readonly></v-text-field>
+                        <v-text-field
+                          v-model="scanBarcode"
+                          label="Barcode"
+                          dense
+                          outlined
+                          readonly
+                        ></v-text-field>
                       </v-col>
                       <v-col md="6" cols="12">
-                        <v-text-field v-model="scanItemName" label="Item name" dense outlined readonly></v-text-field>
+                        <v-text-field
+                          v-model="scanItemName"
+                          label="Item name"
+                          dense
+                          outlined
+                          readonly
+                        ></v-text-field>
                       </v-col>
                       <v-col cols="12" md="6">
-                        <v-text-field v-model="scanDisplayStocks" label="Display Stocks" dense outlined readonly>
+                        <v-text-field
+                          v-model="scanDisplayStocks"
+                          label="Display Stocks"
+                          dense
+                          outlined
+                          readonly
+                        >
                         </v-text-field>
                       </v-col>
                       <v-col cols="12" md="6">
-                        <v-text-field v-model="scanStorebox" dense label="Storebox" outlined readonly></v-text-field>
+                        <v-text-field
+                          v-model="scanStorebox"
+                          dense
+                          label="Storebox"
+                          outlined
+                          readonly
+                        ></v-text-field>
                       </v-col>
                       <v-col cols="12" md="6">
-                        <v-text-field v-model="scanTotalStocks" dense label="Total Stocks" outlined readonly>
+                        <v-text-field
+                          v-model="scanTotalStocks"
+                          dense
+                          label="Total Stocks"
+                          outlined
+                          readonly
+                        >
                         </v-text-field>
                       </v-col>
                     </v-row>
@@ -109,7 +173,6 @@
                       <p class="text-base font-weight-medium mb-1">
                         No Item Found.
                       </p>
-
                     </div>
                   </div>
                 </v-alert>
@@ -120,17 +183,28 @@
           <!-- Capture Photo modal -->
           <v-dialog v-model="capturePhoto" max-width="550px">
             <v-card class="pa-5 d-flex flex-column justify-center">
-              <v-chip color="primary" class="d-flex justify-center rounded-pill font-weight-bold text-h6 pa-5 ">Capture
-                Photo
+              <v-chip
+                color="primary"
+                class="d-flex justify-center rounded-pill font-weight-bold text-h6 pa-5 "
+                >Capture Photo
               </v-chip>
-              <v-card-title class="-d-flex justify-center pa-0 rounded-lg my-3 overflow-hidden">
-                <PhotoCapture v-model="imageBase64" captureBtnContent="📷" cancelBtnContent="🔄" doneBtnContent="✅"
-                  @input="done" />
+              <v-card-title
+                class="-d-flex justify-center pa-0 rounded-lg my-3 overflow-hidden"
+              >
+                <PhotoCapture
+                  v-model="imageBase64"
+                  captureBtnContent="📷"
+                  cancelBtnContent="🔄"
+                  doneBtnContent="✅"
+                  @input="done"
+                />
               </v-card-title>
 
               <v-card-actions class="mb-n5">
                 <v-spacer></v-spacer>
-                <v-btn color="secondary" @click="closeCapturePhoto">Cancel</v-btn>
+                <v-btn color="secondary" @click="closeCapturePhoto"
+                  >Cancel</v-btn
+                >
                 <v-spacer></v-spacer>
               </v-card-actions>
             </v-card>
@@ -145,15 +219,16 @@
             </template>
             <v-card>
               <v-card-title class="d-flex justify-center ">
-                <v-chip color="primary" class="d-flex justify-center font-weight-bold text-h6 pa-5">{{ formTitle }}
+                <v-chip
+                  color="primary"
+                  class="d-flex justify-center font-weight-bold text-h6 pa-5"
+                  >{{ formTitle }}
                 </v-chip>
               </v-card-title>
 
               <v-card-text>
                 <v-container>
-
                   <v-form ref="form">
-
                     <div class="d-flex  justify-center align-center">
                       <p class="mr-3 text-subtitle-1">Item Information</p>
                       <v-divider></v-divider>
@@ -161,27 +236,51 @@
 
                     <v-row no-gutters class="d-flex justify-center">
                       <v-col cols="12" sm="3" class="ma-2 align-self-center">
-                        <v-card-text class="d-flex justify-center flex-column align-center mt-2">
+                        <v-card-text
+                          class="d-flex justify-center flex-column align-center mt-2"
+                        >
                           <v-avatar rounded size="80" class="">
                             <v-img :src="itemImage"></v-img>
                           </v-avatar>
-                          <div class="d-flex justify-center flex-column align-center">
-                            <v-btn color="primary" class="mt-3" small @click="$refs.refInputEl.click();">
+                          <div
+                            class="d-flex justify-center flex-column align-center"
+                          >
+                            <v-btn
+                              color="primary"
+                              class="mt-3"
+                              small
+                              @click="$refs.refInputEl.click()"
+                            >
                               <v-icon class="d-sm-none">
                                 {{ uploadBtnTextMobile }}
                               </v-icon>
-                              <span class="d-none d-sm-block">{{ uploadBtnText }}</span>
+                              <span class="d-none d-sm-block">{{
+                                uploadBtnText
+                              }}</span>
                             </v-btn>
 
-                            <v-btn color="primary" class="mt-3" small outlined @click="openCapturePhoto">
+                            <v-btn
+                              color="primary"
+                              class="mt-3"
+                              small
+                              outlined
+                              @click="openCapturePhoto"
+                            >
                               <v-icon class="d-sm-none">
                                 {{ uploadTakePicture }}
                               </v-icon>
-                              <span class="d-none d-sm-block ">Capture a photo</span>
+                              <span class="d-none d-sm-block "
+                                >Capture a photo</span
+                              >
                             </v-btn>
 
-                            <input ref="refInputEl" @change="uploadItemImage" type="file" accept=".jpeg,.png,.jpg,GIF"
-                              :hidden="true" />
+                            <input
+                              ref="refInputEl"
+                              @change="uploadItemImage"
+                              type="file"
+                              accept=".jpeg,.png,.jpg,GIF"
+                              :hidden="true"
+                            />
 
                             <p class="text-caption text-center mt-2">
                               Allowed JPG, GIF or PNG. Max size of 1MB
@@ -191,30 +290,70 @@
                       </v-col>
 
                       <v-col cols="12" sm="4" class="ma-2 align-self-center">
-                        <v-text-field v-model="dataItem.itemname" :rules="itemNameRules" label="Item Name" clearable
-                          required outlined dense>
+                        <v-text-field
+                          v-model="dataItem.itemname"
+                          :rules="itemNameRules"
+                          label="Item Name"
+                          clearable
+                          required
+                          outlined
+                          dense
+                        >
                         </v-text-field>
 
-                        <v-text-field v-model="dataItem.barcode" :rules="itemNameRules" label="Barcode" type="number"
-                          clearable outlined dense>
+                        <v-text-field
+                          v-model="dataItem.barcode"
+                          :rules="itemNameRules"
+                          label="Barcode"
+                          type="number"
+                          clearable
+                          outlined
+                          dense
+                        >
                         </v-text-field>
 
-                        <v-text-field v-model="dataItem.retail" :rules="itemNameRules" label="Retail Price"
-                          type="number" clearable outlined dense>
+                        <v-text-field
+                          v-model="dataItem.retail"
+                          :rules="itemNameRules"
+                          label="Retail Price"
+                          type="number"
+                          clearable
+                          outlined
+                          dense
+                        >
                         </v-text-field>
                       </v-col>
 
                       <v-col cols="12" sm="4" class="ma-2 align-self-center">
-                        <v-text-field v-model.number="dataItem.stockunit" :rules="itemNameRules" label="Stock Unit"
-                          clearable outlined dense>
+                        <v-text-field
+                          v-model.number="dataItem.stockunit"
+                          :rules="itemNameRules"
+                          label="Stock Unit"
+                          clearable
+                          outlined
+                          dense
+                        >
                         </v-text-field>
 
-                        <v-text-field v-model.number="dataItem.reorderlevel" :rules="itemNameRules"
-                          label="Reorder Level" type="number" clearable outlined dense>
+                        <v-text-field
+                          v-model.number="dataItem.reorderlevel"
+                          :rules="itemNameRules"
+                          label="Reorder Level"
+                          type="number"
+                          clearable
+                          outlined
+                          dense
+                        >
                         </v-text-field>
 
-                        <v-text-field v-model.number="dataItem.manufacturer" :rules="itemNameRules" label="Manufacturer"
-                          clearable outlined dense>
+                        <v-text-field
+                          v-model.number="dataItem.manufacturer"
+                          :rules="itemNameRules"
+                          label="Manufacturer"
+                          clearable
+                          outlined
+                          dense
+                        >
                         </v-text-field>
                       </v-col>
                     </v-row>
@@ -226,54 +365,86 @@
 
                     <v-row no-gutters class="d-flex justify-center">
                       <v-col cols="12" sm="3" class="ma-2">
-                        <v-text-field v-model.number="dataItem.available" label="Quantity (excluding display)" clearable
-                          outlined dense>
+                        <v-text-field
+                          v-model.number="dataItem.available"
+                          label="Quantity (excluding display)"
+                          clearable
+                          outlined
+                          dense
+                        >
                         </v-text-field>
-                        <v-text-field v-model.number="dataItem.unitcost" label="Unit Cost" clearable outlined dense>
+                        <v-text-field
+                          v-model.number="dataItem.unitcost"
+                          label="Unit Cost"
+                          clearable
+                          outlined
+                          dense
+                        >
                         </v-text-field>
                       </v-col>
                       <v-col cols="12" sm="3" class="ma-2">
-                        <v-text-field v-model.number="dataItem.display" label="Quantity to Display" clearable outlined
-                          dense>
+                        <v-text-field
+                          v-model.number="dataItem.display"
+                          label="Quantity to Display"
+                          clearable
+                          outlined
+                          dense
+                        >
                         </v-text-field>
-                        <v-text-field v-model.number="dataItem.totalcost" label="Total Cost" clearable outlined dense>
+                        <v-text-field
+                          v-model.number="dataItem.totalcost"
+                          label="Total Cost"
+                          clearable
+                          outlined
+                          dense
+                        >
                         </v-text-field>
                       </v-col>
                       <v-col cols="12" sm="3" class="ma-2">
-                        <v-text-field v-model.number="dataItem.expiry" label="Expiry Date" clearable outlined dense>
+                        <v-text-field
+                          v-model.number="dataItem.expiry"
+                          label="Expiry Date"
+                          clearable
+                          outlined
+                          dense
+                        >
                         </v-text-field>
-                        <v-text-field v-model.number="dataItem.supplier" label="Supplier" clearable outlined dense>
+                        <v-text-field
+                          v-model.number="dataItem.supplier"
+                          label="Supplier"
+                          clearable
+                          outlined
+                          dense
+                        >
                         </v-text-field>
                       </v-col>
                     </v-row>
-
-
-
-
-
-
                   </v-form>
                 </v-container>
               </v-card-text>
 
               <v-card-actions>
                 <v-btn color="error" @click="openDelete" v-if="showDelete">
-                  Delete</v-btn>
+                  Delete</v-btn
+                >
                 <v-spacer></v-spacer>
                 <v-btn color="secondary" @click="close">
                   Cancel
                 </v-btn>
-                <v-btn color="primary" @click="save">
-                  Save</v-btn>
-
-
+                <v-btn color="primary" @click="save"> Save</v-btn>
               </v-card-actions>
-
             </v-card>
           </v-dialog>
           <!-- Round buttons -->
-          <v-btn color="white" elevation="2" class="ml-2 primary hidden-sm-and-up" fab small outlined
-            @click="openBarcodeScanner">
+          <v-btn
+            color="white"
+            elevation="2"
+            class="ml-2 primary hidden-sm-and-up"
+            fab
+            small
+            outlined
+            @click="openBarcodeScanner"
+          >
             <v-icon>{{ barcodeIcon }}</v-icon>
           </v-btn>
           <!-- <v-dialog v-model="dialog" max-width="500px">
@@ -284,13 +455,33 @@
               </v-btn>
             </template>
           </v-dialog> -->
-          <v-btn color="primary" elevation="2" class="ml-2 hidden-sm-and-down" fab small outlined>
+          <v-btn
+            color="primary"
+            elevation="2"
+            class="ml-2 hidden-sm-and-down"
+            fab
+            small
+            outlined
+          >
             <v-icon>{{ pdfIcon }}</v-icon>
           </v-btn>
-          <v-btn color="primary" elevation="2" class="ml-2 hidden-sm-and-down" fab small outlined>
+          <v-btn
+            color="primary"
+            elevation="2"
+            class="ml-2 hidden-sm-and-down"
+            fab
+            small
+            outlined
+          >
             <v-icon>{{ editIcon }}</v-icon>
           </v-btn>
-          <v-btn color="error" elevation="2" class="ml-2 hidden-sm-and-down" fab small>
+          <v-btn
+            color="error"
+            elevation="2"
+            class="ml-2 hidden-sm-and-down"
+            fab
+            small
+          >
             <v-icon>{{ deleteIcon }}</v-icon>
           </v-btn>
           <!-- <v-switch
@@ -301,10 +492,17 @@
           <!-- Delete Item Modal -->
           <v-dialog v-model="dialogDelete" max-width="500px">
             <v-card class="pa-5 d-flex flex-column justify-center">
-              <v-chip color="error" class="d-flex justify-center font-weight-bold text-h6 pa-5">Delete Item
+              <v-chip
+                color="error"
+                class="d-flex justify-center font-weight-bold text-h6 pa-5"
+                >Delete Item
               </v-chip>
-              <v-card-title class="-d-flex justify-center">Are you sure you want to delete this item?</v-card-title>
-              <p class="text-center font-weight-bold text-h5">{{ dataItem.itemname }}</p>
+              <v-card-title class="-d-flex justify-center"
+                >Are you sure you want to delete this item?</v-card-title
+              >
+              <p class="text-center font-weight-bold text-h5">
+                {{ dataItem.itemname }}
+              </p>
               <v-card-actions class="mb-n5">
                 <v-spacer></v-spacer>
                 <v-btn color="secondary" @click="closeDelete">Cancel</v-btn>
@@ -382,19 +580,24 @@
         </v-chip>
       </template>
 
-
       <template v-slot:item.image="{ item }" class="text-center">
         <v-avatar rounded size="50" class="ma-2">
           <v-img :src="item.image"></v-img>
         </v-avatar>
-
       </template>
-
 
       <!-- Table Actions Buttons -->
       <template v-slot:item.actions="{ item }">
         <div class="d-flex flex-row align-center">
-          <v-btn color="primary" elevation="2" class="mr-2" fab x-small outlined @click="editItem(item)">
+          <v-btn
+            color="primary"
+            elevation="2"
+            class="mr-2"
+            fab
+            x-small
+            outlined
+            @click="editItem(item)"
+          >
             <v-icon>{{ editIcon }}</v-icon>
           </v-btn>
           <!-- <v-btn color="primary" elevation="2" class="mr-2" fab x-small>
@@ -410,9 +613,7 @@
             <v-icon class="mx-n16">{{ moreIcon }}</v-icon>
             
           </v-btn> -->
-
         </div>
-
       </template>
       <!-- Reset Button if No Data -->
       <template v-slot:no-data>
@@ -421,14 +622,10 @@
         </v-btn>
       </template>
       <template v-slot:expanded-item="{ headers, item }">
-        <td :colspan="headers.length">
-          More info about {{ item.itemname }}
-        </td>
+        <td :colspan="headers.length">More info about {{ item.itemname }}</td>
       </template>
     </v-data-table>
-
   </div>
-
 </template>
 <script>
   // icons
@@ -1158,9 +1355,8 @@
   }
 </script>
 <style scoped>
-  tr {
-    text-align: center;
-
-
-  }
+tr {
+  text-align: center;
+}
 </style>
+
