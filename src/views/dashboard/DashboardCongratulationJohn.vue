@@ -3,19 +3,19 @@
     <v-row class="ma-0 pa-0">
       <v-col cols="8">
         <v-card-title class="text-no-wrap pt-1 ps-2">
-          Welcome, John! 👋🏻
+          Welcome, {{ userDisplayName }}! 👋🏻
         </v-card-title>
         <v-card-subtitle class="text-no-wrap ps-2">
           Today is {{ timestamp }}
         </v-card-subtitle>
         <v-card-text class="d-flex align-center mt-2 pb-2 ps-2">
           <div>
-            <p class="text-xl font-weight-semibold primary--text mb-2">
-              $42.8k
+            <p class=" font-weight-semibold primary--text mb-2">
+              Explore Inventory
             </p>
 
             <v-btn small color="primary">
-              View Sales
+              View Inventory
             </v-btn>
           </div>
         </v-card-text>
@@ -46,7 +46,45 @@
 </template>
 
 <script>
+import moment from "moment";
+import { getAuth, onAuthStateChanged } from "@firebase/auth";
+import { getDocs, collection, query } from "@firebase/firestore";
+import { onMounted, ref } from "@vue/composition-api";
+import db from "@/fb";
+
+const isLoggedIn = ref(false);
+const userDisplayName = ref();
+const userPhoto = ref();
+let auth;
+
 export default {
+  setup() {
+    onMounted(() => {
+      auth = getAuth();
+      onAuthStateChanged(auth, async (user) => {
+        if (user) {
+          const q = query(collection(db, "users"));
+          const querySnapshot = await getDocs(q);
+          querySnapshot.forEach((doc) => {
+            if (user.uid === doc.id) {
+              userDisplayName.value = doc.data().name;
+              userDisplayName.value = userDisplayName.value.split(" ")[0];
+              userPhoto.value = doc.data().avatar;
+              isLoggedIn.value = true;
+            }
+          });
+        } else {
+          isLoggedIn.value = false;
+        }
+      });
+    });
+    return {
+      isLoggedIn,
+      userDisplayName,
+      auth,
+      userPhoto,
+    };
+  },
   data() {
     return {
       timestamp: "",
@@ -57,17 +95,7 @@ export default {
   },
   methods: {
     getNow: function() {
-      const today = new Date();
-      const date =
-        today.getFullYear() +
-        "-" +
-        (today.getMonth() + 1) +
-        "-" +
-        today.getDate();
-      const time =
-        today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
-      const dateTime = date + " " + time;
-      this.timestamp = dateTime;
+      this.timestamp = moment().format("MMM Do, dddd");
     },
   },
 };

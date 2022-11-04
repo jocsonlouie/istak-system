@@ -1,22 +1,17 @@
 <template>
   <v-card>
     <v-card-title class="align-start">
-      <span class="font-weight-semibold">Statistics Card</span>
+      <span class="font-weight-semibold">Quick Statistics</span>
       <v-spacer></v-spacer>
-      <v-btn
-        icon
-        small
-        class="me-n3 mt-n2"
-      >
+      <v-btn icon small class="me-n3 mt-n2">
         <v-icon>
           {{ icons.mdiDotsVertical }}
         </v-icon>
       </v-btn>
     </v-card-title>
 
-    <v-card-subtitle class="mb-8 mt-n5">
-      <span class="font-weight-semibold text--primary me-1">Total 48.5% Growth</span>
-      <span>😎 this month</span>
+    <v-card-subtitle class="mb-5 mt-n5">
+      <span class=" text--primary me-1">Statistics in a glance.</span>
     </v-card-subtitle>
 
     <v-card-text>
@@ -30,16 +25,12 @@
         >
           <v-avatar
             size="44"
-            :color="resolveStatisticsIconVariation (data.title).color"
+            :color="resolveStatisticsIconVariation(data.title).color"
             rounded
             class="elevation-1"
           >
-            <v-icon
-              dark
-              color="white"
-              size="30"
-            >
-              {{ resolveStatisticsIconVariation (data.title).icon }}
+            <v-icon dark color="white" size="30">
+              {{ resolveStatisticsIconVariation(data.title).icon }}
             </v-icon>
           </v-avatar>
           <div class="ms-3">
@@ -58,37 +49,50 @@
 
 <script>
 // eslint-disable-next-line object-curly-newline
-import { mdiAccountOutline, mdiCurrencyUsd, mdiTrendingUp, mdiDotsVertical, mdiLabelOutline } from '@mdi/js'
+import {
+  mdiAccountOutline,
+  mdiCurrencyUsd,
+  mdiTrendingUp,
+  mdiDotsVertical,
+  mdiLabelOutline,
+  mdiPackage,
+  mdiClipboardCheckMultiple,
+  mdiPackageVariant,
+  mdiTablePlus,
+  mdiDog,
+} from "@mdi/js";
 
 export default {
   setup() {
     const statisticsData = [
       {
-        title: 'Sales',
-        total: '245k',
+        title: "Inventories",
+        total: "7",
       },
       {
-        title: 'Customers',
-        total: '12.5k',
+        title: "Total Items",
+        total: "658",
       },
       {
-        title: 'Product',
-        total: '1.54k',
+        title: "Total Stocks",
+        total: "1444",
       },
       {
-        title: 'Revenue',
-        total: '$88k',
+        title: "New Items",
+        total: "7",
       },
-    ]
+    ];
 
-    const resolveStatisticsIconVariation = data => {
-      if (data === 'Sales') return { icon: mdiTrendingUp, color: 'primary' }
-      if (data === 'Customers') return { icon: mdiAccountOutline, color: 'success' }
-      if (data === 'Product') return { icon: mdiLabelOutline, color: 'warning' }
-      if (data === 'Revenue') return { icon: mdiCurrencyUsd, color: 'info' }
+    const resolveStatisticsIconVariation = (data) => {
+      if (data === "Inventories") return { icon: mdiPackage, color: "primary" };
+      if (data === "Total Items")
+        return { icon: mdiClipboardCheckMultiple, color: "success" };
+      if (data === "Total Stocks")
+        return { icon: mdiPackageVariant, color: "warning" };
+      if (data === "New Items") return { icon: mdiTablePlus, color: "info" };
 
-      return { icon: mdiAccountOutline, color: 'success' }
-    }
+      return { icon: mdiDog, color: "success" };
+    };
 
     return {
       statisticsData,
@@ -98,11 +102,15 @@ export default {
       icons: {
         mdiDotsVertical,
         mdiTrendingUp,
-        mdiAccountOutline,
+        mdiPackage,
         mdiLabelOutline,
         mdiCurrencyUsd,
+        mdiClipboardCheckMultiple,
+        mdiPackageVariant,
+        mdiTablePlus,
+        mdiDog,
       },
-    }
+    };
   },
-}
+};
 </script>
