@@ -303,7 +303,8 @@
 
                         <v-text-field
                           v-model="dataItem.barcode"
-                          :rules="itemNameRules"
+                          :rules="inputRules"
+                          counter="14"
                           label="Barcode"
                           type="number"
                           clearable
@@ -317,6 +318,7 @@
                           :rules="itemNameRules"
                           label="Retail Price"
                           type="number"
+                          prepend-inner-icon="₱"
                           clearable
                           outlined
                           dense
@@ -401,14 +403,16 @@
                         </v-text-field>
                       </v-col>
                       <v-col cols="12" sm="3" class="ma-2">
-                        <v-text-field
-                          v-model.number="dataItem.expiry"
-                          label="Expiry Date"
-                          clearable
-                          outlined
-                          dense
-                        >
-                        </v-text-field>
+                        <v-menu v-model="menu2" :close-on-content-click="false"
+                          :nudge-right="40" transition="scale-transition" offset-y min-width="auto">
+                                <template v-slot:activator="{ on, attrs }">
+                                    <v-text-field v-model="dataItem.expiry" label="Expiry Date"
+                                      outlined dense v-bind="attrs" v-on="on">
+                                      </v-text-field>
+                                  </template>
+                                    <v-date-picker v-model="dataItem.expiry" @input="menu2 = false">
+                                    </v-date-picker>
+                          </v-menu>
                         <v-text-field
                           v-model.number="dataItem.supplier"
                           label="Supplier"
@@ -848,6 +852,18 @@
       itemNameRules: [
         v => !!v || 'This field is required',
       ],
+
+      //barcoderules
+      inputRules: [
+        v => v.length >= 12 || 'Minimum length is 12 numbers'
+      ],
+
+      //date picker
+      date: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
+        menu: false,
+        modal: false,
+        menu2: false,
+
 
       //edit item
       itemId: null,
