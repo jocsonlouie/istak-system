@@ -15,3 +15,12 @@ exports.userDeleted = functions.auth.user().onDelete((user) => {
     const doc = admin.firestore().collection("users").doc(user.uid);
     return doc.delete();
 });
+
+exports.deleteUser = functions.https.onCall(async (data, context) => {
+    try {
+        await admin.auth().deleteUser(data);
+        return { result: "User Successfully Deleted" };
+    } catch (error) {
+        return { result: "User Deletion Error: " + error };
+    }
+});

@@ -5,14 +5,23 @@
         <!-- logo -->
         <v-card-title class="d-flex align-center justify-center py-7">
           <router-link to="/" class="d-flex align-center">
-            <v-img :src="require('@/assets/images/logos/assumpta-logo-text.png')" max-height="50px" max-width="200px"
-              alt="logo" contain eager class="app-logo me-3"></v-img>
+            <v-img
+              :src="require('@/assets/images/logos/assumpta-logo-text.png')"
+              max-height="50px"
+              max-width="200px"
+              alt="logo"
+              contain
+              eager
+              class="app-logo me-3"
+            ></v-img>
           </router-link>
         </v-card-title>
 
         <!-- title -->
         <v-card-text>
-          <p class="text-2xl font-weight-semibold text--primary mb-2 text-center">
+          <p
+            class="text-2xl font-weight-semibold text--primary mb-2 text-center"
+          >
             Register 🐶🐱
           </p>
           <p class="mb-2">
@@ -34,12 +43,29 @@
         <!-- login form -->
         <v-card-text>
           <v-form ref="form">
-            <v-text-field v-model="email" outlined label="Email" placeholder="john@example.com" hide-details
-              :rules="inputRules" class="mb-3"></v-text-field>
+            <v-text-field
+              v-model="email"
+              outlined
+              label="Email"
+              placeholder="john@example.com"
+              hide-details
+              :rules="inputRules"
+              class="mb-3"
+            ></v-text-field>
 
-            <v-text-field v-model="password" outlined :type="isPasswordVisible ? 'text' : 'password'" label="Password"
-              placeholder="············" :append-icon="isPasswordVisible ? icons.mdiEyeOffOutline : icons.mdiEyeOutline"
-              hide-details @click:append="isPasswordVisible = !isPasswordVisible" :rules="inputRules"></v-text-field>
+            <v-text-field
+              v-model="password"
+              outlined
+              :type="isPasswordVisible ? 'text' : 'password'"
+              label="Password"
+              placeholder="············"
+              :append-icon="
+                isPasswordVisible ? icons.mdiEyeOffOutline : icons.mdiEyeOutline
+              "
+              hide-details
+              @click:append="isPasswordVisible = !isPasswordVisible"
+              :rules="inputRules"
+            ></v-text-field>
 
             <div class="d-flex align-center justify-space-between flex-wrap">
               <v-checkbox label="Remember Me" hide-details class="me-3 mt-1">
@@ -71,8 +97,16 @@
 
         <!-- social links -->
         <v-card-actions class="d-flex justify-center">
-          <v-btn v-for="link in socialLink" :key="link.icon" icon class="ms-1" @click="signInWithGoogle">
-            <v-icon :color="$vuetify.theme.dark ? link.colorInDark : link.color">
+          <v-btn
+            v-for="link in socialLink"
+            :key="link.icon"
+            icon
+            class="ms-1"
+            @click="signInWithGoogle"
+          >
+            <v-icon
+              :color="$vuetify.theme.dark ? link.colorInDark : link.color"
+            >
               {{ link.icon }}
             </v-icon>
           </v-btn>
@@ -85,36 +119,50 @@
       :src="require(`@/assets/images/misc/mask-${$vuetify.theme.dark ? 'dark':'light'}.png`)"> -->
 
     <!-- image -->
-    <v-img class="auth-tree" width="252" height="252" src="@/assets/images/misc/clinic-left.png"></v-img>
+    <v-img
+      class="auth-tree"
+      width="252"
+      height="252"
+      src="@/assets/images/misc/clinic-left.png"
+    ></v-img>
 
     <!-- image  -->
-    <v-img class="auth-tree-3" width="252" height="252" src="@/assets/images/misc/clinic-right.png"></v-img>
+    <v-img
+      class="auth-tree-3"
+      width="252"
+      height="252"
+      src="@/assets/images/misc/clinic-right.png"
+    ></v-img>
   </div>
 </template>
 
 <script>
 // eslint-disable-next-line object-curly-newline
-import db from '@/fb';
-import { mdiGoogle, mdiEyeOutline, mdiEyeOffOutline } from '@mdi/js'
-import { onMounted, ref } from '@vue/composition-api'
-import { getAuth, GoogleAuthProvider, createUserWithEmailAndPassword, signInWithPopup, onAuthStateChanged } from "firebase/auth";
+import db from "@/fb";
+import { mdiGoogle, mdiEyeOutline, mdiEyeOffOutline } from "@mdi/js";
+import { onMounted, ref } from "@vue/composition-api";
+import {
+  getAuth,
+  GoogleAuthProvider,
+  createUserWithEmailAndPassword,
+  signInWithPopup,
+  onAuthStateChanged,
+  sendEmailVerification,
+} from "firebase/auth";
 import {
   getDocs,
   collection,
   where,
   query,
   doc,
-  setDoc
-
-} from '@firebase/firestore';
-const isPasswordVisible = ref(false)
-const email = ref('')
-const password = ref('')
-const errMsg = ref('');
-
+  setDoc,
+} from "@firebase/firestore";
+const isPasswordVisible = ref(false);
+const email = ref("");
+const password = ref("");
+const errMsg = ref("");
 
 export default {
-
   data: () => ({
     snackbar: false,
     text: errMsg.value,
@@ -135,20 +183,19 @@ export default {
           if (user.uid === doc.id) {
             if (doc.data().role !== "Inventory Admin") {
               alert("No Access: Must be admin to access this page.");
-              this.$router.push('/dashboard');
-            };
+              this.$router.push("/dashboard");
+            }
           }
         });
       }
     });
   },
   setup() {
-
     const socialLink = [
       {
         icon: mdiGoogle,
-        color: '#db4437',
-        colorInDark: '#db4437',
+        color: "#db4437",
+        colorInDark: "#db4437",
       },
     ];
 
@@ -162,11 +209,8 @@ export default {
         mdiEyeOutline,
         mdiEyeOffOutline,
       },
-      inputRules: [
-        v => v.length >= 3 || 'Minimum length is 3 characters'
-      ],
-
-    }
+      inputRules: [(v) => v.length >= 3 || "Minimum length is 3 characters"],
+    };
   },
   methods: {
     register() {
@@ -174,19 +218,21 @@ export default {
         const auth = getAuth();
         createUserWithEmailAndPassword(getAuth(), email.value, password.value)
           .then((data) => {
-            console.log("Successfully login! " + data);
-            console.log(auth.currentUser);
-            this.$router.push('/dashboard');
+            sendEmailVerification(auth.currentUser).then(() => {
+              this.text = "Email verification sent!";
+              this.snackbar = true;
+            });
+            this.$router.push("/dashboard");
           })
           .catch((error) => {
-            console.log(error.code);
             switch (error.code) {
               case "auth/invalid-email":
-                this.text = "Invalid Email"
+                this.text = "Invalid Email";
                 this.snackbar = true;
                 break;
               case "auth/user-not-found":
-                this.text = "The email or mobile number you entered isn’t connected to an account.";
+                this.text =
+                  "The email or mobile number you entered isn’t connected to an account.";
                 this.snackbar = true;
                 break;
               case "auth/wrong-password":
@@ -200,32 +246,29 @@ export default {
             }
           });
       }
-
     },
 
     signInWithGoogle() {
       const provider = new GoogleAuthProvider();
       signInWithPopup(getAuth(), provider)
         .then((data) => {
-          console.log("Successfully login! " + data);
-          this.$router.push('/dashboard');
+          this.$router.push("/dashboard");
         })
         .catch((error) => {
           this.text = "There is something wrong: " + error;
           this.snackbar = true;
         });
-    }
-
-  }
-}
-
+    },
+  },
+};
 </script>
 
 <style lang="scss">
-@import '~@/plugins/vuetify/default-preset/preset/pages/auth.scss';
+@import "~@/plugins/vuetify/default-preset/preset/pages/auth.scss";
 
 .auth-wrapper {
-  background: url('~@/assets/images/misc/bg-assumpta-dark.jpg') no-repeat center center fixed;
+  background: url("~@/assets/images/misc/bg-assumpta-dark.jpg") no-repeat center
+    center fixed;
   background-size: cover;
 }
 </style>
