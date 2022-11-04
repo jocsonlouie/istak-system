@@ -1037,7 +1037,8 @@
       },
 
       async additionalStocks() {
-        this.totalAvailable = parseInt(this.dataItem.available) + parseInt(this.stkStore);
+        if (this.$refs.form.validate()) {
+           this.totalAvailable = parseInt(this.dataItem.available) + parseInt(this.stkStore);
 
         this.totalDisplay = parseInt(this.dataItem.display) + parseInt(this.stkAdd);
 
@@ -1055,6 +1056,7 @@
         this.closeAddStocks();
         this.itemStatus = 'Stocks Added';
         this.snackbar = true;
+        }
       },
 
       //consume stocks
