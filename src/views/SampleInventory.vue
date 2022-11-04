@@ -303,7 +303,7 @@
 
                         <v-text-field
                           v-model="dataItem.barcode"
-                          :rules="itemNameRules"
+                          :rules="inputRules"
                           label="Barcode"
                           type="number"
                           clearable
@@ -329,6 +329,7 @@
                           v-model.number="dataItem.stockunit"
                           :rules="itemNameRules"
                           label="Stock Unit"
+                          placeholder="bottle"
                           clearable
                           outlined
                           dense
@@ -586,6 +587,10 @@
         </v-avatar>
       </template>
 
+      <template v-slot:item.retail="{ item }" class="text-center">
+        ₱{{item.retail}}/{{item.stockunit}}
+      </template>
+
       <!-- Table Actions Buttons -->
       <template v-slot:item.actions="{ item }">
         <div class="d-flex flex-row align-center">
@@ -621,9 +626,9 @@
           Reset
         </v-btn>
       </template>
-      <template v-slot:expanded-item="{ headers, item }">
+      <!-- <template v-slot:expanded-item="{ headers, item }">
         <td :colspan="headers.length">More info about {{ item.itemname }}</td>
-      </template>
+      </template> -->
     </v-data-table>
   </div>
 </template>
@@ -848,6 +853,19 @@
       itemNameRules: [
         v => !!v || 'This field is required',
       ],
+
+      //barcoderules
+      inputRules: [
+        v => v.length >= 12 || 'Minimum length is 12 numbers',
+        v => !!v || 'This field is required',
+      ],
+
+      //date picker
+      date: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
+        menu: false,
+        modal: false,
+        menu2: false,
+
 
       //edit item
       itemId: null,
@@ -1203,12 +1221,6 @@
           // edit function
           if (this.$refs.form.validate()) {
             await updateDoc(this.docRef, {
-              // image: itemImage.value,
-              // itemname: this.dataItem.itemname,
-              // barcode: this.dataItem.barcode,
-              // storebox: this.dataItem.storebox,
-              // total: this.dataItem.total,
-              // display: this.dataItem.display,
               image: itemImage.value,
               itemname: this.dataItem.itemname,
               barcode: this.dataItem.barcode,
@@ -1235,15 +1247,8 @@
         } else {
           // add function
           if (this.$refs.form.validate()) {
-            // const addedDoc = await addDoc(inventoryColRef, this.$data.dataItem);
             console.log(itemImage.value);
             await addDoc(inventoryColRef, {
-              // image: itemImage.value,
-              // itemname: this.dataItem.itemname,
-              // barcode: this.dataItem.barcode,
-              // storebox: this.dataItem.storebox,
-              // total: this.dataItem.total,
-              // display: this.dataItem.display,
               image: itemImage.value,
               itemname: this.dataItem.itemname,
               barcode: this.dataItem.barcode,
