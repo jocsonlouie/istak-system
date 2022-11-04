@@ -112,6 +112,8 @@
                       <v-col md="6" cols="12">
                         <v-text-field
                           v-model="scanBarcode"
+                          :rules="inputRules"
+                          counter="14"
                           label="Barcode"
                           dense
                           outlined
@@ -305,6 +307,7 @@
                           v-model="dataItem.barcode"
                           :rules="inputRules"
                           label="Barcode"
+                          counter="14"
                           type="number"
                           clearable
                           outlined
@@ -317,6 +320,7 @@
                           :rules="itemNameRules"
                           label="Retail Price"
                           type="number"
+                          prepend-inner-icon="₱"
                           clearable
                           outlined
                           dense
@@ -402,14 +406,16 @@
                         </v-text-field>
                       </v-col>
                       <v-col cols="12" sm="3" class="ma-2">
-                        <v-text-field
-                          v-model.number="dataItem.expiry"
-                          label="Expiry Date"
-                          clearable
-                          outlined
-                          dense
-                        >
-                        </v-text-field>
+                        <v-menu v-model="menu2" :close-on-content-click="false"
+                           :nudge-right="40" transition="scale-transition" offset-y min-width="auto">
+                             <template v-slot:activator="{ on, attrs }">
+                                <v-text-field v-model="dataItem.expiry" label="Expiry Date"
+                                 outlined dense v-bind="attrs" v-on="on">
+                                </v-text-field>
+                             </template>
+                                <v-date-picker v-model="dataItem.expiry" @input="menu2 = false">
+                                   </v-date-picker>
+                         </v-menu>
                         <v-text-field
                           v-model.number="dataItem.supplier"
                           label="Supplier"
