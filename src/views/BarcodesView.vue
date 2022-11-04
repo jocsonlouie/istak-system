@@ -143,7 +143,7 @@
                                             </v-text-field>
                                         </v-col>
                                         <v-col cols="12" sm="3" class="ma-2">
-                                            <v-text-field label="Expiry Date" outlined dense clearable>
+                                            <v-text-field label="Expiry Date" outlined dense readonly>
                                             </v-text-field>
                                             <v-text-field label="Supplier" outlined dense readonly>
                                             </v-text-field>
@@ -207,11 +207,11 @@
                                                 :rules="itemNameRules">
                                             </v-text-field>
 
-                                            <v-text-field counter="14" label="Barcode" type="number" clearable outlined dense
-                                            :rules="inputRules">
+                                            <v-text-field label="Barcode" type="number" clearable outlined dense
+                                                :rules="itemNameRules">
                                             </v-text-field>
 
-                                            <v-text-field label="Retail Price" type="number" prepend-inner-icon="₱" clearable outlined dense
+                                            <v-text-field label="Retail Price" type="number" clearable outlined dense
                                                 :rules="itemNameRules">
                                             </v-text-field>
                                         </v-col>
@@ -250,16 +250,8 @@
                                             </v-text-field>
                                         </v-col>
                                         <v-col cols="12" sm="3" class="ma-2">
-                                            <v-menu v-model="menu2" :close-on-content-click="false" :nudge-right="40"
-                                                transition="scale-transition" offset-y min-width="auto">
-                                                <template v-slot:activator="{ on, attrs }">
-                                                    <v-text-field v-model="date" label="Expiry Date" outlined dense
-                                                        v-bind="attrs" v-on="on">
-                                                    </v-text-field>
-                                                </template>
-                                                <v-date-picker v-model="date" @input="menu2 = false">
-                                                </v-date-picker>
-                                            </v-menu>
+                                            <v-text-field label="Expiry Date" outlined dense clearable>
+                                            </v-text-field>
                                             <v-text-field label="Supplier" outlined dense clearable>
                                             </v-text-field>
                                         </v-col>
@@ -299,7 +291,7 @@
                                                 </StreamBarcodeReader>
                                             </v-card-text>
                                             <v-card-text class="d-flex justify-center flex-column align-center mt-2">
-
+                                    
                                                 <v-avatar rounded size="180" class="">
                                                     <v-img :src="itemImage"></v-img>
                                                 </v-avatar>
@@ -401,16 +393,15 @@
                                             </v-card-text>
                                             <v-card-text class="d-flex justify-center flex-column align-center mt-2">
                                                 <p class="text-center font-weight-black text-h7">Are you
-                                                    sure you
-                                                    want to delete <br></br><span class="text-h5">'NOBIVAC DHPPI
-                                                        L4'</span> item?</p>
+                                                sure you
+                                                want to delete <br></br><span class="text-h5">'NOBIVAC DHPPI L4'</span> item?</p>
                                                 <v-avatar rounded size="150" class="">
                                                     <v-img :src="itemImage"></v-img>
                                                 </v-avatar>
-
+                                                
                                             </v-card-text>
                                         </v-col>
-
+                                      
                                     </v-row>
                                 </v-form>
                             </v-container>
@@ -532,202 +523,191 @@
     </div>
 </template>
 <script>
-import {
-    mdiBarcodeScan,
-    mdiBarcode,
-    mdiMagnify,
-    mdiPencil,
-    mdiDelete,
-    mdiCloudUploadOutline
-} from '@mdi/js'
+    import {
+        mdiBarcodeScan,
+        mdiBarcode,
+        mdiMagnify,
+        mdiPencil,
+        mdiDelete,
+        mdiCloudUploadOutline
+    } from '@mdi/js'
 
-import {
-    StreamBarcodeReader
-} from "vue-barcode-reader";
-
-//upload image imports
-import {
-    ref,
-    onMounted
-} from '@vue/composition-api';
-import {
-    getStorage,
-    uploadBytes,
-    ref as ref_storage,
-    uploadBytesResumable,
-    getDownloadURL
-} from "firebase/storage";
-const itemImage = ref('https://assumptaclinic.com/wp-content/uploads/2022/10/default-assumpta.jpg');
-
-
-export default {
-    components: {
+    import {
         StreamBarcodeReader
-    },
-    data: () => ({
-        alignments: [
-            'start',
-            'center',
-            'end',
-        ],
-        loadingTable: true,
-        scanIcon: mdiBarcodeScan,
-        generateIcon: mdiBarcode,
-        searchIcon: mdiMagnify,
-        editIcon: mdiPencil,
-        deleteIcon: mdiDelete,
+    } from "vue-barcode-reader";
 
-        // table header data
-        headers: [{
-            text: 'Code',
-            align: 'start',
-            value: 'code',
+    //upload image imports
+    import {
+        ref,
+        onMounted
+    } from '@vue/composition-api';
+    import {
+        getStorage,
+        uploadBytes,
+        ref as ref_storage,
+        uploadBytesResumable,
+        getDownloadURL
+    } from "firebase/storage";
+    const itemImage = ref('https://assumptaclinic.com/wp-content/uploads/2022/10/default-assumpta.jpg');
+
+
+    export default {
+        components: {
+            StreamBarcodeReader
         },
-        {
-            text: 'Item',
-            sortable: false,
-            value: 'item'
-        },
-        {
-            text: 'Inventory',
-            sortable: false,
-            value: 'inventory'
-        },
-        {
-            text: 'Action',
-            value: 'action',
-            sortable: false
-        },
-        {
-            text: 'Date/Time',
-            sortable: false,
-            value: 'datetime'
-        },
-        {
-            text: 'Actions',
-            value: 'actions',
-            sortable: false
-        },
-        ],
+        data: () => ({
+            alignments: [
+                'start',
+                'center',
+                'end',
+            ],
+            loadingTable: true,
+            scanIcon: mdiBarcodeScan,
+            generateIcon: mdiBarcode,
+            searchIcon: mdiMagnify,
+            editIcon: mdiPencil,
+            deleteIcon: mdiDelete,
 
-        // table data
-        items: [{
-            code: '100000',
-            item: 'NOBIVAC DHPPLI L4',
-            inventory: 'Vaccines',
-            action: 'Item Updated',
-            datetime: '09/05/2023',
-        },
-        {
-            code: '2656549',
-            item: 'RABISIN MULTIDOSE',
-            inventory: 'Vaccines',
-            action: 'Item Deducted',
-            datetime: '09/05/2023',
-        },
-        ],
-
-        //dialogs
-        scanDialog: false,
-        generateDialog: false,
-        viewDialog: false,
-        editDialog: false,
-        deductDialog: false,
-        deleteDialog: false,
-
-        //image
-        uploadLoading: false,
-        uploadBtnText: "Upload",
-        uploadBtnTextMobile: mdiCloudUploadOutline,
-
-
-        //table functions
-        search: '',
-        singleSelect: false,
-        selected: [],
-        loadingTable: false,
-
-        //rules
-        valid: true,
-        itemNameRules: [
-            v => !!v || 'This field is required',
-        ],
-
-        //barcoderules
-        inputRules: [
-        v => v.length >= 12 || 'Minimum length is 12 numbers'
-      ],
-
-        //date picker
-        date: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
-        menu: false,
-        modal: false,
-        menu2: false,
-
-
-    }),
-
-    setup(props) {
-        return {
-            itemImage,
-            icons: {
-                mdiCloudUploadOutline,
-            },
-        }
-    },
-
-    methods: {
-
-        onLoaded(result) {
-            console.log(result)
-        },
-
-        //upload avatar
-        uploadItemImage(e) {
-            let file = e.target.files[0];
-            const storage = getStorage();
-            const storageRef = ref_storage(storage, 'inventories/' + file.name);
-
-            const uploadTask = uploadBytesResumable(storageRef, file);
-
-            uploadTask.on('state_changed',
-                (snapshot) => {
-                    const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                    this.uploadBtnText = "Uploading: " + progress.toFixed(0) + '%';
-                    this.uploadBtnTextMobile = mdiProgressDownload;
-                    //this.uploadBtnTextMobile = "Uploading: " + progress.toFixed(0) + '%';
-
-                    switch (snapshot.state) {
-                        case 'paused':
-                            console.log('Upload is paused');
-                            break;
-                        case 'running':
-                            console.log('Upload is running');
-                            break;
-                    }
+            // table header data
+            headers: [{
+                    text: 'Code',
+                    align: 'start',
+                    value: 'code',
                 },
-                (error) => { },
-                () => {
+                {
+                    text: 'Item',
+                    sortable: false,
+                    value: 'item'
+                },
+                {
+                    text: 'Inventory',
+                    sortable: false,
+                    value: 'inventory'
+                },
+                {
+                    text: 'Action',
+                    value: 'action',
+                    sortable: false
+                },
+                {
+                    text: 'Date/Time',
+                    sortable: false,
+                    value: 'datetime'
+                },
+                {
+                    text: 'Actions',
+                    value: 'actions',
+                    sortable: false
+                },
+            ],
 
-                    this.uploadBtnText = 'Uploaded Successfully';
+            // table data
+            items: [{
+                    code: '100000',
+                    item: 'NOBIVAC DHPPLI L4',
+                    inventory: 'Vaccines',
+                    action: 'Item Updated',
+                    datetime: '09/05/2023',
+                },
+                {
+                    code: '2656549',
+                    item: 'RABISIN MULTIDOSE',
+                    inventory: 'Vaccines',
+                    action: 'Item Deducted',
+                    datetime: '09/05/2023',
+                },
+            ],
 
-                    this.uploadBtnTextMobile = mdiCheckCircle;
-                    //this.uploadBtnTextMobile = 'Photo Uploaded';
-                    getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-                        console.log('File available at', downloadURL);
-                        itemImage.value = downloadURL;
+            //dialogs
+            scanDialog: false,
+            generateDialog: false,
+            viewDialog: false,
+            editDialog: false,
+            deductDialog: false,
+            deleteDialog: false,
 
-                    });
-                }
-            );
+            //image
+            uploadLoading: false,
+            uploadBtnText: "Upload",
+            uploadBtnTextMobile: mdiCloudUploadOutline,
+
+
+            //table functions
+            search: '',
+            singleSelect: false,
+            selected: [],
+            loadingTable: false,
+
+            //rules
+            valid: true,
+            itemNameRules: [
+                v => !!v || 'This field is required',
+            ],
+
+
+        }),
+
+        setup(props) {
+            return {
+                itemImage,
+                icons: {
+                    mdiCloudUploadOutline,
+                },
+            }
         },
 
-        onDecode(result) {
-            console.log(result)
-        },
+        methods: {
 
+            onLoaded(result) {
+                console.log(result)
+            },
+
+            //upload avatar
+            uploadItemImage(e) {
+                let file = e.target.files[0];
+                const storage = getStorage();
+                const storageRef = ref_storage(storage, 'inventories/' + file.name);
+
+                const uploadTask = uploadBytesResumable(storageRef, file);
+
+                uploadTask.on('state_changed',
+                    (snapshot) => {
+                        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                        this.uploadBtnText = "Uploading: " + progress.toFixed(0) + '%';
+                        this.uploadBtnTextMobile = mdiProgressDownload;
+                        //this.uploadBtnTextMobile = "Uploading: " + progress.toFixed(0) + '%';
+
+                        switch (snapshot.state) {
+                            case 'paused':
+                                console.log('Upload is paused');
+                                break;
+                            case 'running':
+                                console.log('Upload is running');
+                                break;
+                        }
+                    },
+                    (error) => {},
+                    () => {
+
+                        this.uploadBtnText = 'Uploaded Successfully';
+
+                        this.uploadBtnTextMobile = mdiCheckCircle;
+                        //this.uploadBtnTextMobile = 'Photo Uploaded';
+                        getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+                            console.log('File available at', downloadURL);
+                            itemImage.value = downloadURL;
+
+                        });
+                    }
+                );
+            },
+
+            onDecode(result) {
+                console.log(result)
+            },
+
+        }
     }
-}
 </script>
 <style>
 
