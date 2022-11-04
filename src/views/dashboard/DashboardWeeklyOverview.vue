@@ -1,7 +1,7 @@
 <template>
   <v-card>
     <v-card-title class="align-start">
-      <span>Weekly Overview</span>
+      <span>Inventory Levels</span>
 
       <v-spacer></v-spacer>
 
@@ -14,16 +14,23 @@
 
     <v-card-text>
       <!-- Chart -->
-      <vue-apex-charts :options="chartOptions" :series="chartData" height="210"></vue-apex-charts>
+      <vue-apex-charts
+        :options="chartOptions"
+        :series="chartData"
+        width="80%"
+        height="210"
+      ></vue-apex-charts>
 
-      <div class="d-flex align-center">
+      <!-- <div class="d-flex align-center">
         <h3 class="text-2xl font-weight-semibold me-4">
           45%
         </h3>
-        <span>Your sales perfomance in 45% 🤩 better compare to last month</span>
-      </div>
+        <span
+          >Your sales perfomance in 45% 🤩 better compare to last month</span
+        >
+      </div> -->
 
-      <v-btn block color="primary" class="mt-6" outlined>
+      <v-btn block color="primary" class="mt-3" outlined>
         Details
       </v-btn>
     </v-card-text>
@@ -31,44 +38,45 @@
 </template>
 
 <script>
-import VueApexCharts from 'vue-apexcharts'
+import VueApexCharts from "vue-apexcharts";
 // eslint-disable-next-line object-curly-newline
-import { mdiDotsVertical, mdiTrendingUp, mdiCurrencyUsd } from '@mdi/js'
-import { getCurrentInstance } from '@vue/composition-api'
+import { mdiDotsVertical, mdiTrendingUp, mdiCurrencyUsd } from "@mdi/js";
+import { getCurrentInstance } from "@vue/composition-api";
+import { onMounted, ref } from "@vue/composition-api";
 
 export default {
   components: {
     VueApexCharts,
   },
   setup() {
-    const ins = getCurrentInstance()?.proxy
-    const $vuetify = ins && ins.$vuetify ? ins.$vuetify : null
-    const customChartColor = $vuetify.theme.isDark ? '#3b3559' : '#f5f5f5'
+    const ins = getCurrentInstance()?.proxy;
+    const $vuetify = ins && ins.$vuetify ? ins.$vuetify : null;
 
     const chartOptions = {
       colors: [
-        customChartColor,
-        customChartColor,
-        customChartColor,
-        customChartColor,
         $vuetify.theme.currentTheme.primary,
-        customChartColor,
-        customChartColor,
+        $vuetify.theme.currentTheme.primary,
+        $vuetify.theme.currentTheme.primary,
+        $vuetify.theme.currentTheme.primary,
+        $vuetify.theme.currentTheme.success,
+        $vuetify.theme.currentTheme.primary,
+        $vuetify.theme.currentTheme.primary,
       ],
       chart: {
-        type: 'bar',
+        type: "bar",
         toolbar: {
-          show: false,
+          show: true,
         },
         offsetX: -15,
+        redrawOnParentResize: true,
       },
       plotOptions: {
         bar: {
-          columnWidth: '40%',
+          columnWidth: "40%",
           distributed: true,
           borderRadius: 8,
-          startingShape: 'rounded',
-          endingShape: 'rounded',
+          startingShape: "rounded",
+          endingShape: "rounded",
         },
       },
       dataLabels: {
@@ -78,18 +86,26 @@ export default {
         show: false,
       },
       xaxis: {
-        categories: ['S', 'M', 'T', 'W', 'T', 'F', 'S'],
+        categories: [
+          "Vaccines",
+          "Lab Tests",
+          "Topical",
+          "Steroids",
+          "Medications",
+          "Oral Antibiotics",
+          "Foods",
+        ],
         axisBorder: {
           show: false,
         },
         axisTicks: {
           show: false,
         },
-        tickPlacement: 'on',
+        tickPlacement: "on",
         labels: {
-          show: false,
+          show: true,
           style: {
-            fontSize: '12px',
+            fontSize: "10px",
           },
         },
       },
@@ -98,7 +114,7 @@ export default {
         tickAmount: 4,
         labels: {
           offsetY: 3,
-          formatter: value => `$${value}`,
+          formatter: (value) => `${value}`,
         },
       },
       stroke: {
@@ -110,13 +126,13 @@ export default {
           right: 0,
         },
       },
-    }
+    };
 
     const chartData = [
       {
-        data: [40, 60, 50, 60, 75, 60, 50, 65],
+        data: [40, 60, 50, 60, 75, 60, 50],
       },
-    ]
+    ];
 
     return {
       chartOptions,
@@ -127,7 +143,7 @@ export default {
         mdiTrendingUp,
         mdiCurrencyUsd,
       },
-    }
+    };
   },
-}
+};
 </script>
