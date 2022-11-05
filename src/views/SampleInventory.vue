@@ -233,8 +233,7 @@
                           dense :rules="fieldRules"> 
                         </v-text-field>
                         <v-text-field v-model.number="dataItem.totalcost" label="Total Cost" clearable  outlined dense hint="total quantity x unit cost" type="number" :rules="fieldRules" :prepend-inner-icon="phpIcon"
-                         >
-                        </v-text-field>
+                         ></v-text-field>
                       </v-col>
                       <v-col cols="12" sm="3" class="ma-2">
                         <v-menu ref="menu" v-model="menu" :close-on-content-click="false" transition="scale-transition"
