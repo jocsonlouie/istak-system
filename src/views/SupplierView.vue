@@ -14,9 +14,19 @@
       </template>
     </v-snackbar>
 
-    <!-- Data Table -->
-    <v-data-table :headers="headers" :items="items" sort-by="name" class="elevation-1 pt-3" :search="search"
-      v-model="selected" :single-select="singleSelect" item-key="itemname" show-select :loading="loadingTable">
+     <!-- Data Table -->
+     <v-data-table
+      :headers="headers"
+      :items="items"
+      sort-by="name"
+      class="elevation-1 pt-3"
+      :search="search"
+      v-model="selected"
+      :single-select="singleSelect"
+      item-key="itemname"
+      show-select
+      :loading="loadingTable"
+    >
 
       <template v-slot:top>
         <v-toolbar flat>
@@ -31,7 +41,7 @@
 
 
           <!-- Add & Edit Item Modal -->
-          <v-dialog v-model="dialog" max-width="500px">
+          <v-dialog v-model="dialog" max-width="700px">
             <template v-slot:activator="{ on, attrs }">
               <v-btn color="primary" outlined class="" v-bind="attrs" v-on="on">
                 New Supplier
@@ -45,32 +55,67 @@
 
               <v-card-text>
                 <v-container>
-                  <form ref="form" id="myTable">
-                    <v-text-field v-model="dataItem.name" :rules="itemNameRules" label="Name" clearable required>
-                    </v-text-field>
-
-                    <v-text-field v-model="dataItem.email" :rules="itemNameRules" label="Email" clearable>
-                    </v-text-field>
-
-                    <v-text-field v-model="dataItem.contactno" :rules="itemNameRules" label="Contact Number" clearable>
-                    </v-text-field>
-
-                    <v-text-field v-model.number="dataItem.contactper" :rules="itemNameRules" label="Contact Person"
-                      clearable>
-                    </v-text-field>
-
-
-                  </form>
+                  <v-form ref="form" id="myTable">
+                    <div class="d-flex  justify-center align-center">
+                      <p class="mr-3 text-subtitle-1">Supplier Information</p>
+                      <v-divider></v-divider>
+                    </div>
+                    <v-row no-gutters class="d-flex justify-center">
+                    <v-col cols="12" sm="3" class="ma-2">
+                        <v-text-field
+                          v-model="dataItem.name"
+                          :rules="nameRules"
+                          label="Name"
+                          clearable
+                          outlined
+                          dense
+                        >
+                        </v-text-field>
+                        <v-text-field
+                          v-model="dataItem.email"
+                          :rules="itemNameRules"
+                          label="Email"
+                          clearable
+                          outlined
+                          dense
+                        >
+                        </v-text-field>
+                      </v-col>
+                      <v-col cols="12" sm="3" class="ma-2 align-self-center">
+                        <v-text-field
+                          v-model="dataItem.contactno"
+                          :rules="inputRules"
+                          counter="11"
+                          label="Contact Number"
+                          clearable
+                          outlined
+                          dense
+                        >
+                        </v-text-field>
+                        <v-text-field
+                          v-model="dataItem.contactper"
+                          :rules="nameRules"
+                          label="Contact Person"
+                          clearable
+                          outlined
+                          dense
+                        >
+                        </v-text-field>
+                      </v-col>
+                      </v-row>
+                  </v-form>
                 </v-container>
               </v-card-text>
 
               <v-card-actions>
+                <v-btn color="error" @click="openDelete" v-if="showDelete">
+                  Delete</v-btn
+                >
                 <v-spacer></v-spacer>
                 <v-btn color="secondary" @click="close">
                   Cancel
                 </v-btn>
-                <v-btn color="primary" @click="save">
-                  Save</v-btn>
+                <v-btn color="primary" @click="save"> Save</v-btn>
               </v-card-actions>
             </v-card>
           </v-dialog>
@@ -89,13 +134,20 @@
           class="mt-2" x-small
         ></v-switch> -->
 
-          <!-- Delete Item Modal -->
-          <v-dialog v-model="dialogDelete" max-width="500px">
+        <!-- Delete Item Modal -->
+        <v-dialog v-model="dialogDelete" max-width="500px">
             <v-card class="pa-5 d-flex flex-column justify-center">
-              <v-chip color="error" class="d-flex justify-center font-weight-bold text-h6 pa-5">Delete Supplier
+              <v-chip
+                color="error"
+                class="d-flex justify-center font-weight-bold text-h6 pa-5"
+                >Delete Item
               </v-chip>
-              <v-card-title class="-d-flex justify-center">Are you sure you want to delete this item?</v-card-title>
-              <p class="text-center font-weight-bold text-h5">{{ dataItem.itemname }}</p>
+              <v-card-title class="-d-flex justify-center"
+                >Are you sure you want to delete this item?</v-card-title
+              >
+              <p class="text-center font-weight-bold text-h5">
+                {{ dataItem.name }}
+              </p>
               <v-card-actions class="mb-n5">
                 <v-spacer></v-spacer>
                 <v-btn color="secondary" @click="closeDelete">Cancel</v-btn>
@@ -150,9 +202,6 @@
         <div class="d-flex flex-row align-center">
           <v-btn color="primary" elevation="2" class="mr-2" fab x-small outlined @click="editItem(item)">
             <v-icon>{{ editIcon }}</v-icon>
-          </v-btn>
-          <v-btn color="error" elevation="2" class="mr-2" fab x-small @click="deleteItem(item)">
-            <v-icon>{{ deleteIcon }}</v-icon>
           </v-btn>
           <v-btn color="primary" outlined class="" @click="emailItem(item)">
             SEND EMAIL
@@ -279,23 +328,23 @@ export default {
     currentItem: {
       name: '',
       email: '',
-      contactno: '',
-      contactper: 0,
+      contactno: 0,
+      contactper: '',
 
     },
     defaultItem: {
       name: '',
       email: '',
-      contactno: '',
-      contactper: 0,
+      contactno: 0,
+      contactper: '',
     },
 
     // add item
     dataItem: {
       name: '',
       email: '',
-      contactno: '',
-      contactper: 0,
+      contactno: 0,
+      contactper: '',
     },
 
     //rules
@@ -303,6 +352,17 @@ export default {
     itemNameRules: [
       v => !!v || 'This field is required',
     ],
+
+    //contactrules
+    inputRules: [
+        v => v.length >= 11 || 'Minimum length is 11 numbers',
+        v => !!v || 'This field is required',
+      ],
+    
+    //namerules
+    nameRules: [
+        v => v.length >= 3 || 'Minimum length is 3 characters'
+      ],
 
     //edit item
     itemId: null,
@@ -316,6 +376,9 @@ export default {
     snackbar: false,
     timeout: 3000,
     itemStatus: '',
+
+    //show delete button
+    showDelete: false,
 
     //email
     sendData: {
@@ -376,6 +439,7 @@ export default {
         this.dataItem = Object.assign({}, item);
         this.itemId = this.dataItem.id;
         this.docRef = doc(inventoryColRef, this.itemId);
+        this.showDelete = true;
       }
       this.dialog = true
     },
@@ -388,13 +452,19 @@ export default {
       this.sendData.toEmail = this.dataItem.email;
     },
 
-    // delete function
-    async deleteItem(item) {
-      this.dataItem = Object.assign({}, item);
-      this.itemId = this.dataItem.id;
-      this.docRef = doc(inventoryColRef, this.itemId);
-      this.dialogDelete = true;
-    },
+    // // delete function
+    // async deleteItem(item) {
+    //   this.dataItem = Object.assign({}, item);
+    //   this.itemId = this.dataItem.id;
+    //   this.docRef = doc(inventoryColRef, this.itemId);
+    //   this.dialogDelete = true;
+    // },
+
+    openDelete() {
+        this.dialogDelete = true;
+
+      },
+
 
     async deleteItemConfirm() {
       this.items.splice(this.itemIndex, 1);
@@ -403,6 +473,7 @@ export default {
       this.itemStatus = 'Deleted';
       this.snackbar = true;
       this.resetForm();
+      this.dialog = false;
     },
 
 
@@ -414,6 +485,7 @@ export default {
         this.currentItem = Object.assign({}, this.defaultItem)
         this.itemIndex = -1
       })
+      this.showDelete = false;
     },
 
     // close function for send Email
