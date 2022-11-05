@@ -1,14 +1,7 @@
 <template>
   <div class="sample-iv">
     <!-- Success Alert -->
-    <v-snackbar
-      v-model="snackbar"
-      :timeout="timeout"
-      top
-      color="primary"
-      outlined
-      rounded="pill"
-    >
+    <v-snackbar v-model="snackbar" :timeout="timeout" top color="primary" outlined rounded="pill">
       <v-icon color="primary">{{ successIcon }}</v-icon>
 
       Item {{ itemStatus }} Successfully!
@@ -21,57 +14,29 @@
     </v-snackbar>
 
     <!-- Data Table -->
-    <v-data-table
-      :headers="headers"
-      :items="items"
-      sort-by="name"
-      class="elevation-1 pt-3"
-      :search="search"
-      v-model="selected"
-      :single-select="singleSelect"
-      item-key="itemname"
-      show-select
-      :loading="loadingTable"
-    >
+    <v-data-table :headers="headers" :items="items" sort-by="name" class="elevation-1 pt-3" :search="search"
+      v-model="selected" :single-select="singleSelect" item-key="itemname" show-select :loading="loadingTable">
       <template v-slot:top>
         <v-toolbar flat>
           <!-- Table Top Functions -->
           <v-switch v-model="singleSelect" class="mb-n6 mr-4"></v-switch>
           <v-icon class="mr-2">{{ searchIcon }}</v-icon>
-          <v-text-field
-            v-model="search"
-            label="Search Item..."
-            single-line
-            hide-details
-          >
+          <v-text-field v-model="search" label="Search Item..." single-line hide-details>
           </v-text-field>
           <v-spacer></v-spacer>
 
           <!-- Barcode Scan Button -->
-          <v-btn
-            color="primary"
-            elevation="2"
-            class="mr-2 hidden-sm-and-down"
-            @click="openBarcodeScanner"
-            >Barcode Scan
+          <v-btn color="primary" elevation="2" class="mr-2 hidden-sm-and-down" @click="openBarcodeScanner">Barcode Scan
           </v-btn>
 
           <!-- Scan Barcode Modal -->
           <v-dialog v-model="dialogScan" max-width="550px">
             <v-card class="pa-5 d-flex flex-column justify-center">
-              <v-chip
-                color="primary"
-                class="d-flex justify-center rounded-pill font-weight-bold text-h6 pa-5 "
-                >Scan barcode
+              <v-chip color="primary" class="d-flex justify-center rounded-pill font-weight-bold text-h6 pa-5 ">Scan
+                barcode
               </v-chip>
-              <v-card-title
-                class="-d-flex justify-center pa-0 rounded-lg my-3 overflow-hidden"
-              >
-                <StreamBarcodeReader
-                  @decode="onDecode"
-                  @loaded="onLoaded"
-                  stop
-                ></StreamBarcodeReader>
+              <v-card-title class="-d-flex justify-center pa-0 rounded-lg my-3 overflow-hidden">
+                <StreamBarcodeReader @decode="onDecode" @loaded="onLoaded" stop></StreamBarcodeReader>
               </v-card-title>
 
               <v-card-actions class="mb-n5">
@@ -85,10 +50,7 @@
           <!-- Scan View Modal -->
           <v-dialog v-model="dialogScanView" max-width="550px">
             <v-card flat class="pa-3 mt-2">
-              <v-chip
-                color="primary"
-                class="d-flex justify-center rounded-pill mb-4 font-weight-bold text-h6 pa-5 "
-              >
+              <v-chip color="primary" class="d-flex justify-center rounded-pill mb-4 font-weight-bold text-h6 pa-5 ">
                 Scan Result
               </v-chip>
               <div v-if="scanStatus">
@@ -110,52 +72,21 @@
                   <v-form class="multi-col-validation mt-6">
                     <v-row>
                       <v-col md="6" cols="12">
-                        <v-text-field
-                          v-model="scanBarcode"
-                          :rules="inputRules"
-                          counter="14"
-                          label="Barcode"
-                          dense
-                          outlined
-                          readonly
-                        ></v-text-field>
+                        <v-text-field v-model="scanBarcode" :rules="inputRules" counter="14" label="Barcode" dense
+                          outlined readonly></v-text-field>
                       </v-col>
                       <v-col md="6" cols="12">
-                        <v-text-field
-                          v-model="scanItemName"
-                          label="Item name"
-                          dense
-                          outlined
-                          readonly
-                        ></v-text-field>
+                        <v-text-field v-model="scanItemName" label="Item name" dense outlined readonly></v-text-field>
                       </v-col>
                       <v-col cols="12" md="6">
-                        <v-text-field
-                          v-model="scanDisplayStocks"
-                          label="Display Stocks"
-                          dense
-                          outlined
-                          readonly
-                        >
+                        <v-text-field v-model="scanDisplayStocks" label="Display Stocks" dense outlined readonly>
                         </v-text-field>
                       </v-col>
                       <v-col cols="12" md="6">
-                        <v-text-field
-                          v-model="scanStorebox"
-                          dense
-                          label="Storebox"
-                          outlined
-                          readonly
-                        ></v-text-field>
+                        <v-text-field v-model="scanStorebox" dense label="Storebox" outlined readonly></v-text-field>
                       </v-col>
                       <v-col cols="12" md="6">
-                        <v-text-field
-                          v-model="scanTotalStocks"
-                          dense
-                          label="Total Stocks"
-                          outlined
-                          readonly
-                        >
+                        <v-text-field v-model="scanTotalStocks" dense label="Total Stocks" outlined readonly>
                         </v-text-field>
                       </v-col>
                     </v-row>
@@ -185,28 +116,17 @@
           <!-- Capture Photo modal -->
           <v-dialog v-model="capturePhoto" max-width="550px">
             <v-card class="pa-5 d-flex flex-column justify-center">
-              <v-chip
-                color="primary"
-                class="d-flex justify-center rounded-pill font-weight-bold text-h6 pa-5 "
-                >Capture Photo
+              <v-chip color="primary" class="d-flex justify-center rounded-pill font-weight-bold text-h6 pa-5 ">Capture
+                Photo
               </v-chip>
-              <v-card-title
-                class="-d-flex justify-center pa-0 rounded-lg my-3 overflow-hidden"
-              >
-                <PhotoCapture
-                  v-model="imageBase64"
-                  captureBtnContent="📷"
-                  cancelBtnContent="🔄"
-                  doneBtnContent="✅"
-                  @input="done"
-                />
+              <v-card-title class="-d-flex justify-center pa-0 rounded-lg my-3 overflow-hidden">
+                <PhotoCapture v-model="imageBase64" captureBtnContent="📷" cancelBtnContent="🔄" doneBtnContent="✅"
+                  @input="done" />
               </v-card-title>
 
               <v-card-actions class="mb-n5">
                 <v-spacer></v-spacer>
-                <v-btn color="secondary" @click="closeCapturePhoto"
-                  >Cancel</v-btn
-                >
+                <v-btn color="secondary" @click="closeCapturePhoto">Cancel</v-btn>
                 <v-spacer></v-spacer>
               </v-card-actions>
             </v-card>
@@ -221,10 +141,7 @@
             </template>
             <v-card>
               <v-card-title class="d-flex justify-center ">
-                <v-chip
-                  color="primary"
-                  class="d-flex justify-center font-weight-bold text-h6 pa-5"
-                  >{{ formTitle }}
+                <v-chip color="primary" class="d-flex justify-center font-weight-bold text-h6 pa-5">{{ formTitle }}
                 </v-chip>
               </v-card-title>
 
@@ -238,21 +155,12 @@
 
                     <v-row no-gutters class="d-flex justify-center">
                       <v-col cols="12" sm="3" class="ma-2 align-self-center">
-                        <v-card-text
-                          class="d-flex justify-center flex-column align-center mt-2"
-                        >
+                        <v-card-text class="d-flex justify-center flex-column align-center mt-2">
                           <v-avatar rounded size="80" class="">
                             <v-img :src="itemImage"></v-img>
                           </v-avatar>
-                          <div
-                            class="d-flex justify-center flex-column align-center"
-                          >
-                            <v-btn
-                              color="primary"
-                              class="mt-3"
-                              small
-                              @click="$refs.refInputEl.click()"
-                            >
+                          <div class="d-flex justify-center flex-column align-center">
+                            <v-btn color="primary" class="mt-3" small @click="$refs.refInputEl.click()">
                               <v-icon class="d-sm-none">
                                 {{ uploadBtnTextMobile }}
                               </v-icon>
@@ -261,28 +169,15 @@
                               }}</span>
                             </v-btn>
 
-                            <v-btn
-                              color="primary"
-                              class="mt-3"
-                              small
-                              outlined
-                              @click="openCapturePhoto"
-                            >
+                            <v-btn color="primary" class="mt-3" small outlined @click="openCapturePhoto">
                               <v-icon class="d-sm-none">
                                 {{ uploadTakePicture }}
                               </v-icon>
-                              <span class="d-none d-sm-block "
-                                >Capture a photo</span
-                              >
+                              <span class="d-none d-sm-block ">Capture a photo</span>
                             </v-btn>
 
-                            <input
-                              ref="refInputEl"
-                              @change="uploadItemImage"
-                              type="file"
-                              accept=".jpeg,.png,.jpg,GIF"
-                              :hidden="true"
-                            />
+                            <input ref="refInputEl" @change="uploadItemImage" type="file" accept=".jpeg,.png,.jpg,GIF"
+                              :hidden="true" />
 
                             <p class="text-caption text-center mt-2">
                               Allowed JPG, GIF or PNG. Max size of 1MB
@@ -292,73 +187,30 @@
                       </v-col>
 
                       <v-col cols="12" sm="4" class="ma-2 align-self-center">
-                        <v-text-field
-                          v-model="dataItem.itemname"
-                          :rules="itemNameRules"
-                          label="Item Name"
-                          clearable
-                          required
-                          outlined
-                          dense
-                        >
+                        <v-text-field v-model="dataItem.itemname" :rules="fieldRules" label="Item Name" clearable
+                          required outlined dense>
                         </v-text-field>
 
-                        <v-text-field
-                          v-model="dataItem.barcode"
-                          :rules="inputRules"
-                          label="Barcode"
-                          counter="14"
-                          type="number"
-                          clearable
-                          outlined
-                          dense
-                        >
+                        <v-text-field v-model="dataItem.barcode" :rules="inputRules" label="Barcode" 
+                          type="number" clearable outlined dense>
                         </v-text-field>
 
-                        <v-text-field
-                          v-model="dataItem.retail"
-                          :rules="itemNameRules"
-                          label="Retail Price"
-                          type="number"
-                          prepend-inner-icon="₱"
-                          clearable
-                          outlined
-                          dense
-                        >
+                        <v-text-field v-model="dataItem.retail" :rules="fieldRules" label="Retail Price"
+                          type="number" :prepend-inner-icon="phpIcon" clearable outlined dense>
                         </v-text-field>
                       </v-col>
 
                       <v-col cols="12" sm="4" class="ma-2 align-self-center">
-                        <v-text-field
-                          v-model.number="dataItem.stockunit"
-                          :rules="itemNameRules"
-                          label="Stock Unit"
-                          placeholder="bottle"
-                          clearable
-                          outlined
-                          dense
-                        >
+                        <v-text-field v-model.number="dataItem.stockunit" :rules="fieldRules" label="Stock Unit"
+                           clearable outlined dense hint="P100/(stock unit here) e.g. P100/bottle">
                         </v-text-field>
 
-                        <v-text-field
-                          v-model.number="dataItem.reorderlevel"
-                          :rules="itemNameRules"
-                          label="Reorder Level"
-                          type="number"
-                          clearable
-                          outlined
-                          dense
-                        >
+                        <v-text-field v-model.number="dataItem.reorderlevel" :rules="fieldRules"
+                          label="Reorder Level" type="number" clearable outlined dense hint="low stock indicator">
                         </v-text-field>
 
-                        <v-text-field
-                          v-model.number="dataItem.manufacturer"
-                          :rules="itemNameRules"
-                          label="Manufacturer"
-                          clearable
-                          outlined
-                          dense
-                        >
+                        <v-text-field v-model.number="dataItem.manufacturer" :rules="fieldRules" label="Manufacturer"
+                          clearable outlined dense>
                         </v-text-field>
                       </v-col>
                     </v-row>
@@ -370,59 +222,35 @@
 
                     <v-row no-gutters class="d-flex justify-center">
                       <v-col cols="12" sm="3" class="ma-2">
-                        <v-text-field
-                          v-model.number="dataItem.available"
-                          label="Quantity (excluding display)"
-                          clearable
-                          outlined
-                          dense
-                        >
+                        <v-text-field v-model.number="dataItem.available" label="Quantity to Store" hint="excluding stocks on display" type="number" clearable :rules="fieldRules"
+                          outlined dense>
                         </v-text-field>
-                        <v-text-field
-                          v-model.number="dataItem.unitcost"
-                          label="Unit Cost"
-                          clearable
-                          outlined
-                          dense
-                        >
+                        <v-text-field v-model.number="dataItem.unitcost" label="Unit Cost" clearable type="number" outlined dense :rules="fieldRules" :prepend-inner-icon="phpIcon" >
                         </v-text-field>
                       </v-col>
                       <v-col cols="12" sm="3" class="ma-2">
-                        <v-text-field
-                          v-model.number="dataItem.display"
-                          label="Quantity to Display"
-                          clearable
-                          outlined
-                          dense
-                        >
+                        <v-text-field v-model.number="dataItem.display" label="Quantity to Display"  type="number" clearable outlined
+                          dense :rules="fieldRules"> 
                         </v-text-field>
-                        <v-text-field
-                          v-model.number="dataItem.totalcost"
-                          label="Total Cost"
-                          clearable
-                          outlined
-                          dense
-                        >
-                        </v-text-field>
+                        <v-text-field v-model.number="dataItem.totalcost" label="Total Cost" clearable  outlined dense hint="total quantity x unit cost" type="number" :rules="fieldRules" :prepend-inner-icon="phpIcon"
+                         ></v-text-field>
                       </v-col>
                       <v-col cols="12" sm="3" class="ma-2">
-                        <v-menu v-model="menu2" :close-on-content-click="false"
-                           :nudge-right="40" transition="scale-transition" offset-y min-width="auto">
-                             <template v-slot:activator="{ on, attrs }">
-                                <v-text-field v-model="dataItem.expiry" label="Expiry Date"
-                                 outlined dense v-bind="attrs" v-on="on">
-                                </v-text-field>
-                             </template>
-                                <v-date-picker v-model="dataItem.expiry" @input="menu2 = false">
-                                   </v-date-picker>
-                         </v-menu>
-                        <v-text-field
-                          v-model.number="dataItem.supplier"
-                          label="Supplier"
-                          clearable
-                          outlined
-                          dense
-                        >
+                        <v-menu ref="menu" v-model="menu" :close-on-content-click="false" transition="scale-transition"
+                          offset-y max-width="290px" min-width="auto">
+                          <template v-slot:activator="{ on, attrs }">
+                            <v-text-field v-model="dataItem.expiry" label="Expiry Date" :rules="fieldRules" required
+                              outlined dense :append-icon="dateIcon"
+                              hint="format: yyyy-mm-dd" v-bind="attrs" v-on="on">
+                            </v-text-field>
+                          </template>
+                          <v-date-picker v-model="dataItem.expiry" @input="menu = false">
+                          </v-date-picker>
+                        </v-menu>
+
+
+
+                        <v-text-field v-model.number="dataItem.supplier" label="Supplier" clearable outlined dense :rules="fieldRules">
                         </v-text-field>
                       </v-col>
                     </v-row>
@@ -432,8 +260,7 @@
 
               <v-card-actions>
                 <v-btn color="error" @click="openDelete" v-if="showDelete">
-                  Delete</v-btn
-                >
+                  Delete</v-btn>
                 <v-spacer></v-spacer>
                 <v-btn color="secondary" @click="close">
                   Cancel
@@ -443,70 +270,27 @@
             </v-card>
           </v-dialog>
           <!-- Round buttons -->
-          <v-btn
-            color="white"
-            elevation="2"
-            class="ml-2 primary hidden-sm-and-up"
-            fab
-            small
-            outlined
-            @click="openBarcodeScanner"
-          >
+          <v-btn color="white" elevation="2" class="ml-2 primary hidden-sm-and-up" fab small outlined
+            @click="openBarcodeScanner">
             <v-icon>{{ barcodeIcon }}</v-icon>
           </v-btn>
-          <!-- <v-dialog v-model="dialog" max-width="500px">
-            <template v-slot:activator="{ on, attrs }">
-              <v-btn color="primary" elevation="2" class="ml-2 hidden-md-and-up" fab small outlined v-bind="attrs"
-                v-on="on">
-                <v-icon>{{ plusIcon }}</v-icon>
-              </v-btn>
-            </template>
-          </v-dialog> -->
-          <v-btn
-            color="primary"
-            elevation="2"
-            class="ml-2 hidden-sm-and-down"
-            fab
-            small
-            outlined
-          >
+
+          <v-btn color="primary" elevation="2" class="ml-2 hidden-sm-and-down" fab small outlined>
             <v-icon>{{ pdfIcon }}</v-icon>
           </v-btn>
-          <v-btn
-            color="primary"
-            elevation="2"
-            class="ml-2 hidden-sm-and-down"
-            fab
-            small
-            outlined
-          >
+          <v-btn color="primary" elevation="2" class="ml-2 hidden-sm-and-down" fab small outlined>
             <v-icon>{{ editIcon }}</v-icon>
           </v-btn>
-          <v-btn
-            color="error"
-            elevation="2"
-            class="ml-2 hidden-sm-and-down"
-            fab
-            small
-          >
+          <v-btn color="error" elevation="2" class="ml-2 hidden-sm-and-down" fab small>
             <v-icon>{{ deleteIcon }}</v-icon>
           </v-btn>
-          <!-- <v-switch
-          v-model="singleExpand"
-          class="mt-2" x-small
-        ></v-switch> -->
 
           <!-- Delete Item Modal -->
           <v-dialog v-model="dialogDelete" max-width="500px">
             <v-card class="pa-5 d-flex flex-column justify-center">
-              <v-chip
-                color="error"
-                class="d-flex justify-center font-weight-bold text-h6 pa-5"
-                >Delete Item
+              <v-chip color="error" class="d-flex justify-center font-weight-bold text-h6 pa-5">Delete Item
               </v-chip>
-              <v-card-title class="-d-flex justify-center"
-                >Are you sure you want to delete this item?</v-card-title
-              >
+              <v-card-title class="-d-flex justify-center">Are you sure you want to delete this item?</v-card-title>
               <p class="text-center font-weight-bold text-h5">
                 {{ dataItem.itemname }}
               </p>
@@ -524,15 +308,15 @@
               <v-chip color="primary" class="d-flex justify-center font-weight-bold text-h6 pa-5 mb-6">Add Stocks
               </v-chip>
               <div class="mx-5 mx-sm-10">
-                <v-form ref="form">
+                <v-form ref="formAddStocks">
                   <v-text-field v-model="dataItem.itemname" label="Item Name" dense readonly class="mb-4">
                   </v-text-field>
                   <p class="text-caption">Current Available Stocks: {{dataItem.available}}</p>
-                  <v-text-field v-model="stkStore" :rules="itemNameRules" label="Quantity to Store" outlined dense
+                  <v-text-field v-model="stkStore" :rules="fieldRules" label="Quantity to Store" outlined dense
                     type="number">
                   </v-text-field>
                   <p class="text-caption">Current On Display Stocks: {{dataItem.display}}</p>
-                  <v-text-field v-model="stkAdd" :rules="itemNameRules" label="Quantity to Display" outlined dense
+                  <v-text-field v-model="stkAdd" :rules="fieldRules" label="Quantity to Display" outlined dense
                     type="number">
                   </v-text-field>
                 </v-form>
@@ -552,17 +336,17 @@
               <v-chip color="secondary" class="d-flex justify-center font-weight-bold text-h6 pa-5 mb-6">Consume Stocks
               </v-chip>
               <div class="mx-5 mx-sm-10">
-                <v-form ref="form">
+                <v-form ref="formConsume">
                   <v-text-field v-model="dataItem.itemname" label="Item Name" dense readonly class="mb-4">
                   </v-text-field>
 
-                  <v-text-field v-model="stkConsume" :rules="itemNameRules" label="Quantity to Consume" outlined dense
+                  <v-text-field v-model="stkConsume" :rules="fieldRules" label="Quantity to Consume" outlined dense
                     type="number">
                   </v-text-field>
                   <p class="text-caption">Current Available Stocks: {{dataItem.available}}</p>
                   <p class="text-caption">Current On Display Stocks: {{dataItem.display}}</p>
                   <v-select :items="consumeWhere" v-model="stkWhere" label="Consume in" outlined dense
-                    :rules="itemNameRules"></v-select>
+                    :rules="fieldRules"></v-select>
 
                 </v-form>
 
@@ -587,6 +371,15 @@
         </v-chip>
       </template>
 
+      <template v-slot:item.itemname="{ item }" class="text-center">
+        {{item.itemname}}
+        <br>
+        <v-chip outlined x-small :color="getExpiry(item.expiry)">
+          {{expiryDays(item.expiry)}}
+        </v-chip>
+
+      </template>
+
       <template v-slot:item.image="{ item }" class="text-center">
         <v-avatar rounded size="50" class="ma-2">
           <v-img :src="item.image"></v-img>
@@ -597,18 +390,13 @@
         ₱{{item.retail}}/{{item.stockunit}}
       </template>
 
+
+
+
       <!-- Table Actions Buttons -->
       <template v-slot:item.actions="{ item }">
         <div class="d-flex flex-row align-center">
-          <v-btn
-            color="primary"
-            elevation="2"
-            class="mr-2"
-            fab
-            x-small
-            outlined
-            @click="editItem(item)"
-          >
+          <v-btn color="primary" elevation="2" class="mr-2" fab x-small outlined @click="editItem(item)">
             <v-icon>{{ editIcon }}</v-icon>
           </v-btn>
           <!-- <v-btn color="primary" elevation="2" class="mr-2" fab x-small>
@@ -632,9 +420,7 @@
           Reset
         </v-btn>
       </template>
-      <!-- <template v-slot:expanded-item="{ headers, item }">
-        <td :colspan="headers.length">More info about {{ item.itemname }}</td>
-      </template> -->
+
     </v-data-table>
   </div>
 </template>
@@ -657,7 +443,9 @@
     mdiCheckCircle,
     mdiProgressDownload,
     mdiPlusBoxMultiple,
-    mdiAutorenew
+    mdiAutorenew,
+    mdiCalendarMonth,
+    mdiCurrencyPhp
   } from '@mdi/js'
 
   // crud imports
@@ -723,6 +511,8 @@
       numberIcon: mdiCircle,
       addIcon: mdiPlusBoxMultiple,
       consumeIcon: mdiAutorenew,
+      dateIcon: mdiCalendarMonth,
+      phpIcon: mdiCurrencyPhp,
 
       // modal data
       dialog: false,
@@ -777,7 +567,7 @@
           value: 'available'
         },
         {
-          text: 'On Display',
+          text: 'Stocks on Display',
           sortable: true,
           value: 'display'
         },
@@ -786,11 +576,6 @@
           sortable: true,
           value: 'totalstocks'
         },
-        // {
-        //   text: 'Item Status', //expired stocks?
-        //   sortable: true,
-        //   value: 'itemstatus'
-        // },
         {
           text: 'Actions',
           value: 'actions',
@@ -809,13 +594,13 @@
         reorderlevel: '',
         manufacturer: '',
 
-        available: 0,
-        unitcost: 0,
-        display: 0,
-        totalstocks: 0,
-        totalcost: 0,
-        expiry: 'na',
-        supplier: 'na',
+        available: '',
+        unitcost: '',
+        display: '',
+        totalstocks: '',
+        totalcost: '',
+        expiry: '',
+        supplier: '',
       },
       defaultItem: {
         image: itemImage.value,
@@ -826,13 +611,13 @@
         reorderlevel: '',
         manufacturer: '',
 
-        available: 0,
-        unitcost: 0,
-        display: 0,
-        totalstocks: 0,
-        totalcost: 0,
-        expiry: 'na',
-        supplier: 'na',
+        available: '',
+        unitcost: '',
+        display: '',
+        totalstocks: '',
+        totalcost: '',
+        expiry: '',
+        supplier: '',
       },
 
       // add item
@@ -845,32 +630,33 @@
         reorderlevel: '',
         manufacturer: '',
 
-        available: 0,
-        unitcost: 0,
-        display: 0,
-        totalstocks: 0,
-        totalcost: 0,
-        expiry: 'na',
-        supplier: 'na',
+        available: '',
+        unitcost: '',
+        display: '',
+        totalstocks: '',
+        totalcost: '',
+        expiry: '',
+        supplier: '',
       },
 
       //rules
       valid: true,
-      itemNameRules: [
+      fieldRules: [
         v => !!v || 'This field is required',
       ],
 
       //barcoderules
       inputRules: [
-        v => v.length >= 12 || 'Minimum length is 12 numbers',
         v => !!v || 'This field is required',
+        v => v && v.length >= 12 || 'Minimum length is 12 numbers',
+        
       ],
 
       //date picker
       date: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
-        menu: false,
-        modal: false,
-        menu2: false,
+      menu: false,
+      modal: false,
+      menu2: false,
 
 
       //edit item
@@ -885,8 +671,6 @@
       //image
       uploadLoading: false,
       uploadBtnText: "Upload new photo",
-      //uploadBtnTextMobile: props.icons.mdiCloudUploadOutline
-      //uploadBtnTextMobile: "Upload"
       uploadBtnTextMobile: mdiCloudUploadOutline,
       uploadTakePicture: mdiCamera,
 
@@ -917,15 +701,7 @@
 
     setup(props) {
       return {
-        // status,
-        // userRole,
-        // userEmail,
         itemImage,
-
-        // userFName,
-        // accountDataLocale,
-        // userVerified,
-        // resetForm,
         icons: {
           mdiAlertOutline,
           mdiCloudUploadOutline,
@@ -939,6 +715,8 @@
       formTitle() {
         return this.itemIndex === -1 ? 'New Item' : 'Edit Item'
       },
+
+
     },
 
     watch: {
@@ -962,12 +740,14 @@
       },
       dialogConsume(val) {
         val || this.closeConsume();
-      }
+      },
+
     },
 
     created() {
       // to fetch data
       this.initialize();
+
 
     },
 
@@ -1057,29 +837,29 @@
       },
 
       closeAddStocks() {
+        this.resetFormAdd();
         this.dialogAddStocks = false;
       },
 
       async additionalStocks() {
-        if (this.$refs.form.validate()) {
-           this.totalAvailable = parseInt(this.dataItem.available) + parseInt(this.stkStore);
+        if (this.$refs.formAddStocks.validate()) {
+          this.totalAvailable = parseInt(this.dataItem.available) + parseInt(this.stkStore);
 
-        this.totalDisplay = parseInt(this.dataItem.display) + parseInt(this.stkAdd);
+          this.totalDisplay = parseInt(this.dataItem.display) + parseInt(this.stkAdd);
 
-        await updateDoc(this.docRef, {
-          display: this.totalDisplay,
-          available: this.totalAvailable,
-          totalstocks: this.totalAvailable + this.totalDisplay,
-        });
+          await updateDoc(this.docRef, {
+            display: this.totalDisplay,
+            available: this.totalAvailable,
+            totalstocks: this.totalAvailable + this.totalDisplay,
+          });
 
-        console.log("Add Available:" + this.dataItem.available + "+" + this.stkStore + "=" + this.totalAvailable);
-        console.log("Add Display:" + this.dataItem.display + "+" + this.stkAdd + "=" + this.totalDisplay);
-        console.log("Item Stocks Added Successfully!")
+          console.log("Add Available:" + this.dataItem.available + "+" + this.stkStore + "=" + this.totalAvailable);
+          console.log("Add Display:" + this.dataItem.display + "+" + this.stkAdd + "=" + this.totalDisplay);
+          console.log("Item Stocks Added Successfully!")
 
-        this.resetForm();
-        this.closeAddStocks();
-        this.itemStatus = 'Stocks Added';
-        this.snackbar = true;
+          this.closeAddStocks();
+          this.itemStatus = 'Stocks Added';
+          this.snackbar = true;
         }
       },
 
@@ -1096,11 +876,12 @@
         this.$nextTick(() => {
           this.currentItem = Object.assign({}, this.defaultItem)
         })
+        this.resetFormConsume();
         this.dialogConsume = false;
       },
 
       async consumingStocks() {
-        if (this.$refs.form.validate()) {
+        if (this.$refs.formConsume.validate()) {
 
           this.consumeAvailable = parseInt(this.dataItem.available - parseInt(this.stkConsume));
           this.consumeDisplay = parseInt(this.dataItem.display - parseInt(this.stkConsume));
@@ -1124,7 +905,6 @@
             console.log("Consumed Successfully");
           }
 
-          this.resetForm();
           this.closeConsume();
           this.itemStatus = 'Stocks Consumed';
           this.snackbar = true;
@@ -1159,23 +939,6 @@
         this.resetForm();
         this.dialog = false;
       },
-
-      // delete function
-      // async deleteItem(item) {
-      //   this.dataItem = Object.assign({}, item);
-      //   this.itemId = this.dataItem.id;
-      //   this.docRef = doc(inventoryColRef, this.itemId);
-      //   this.dialogDelete = true;
-      // },
-
-      // async deleteItemConfirm() {
-      //   this.items.splice(this.itemIndex, 1);
-      //   await deleteDoc(this.docRef);
-      //   this.closeDelete();
-      //   this.itemStatus = 'Deleted';
-      //   this.snackbar = true;
-      //   this.resetForm();
-      // },
 
       // close function for edit and add
       close() {
@@ -1316,10 +1079,43 @@
       resetForm() {
         this.$refs.form.reset();
       },
+      resetFormAdd() {
+        this.$refs.formAddStocks.reset();
+      },
+      resetFormConsume() {
+        this.$refs.formConsume.reset();
+      },
       getColor(totalstocks, reorderlevel) {
         if (totalstocks > reorderlevel) return 'primary'
         else if (totalstocks == null) return ''
         else return 'error'
+      },
+
+      //get item expiry status
+
+      expiryDays(expired) {
+        //const currentDate = new Date().toLocaleDateString();  
+        //const currentDate = new Date("2022-11-05");
+        const currentDate = new Date().toISOString().slice(0, 10);
+        const today = new Date(currentDate);
+        const itemDate = new Date(expired);
+        const difTime = itemDate.getTime() - today.getTime();
+        const difDays = difTime / (1000 * 3600 * 24);
+        return difDays + ' Days Left Before Expiry';
+      },
+      getExpiry(Xpired) {
+        const currentDate = new Date().toISOString().slice(0, 10);
+        const today = new Date(currentDate);
+        const itemDate = new Date(Xpired);
+        const difTime = itemDate.getTime() - today.getTime();
+        const difDays = difTime / (1000 * 3600 * 24);
+
+        if (difDays > 10) {
+          return 'secondary'
+        } else {
+          return 'error'
+        }
+
       },
 
       //upload avatar
@@ -1368,8 +1164,7 @@
   }
 </script>
 <style scoped>
-tr {
-  text-align: center;
-}
+  tr {
+    text-align: center;
+  }
 </style>
-
