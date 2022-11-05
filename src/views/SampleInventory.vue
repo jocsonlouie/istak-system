@@ -454,14 +454,7 @@
           >
             <v-icon>{{ barcodeIcon }}</v-icon>
           </v-btn>
-          <!-- <v-dialog v-model="dialog" max-width="500px">
-            <template v-slot:activator="{ on, attrs }">
-              <v-btn color="primary" elevation="2" class="ml-2 hidden-md-and-up" fab small outlined v-bind="attrs"
-                v-on="on">
-                <v-icon>{{ plusIcon }}</v-icon>
-              </v-btn>
-            </template>
-          </v-dialog> -->
+
           <v-btn
             color="primary"
             elevation="2"
@@ -491,10 +484,6 @@
           >
             <v-icon>{{ deleteIcon }}</v-icon>
           </v-btn>
-          <!-- <v-switch
-          v-model="singleExpand"
-          class="mt-2" x-small
-        ></v-switch> -->
 
           <!-- Delete Item Modal -->
           <v-dialog v-model="dialogDelete" max-width="500px">
@@ -587,6 +576,11 @@
         </v-chip>
       </template>
 
+      <template v-slot:item.itemname="{ item }" class="text-center">
+        {{item.itemname}}
+        <p :class="getExpiry(item.reorderlevel, daysLeft)"  >{{ daysLeft }} days left before expiry</p>
+      </template>
+
       <template v-slot:item.image="{ item }" class="text-center">
         <v-avatar rounded size="50" class="ma-2">
           <v-img :src="item.image"></v-img>
@@ -596,6 +590,9 @@
       <template v-slot:item.retail="{ item }" class="text-center">
         ₱{{item.retail}}/{{item.stockunit}}
       </template>
+
+      
+      
 
       <!-- Table Actions Buttons -->
       <template v-slot:item.actions="{ item }">
@@ -632,9 +629,7 @@
           Reset
         </v-btn>
       </template>
-      <!-- <template v-slot:expanded-item="{ headers, item }">
-        <td :colspan="headers.length">More info about {{ item.itemname }}</td>
-      </template> -->
+
     </v-data-table>
   </div>
 </template>
@@ -786,11 +781,6 @@
           sortable: true,
           value: 'totalstocks'
         },
-        // {
-        //   text: 'Item Status', //expired stocks?
-        //   sortable: true,
-        //   value: 'itemstatus'
-        // },
         {
           text: 'Actions',
           value: 'actions',
@@ -885,8 +875,6 @@
       //image
       uploadLoading: false,
       uploadBtnText: "Upload new photo",
-      //uploadBtnTextMobile: props.icons.mdiCloudUploadOutline
-      //uploadBtnTextMobile: "Upload"
       uploadBtnTextMobile: mdiCloudUploadOutline,
       uploadTakePicture: mdiCamera,
 
@@ -906,6 +894,8 @@
       consumeAvailable: 0,
       consumeDisplay: 0,
 
+      daysLeft: 60,
+
     }),
 
     props: {
@@ -917,15 +907,7 @@
 
     setup(props) {
       return {
-        // status,
-        // userRole,
-        // userEmail,
         itemImage,
-
-        // userFName,
-        // accountDataLocale,
-        // userVerified,
-        // resetForm,
         icons: {
           mdiAlertOutline,
           mdiCloudUploadOutline,
@@ -1160,23 +1142,6 @@
         this.dialog = false;
       },
 
-      // delete function
-      // async deleteItem(item) {
-      //   this.dataItem = Object.assign({}, item);
-      //   this.itemId = this.dataItem.id;
-      //   this.docRef = doc(inventoryColRef, this.itemId);
-      //   this.dialogDelete = true;
-      // },
-
-      // async deleteItemConfirm() {
-      //   this.items.splice(this.itemIndex, 1);
-      //   await deleteDoc(this.docRef);
-      //   this.closeDelete();
-      //   this.itemStatus = 'Deleted';
-      //   this.snackbar = true;
-      //   this.resetForm();
-      // },
-
       // close function for edit and add
       close() {
         this.resetForm();
@@ -1320,6 +1285,10 @@
         if (totalstocks > reorderlevel) return 'primary'
         else if (totalstocks == null) return ''
         else return 'error'
+      },
+      getExpiry(reorder, daysz){
+        if (reorder > daysz) return 'text-caption error--text'
+        else return 'text-caption error-text'
       },
 
       //upload avatar
