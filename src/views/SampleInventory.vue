@@ -1095,16 +1095,19 @@
 
       expiryDays(expired) {
         //const currentDate = new Date().toLocaleDateString();  
-        const currentDate = new Date("2022-11-05");
+        //const currentDate = new Date("2022-11-05");
+        const currentDate = new Date().toISOString().slice(0, 10);
+        const today = new Date(currentDate);
         const itemDate = new Date(expired);
-        const difTime = itemDate.getTime() - currentDate.getTime();
+        const difTime = itemDate.getTime() - today.getTime();
         const difDays = difTime / (1000 * 3600 * 24);
         return difDays + ' Days Left Before Expiry';
       },
       getExpiry(Xpired) {
-        const currentDate = new Date("2022-11-05");
+        const currentDate = new Date().toISOString().slice(0, 10);
+        const today = new Date(currentDate);
         const itemDate = new Date(Xpired);
-        const difTime = itemDate.getTime() - currentDate.getTime();
+        const difTime = itemDate.getTime() - today.getTime();
         const difDays = difTime / (1000 * 3600 * 24);
 
         if (difDays > 10) {
