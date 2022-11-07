@@ -853,17 +853,41 @@ export default {
 
   methods: {
     async initialize() {
-      onSnapshot(inventoryColRef, (snapshot) => {
+      if (this.$route.query.filter != null) {
+        const inventoriesFilterRef = collection(db, "inventory");
+        const q = query(
+          inventoriesFilterRef,
+          where("category_id", "==", this.$route.query.filter)
+        );
+        const querySnapshot = await getDocs(q);
         let items = [];
-        snapshot.forEach((doc) => {
-          items.push({
-            ...doc.data(),
-            id: doc.id,
+        if (querySnapshot.empty) {
+          this.items = items;
+          this.loadingTable = false;
+        } else {
+          querySnapshot.forEach((doc) => {
+            // doc.data() is never undefined for query doc snapshots
+            items.push({
+              ...doc.data(),
+              id: doc.id,
+            });
+            this.items = items;
+            this.loadingTable = false;
           });
+        }
+      } else {
+        onSnapshot(inventoryColRef, (snapshot) => {
+          let items = [];
+          snapshot.forEach((doc) => {
+            items.push({
+              ...doc.data(),
+              id: doc.id,
+            });
+          });
+          this.items = items;
+          this.loadingTable = false;
         });
-        this.items = items;
-        this.loadingTable = false;
-      });
+      }
     },
 
     dataURLtoFile(dataurl, filename) {
