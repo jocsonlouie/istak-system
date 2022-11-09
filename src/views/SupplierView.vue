@@ -21,17 +21,13 @@
       sort-by="name"
       class="elevation-1 pt-3"
       :search="search"
-      v-model="selected"
-      :single-select="singleSelect"
       item-key="itemname"
-      show-select
       :loading="loadingTable"
     >
 
       <template v-slot:top>
         <v-toolbar flat>
           <!-- Table Top Functions -->
-          <v-switch v-model="singleSelect" class="mb-n6 mr-4"></v-switch>
           <v-icon class="mr-2">{{ searchIcon }}</v-icon>
           <v-text-field v-model="search" label="Search Supplier..." single-line hide-details>
 
@@ -61,14 +57,14 @@
                       <v-divider></v-divider>
                     </div>
                     <v-row no-gutters class="d-flex justify-center">
-                    <v-col cols="12" sm="3" class="ma-2">
+                    <v-col cols="12" sm="12" class="ma-2">
                         <v-text-field
                           v-model="dataItem.name"
-                          :rules="nameRules"
+                          :rules="itemNameRules"
                           label="Name"
                           clearable
                           outlined
-                          dense
+                        
                         >
                         </v-text-field>
                         <v-text-field
@@ -77,28 +73,27 @@
                           label="Email"
                           clearable
                           outlined
-                          dense
+                          
                         >
                         </v-text-field>
                       </v-col>
-                      <v-col cols="12" sm="3" class="ma-2 align-self-center">
+                      <v-col cols="12" sm="12" class="ma-2 align-self-center">
                         <v-text-field
                           v-model="dataItem.contactno"
-                          :rules="inputRules"
-                          counter="11"
+                          :rules="itemNameRules"
                           label="Contact Number"
                           clearable
                           outlined
-                          dense
+                         
                         >
                         </v-text-field>
                         <v-text-field
                           v-model="dataItem.contactper"
-                          :rules="nameRules"
+                          :rules="itemNameRules"
                           label="Contact Person"
                           clearable
                           outlined
-                          dense
+                        
                         >
                         </v-text-field>
                       </v-col>
@@ -123,12 +118,12 @@
           <v-btn color="primary" elevation="2" class="ml-2" @click="generatePDF" fab small outlined>
             <v-icon>{{ pdfIcon }}</v-icon>
           </v-btn>
-          <v-btn color="primary" elevation="2" class="ml-2" fab small outlined>
+          <!-- <v-btn color="primary" elevation="2" class="ml-2" fab small outlined>
             <v-icon>{{ editIcon }}</v-icon>
           </v-btn>
           <v-btn color="error" elevation="2" class="ml-2" fab small>
             <v-icon>{{ deleteIcon }}</v-icon>
-          </v-btn>
+          </v-btn> -->
           <!-- <v-switch
           v-model="singleExpand"
           class="mt-2" x-small
@@ -166,7 +161,7 @@
                 <v-chip color="primary" class="d-flex justify-center font-weight-bold text-h6 pa-5 mb-5">Send Email
                 </v-chip>
                 <div class="d-flex flex-row gap">
-                  <v-text-field label="To" required outlined v-model="sendData.toEmail" name="toEmail" readonly>
+                  <v-text-field label="To" required outlined v-model="sendData.toEmail" name="toEmail" readonly class="mr-1">
                   </v-text-field>
                   <v-text-field class="" label="From" outlined v-model="sendData.fromEmail" name="fromEmail" readonly>
                   </v-text-field>
@@ -289,7 +284,6 @@ export default {
 
     //search and select data
     search: '',
-    singleSelect: false,
     selected: [],
     expanded: [],
     singleExpand: false,
@@ -634,7 +628,7 @@ export default {
         startY: 2.5,
         // theme: 'grid',
         styles: {
-          fillColor: [41, 212, 155],
+          fillColor: [207, 205, 204],
           textColor: [0, 0, 0],
           lineWidth: [0, 0, 0],
           lineColor: [0, 0, 0]
