@@ -56,11 +56,11 @@
         :icon="icons.mdiAccountLock"
       ></nav-menu-link>
 
-      <nav-menu-link
+      <!-- <nav-menu-link
         title="Form Layouts"
         :to="{ name: 'form-layouts' }"
         :icon="icons.mdiFormSelect"
-      ></nav-menu-link>
+      ></nav-menu-link> -->
       <nav-menu-section-title title="ACCOUNT"></nav-menu-section-title>
       <nav-menu-link
         title="Account Settings"

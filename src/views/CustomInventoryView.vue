@@ -163,10 +163,11 @@
             </v-card>
           </v-dialog>
         </v-col>
-        <v-col cols="12" sm="6" md="3" class="pa-1">
+        <v-col cols="12" sm="6" md="3" class="pa-1" >
           <v-card
             class=" bg-white d-flex flex-column pa-4 justify-center align-center"
             height="200"
+            @click="gotoAllInventory"
           >
             <p class="">All</p>
           </v-card>
@@ -487,6 +488,9 @@ export default {
   methods: {
     gotoInventory(id) {
       this.$router.push("/inventory-list?filter=" + id);
+    },
+    gotoAllInventory(){
+      this.$router.push("/inventory-list");
     },
 
     async initialize() {
