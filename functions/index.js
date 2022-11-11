@@ -24,3 +24,25 @@ exports.deleteUser = functions.https.onCall(async (data, context) => {
         return { result: "User Deletion Error: " + error };
     }
 });
+
+exports.createUser = functions.https.onCall(async (data, context) => {
+    const body = data;
+    const email = body.email;
+    const password = body.password;
+    const displayName = body.displayName;
+    admin.auth().createUser({
+        email: email,
+        emailVerified: true,
+        password: password,
+        displayName: displayName,
+        disabled: false,
+    })
+        .then((userRecord) => {
+            return {
+                result: "Successfully created user! UID: " + userRecord.uid
+            };
+        })
+        .catch((error) => {
+            return { result: "Failed to create user: " + error };
+        });
+});
