@@ -163,7 +163,7 @@
             </v-card>
           </v-dialog>
         </v-col>
-        <v-col cols="12" sm="6" md="3" class="pa-1" >
+        <v-col cols="12" sm="6" md="3" class="pa-1">
           <v-card
             class=" bg-white d-flex flex-column pa-4 justify-center align-center"
             height="200"
@@ -489,7 +489,7 @@ export default {
     gotoInventory(id) {
       this.$router.push("/inventory-list?filter=" + id);
     },
-    gotoAllInventory(){
+    gotoAllInventory() {
       this.$router.push("/inventory-list");
     },
 
@@ -508,11 +508,13 @@ export default {
 
     async saveInventory() {
       if (this.$refs.form.validate()) {
+        this.addDialog = false;
         const docRef = await addDoc(collection(db, "custom-inventory"), {
           name: this.inventory_name,
           image: this.itemImage,
         });
-        console.log("Done" + docRef.id);
+        this.text = "Custom Inventory has been added successfully.";
+        this.snackbar = true;
       }
     },
 
@@ -570,8 +572,8 @@ export default {
     },
 
     async deleteInventory() {
-      await deleteDoc(doc(db, "custom-inventory", this.deleteInventoryId));
       this.deleteDialog = false;
+      await deleteDoc(doc(db, "custom-inventory", this.deleteInventoryId));
       this.text = "Inventory has been deleted successfully.";
       this.snackbar = true;
     },
@@ -585,11 +587,11 @@ export default {
 
     async editInventory() {
       if (this.$refs.editForm.validate()) {
+        this.updateDialog = false;
         await setDoc(doc(db, "custom-inventory", this.updateInventoryId), {
           name: this.edit_inventory_name,
           image: this.itemImageEdit,
         });
-        this.updateDialog = false;
         this.text = "Inventory has been updated successfully.";
         this.snackbar = true;
       }

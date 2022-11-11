@@ -1,5 +1,15 @@
 <template>
   <div class=" screensz">
+    <!-- snackbar -->
+    <v-snackbar v-model="snackbar" :timeout="timeout" top>
+      {{ text }}
+
+      <template v-slot:action="{ attrs }">
+        <v-btn color="blue" text v-bind="attrs" @click="snackbar = false">
+          Close
+        </v-btn>
+      </template>
+    </v-snackbar>
     <div class="upper-btns mb-5">
       <v-row no-gutters class="d-flex justify-center align-center">
         <v-col cols="12" sm="6" md="2" class="pa-1">
@@ -536,60 +546,6 @@
             </v-card>
           </v-dialog>
 
-          <!-- dialog for deleting -->
-          <!-- <v-dialog v-model="deleteDialog" max-width="1005px">
-                        <v-card class="pa-5 d-flex flex-column justify-center">
-                            <v-chip color="primary" class="d-flex justify-center font-weight-bold text-h6 pa-5">
-                                Delete Item
-                            </v-chip>
-                            <v-container class="my-5">
-                                <v-card flat class="">
-                                    <v-row row wrp>
-                                        <v-col cols="12" md="6">
-                                         
-                                            <v-card class="pa-5 d-flex flex-column justify-start" height="340"
-                                                width="450">
-                                                <v-card-title class="-d-flex justify-start pa-0 my-3 overflow-hidden">
-
-                                                    <StreamBarcodeReader max-width="200" @decode="onDecode"
-                                                        @loaded="onLoaded" stop>
-                                                    </StreamBarcodeReader>
-
-                                                </v-card-title>
-                                            </v-card>
-                                        </v-col>
-                                        <v-col xs="2">
-                                            <p class="fled-x justify-center font-weight-black text-h7">Are you
-                                                sure you
-                                                want to DELETE 'NOBIVAC DHPPI L4' ITEM?</p>
-                                     
-                                            <v-card-text class="mt-10">
-                                                <v-avatar rounded size="200" class="me-6">
-                                                    <v-img :src="itemImage"></v-img>
-                                                </v-avatar>
-
-
-                                            </v-card-text>
-                                        </v-col>
-                                        <v-col class="mt-16" xs="2">
-                                            <v-text-field value="0000110125" label="Barcode" outlined readonly>
-                                            </v-text-field>
-                                            <v-text-field value="Vaccines" label="Inventory" outlined readonly>
-                                            </v-text-field>
-                                        </v-col>
-                                    </v-row>
-                                </v-card>
-                            </v-container>
-
-
-                            <v-card-actions>
-                                <v-spacer></v-spacer>
-                                <v-btn color="primary" @click="deleteDialog = false">DELETE</v-btn>
-                                <v-btn color="secondary" @click="deleteDialog = false">CANCEL</v-btn>
-                                <v-spacer></v-spacer>
-                            </v-card-actions>
-                        </v-card>
-                    </v-dialog> -->
           <v-dialog v-model="deleteDialog" max-width="900px">
             <v-card class="">
               <v-card-title class="d-flex justify-center ">
@@ -653,6 +609,24 @@
             </v-card>
           </v-dialog>
         </v-col>
+
+        <!-- Delete logs-->
+        <v-dialog v-model="deleteConfirmation" persistent max-width="500">
+          <v-card class="d-flex justify-center flex-column pa-md-10">
+            <p class="text-h10">
+              Are you sure you want to DELETE "{{ currentTransactionName }}"
+              Inventory
+            </p>
+            <v-card-actions class="mx-auto">
+              <v-spacer></v-spacer>
+              <v-btn color="secondary" @click="deleteConfirmation = false">
+                Cancel
+              </v-btn>
+              <v-btn color="error" @click="deleteLogs"> Delete</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+
         <v-col cols="12" sm="6" md="2" class="pa-1">
           <v-dialog v-model="generateDialog" persistent max-width="500">
             <template v-slot:activator="{ on, attrs }">
@@ -661,6 +635,7 @@
                 height="200"
                 v-bind="attrs"
                 v-on="on"
+                @click="generateBarcode"
               >
                 <v-icon x-large class="mb-2" color="primary">{{
                   generateIcon
@@ -668,26 +643,25 @@
                 <p>Generate Barcode</p>
               </v-card>
             </template>
-            <v-card>
-              <v-card-title class="d-flex justify-center ">
-                <v-chip
-                  color="primary"
-                  class="d-flex justify-center font-weight-bold text-h6 pa-5"
-                >
-                  Generate Barcode
-                </v-chip>
-              </v-card-title>
+            <v-card class="pa-5 d-flex flex-column justify-center text-center">
+              <v-chip
+                color="primary"
+                class="d-flex justify-center rounded-pill font-weight-bold text-h6 pa-5 mb-4"
+                >Generate barcode
+              </v-chip>
 
-              <v-card-actions class="mx-auto">
-                <v-spacer></v-spacer>
-                <v-btn
-                  color="green darken-1"
-                  text
-                  @click="generateDialog = false"
-                >
+              <barcode :value="barcodeValue" format="EAN13" elementTag="img">
+                There is something wrong...
+              </barcode>
+
+              <v-card-actions class="mx-auto mt-4">
+                <v-btn color="green darken-1" text @click="cancelBarcode">
                   CANCEL
                 </v-btn>
-                <v-spacer></v-spacer>
+
+                <v-btn class="primary" text @click="saveBarcode">
+                  Save
+                </v-btn>
               </v-card-actions>
             </v-card>
           </v-dialog>
@@ -750,13 +724,13 @@
     <div class="barcode-table">
       <v-data-table
         :headers="headers"
-        :items="items"
-        sort-by="name"
+        :items="barcodeTransactionTable"
+        sort-by="item"
         class="elevation-1 pt-3"
         :search="search"
         v-model="selected"
         :single-select="singleSelect"
-        item-key="itemname"
+        item-key="code"
         show-select
         :loading="loadingTable"
       >
@@ -776,19 +750,33 @@
           </v-toolbar>
         </template>
 
+        <template v-slot:item.timestamp="{ item }" class="text-center">
+          <v-chip>
+            {{ formatDate(item.timestamp) }}
+          </v-chip>
+        </template>
+
         <!-- Table Actions Buttons -->
         <template v-slot:item.actions="{ item }">
-          <v-btn
+          <!-- <v-btn
             color="primary"
             elevation="2"
             class="mr-2"
             fab
             x-small
             outlined
+            @click="editItem(item)"
           >
             <v-icon>{{ editIcon }}</v-icon>
-          </v-btn>
-          <v-btn color="error" elevation="2" class="mr-2" fab x-small>
+          </v-btn> -->
+          <v-btn
+            color="error"
+            elevation="2"
+            class="mr-2"
+            fab
+            x-small
+            @click="deleteItem(item)"
+          >
             <v-icon>{{ deleteIcon }}</v-icon>
           </v-btn>
         </template>
@@ -797,6 +785,7 @@
   </div>
 </template>
 <script>
+import moment from "moment";
 import {
   mdiBarcodeScan,
   mdiBarcode,
@@ -809,6 +798,21 @@ import {
 } from "@mdi/js";
 
 import { StreamBarcodeReader } from "vue-barcode-reader";
+import db from "@/fb";
+import {
+  addDoc,
+  getDocs,
+  doc,
+  setDoc,
+  deleteDoc,
+  onSnapshot,
+  updateDoc,
+  collection,
+  where,
+  query,
+  Timestamp,
+} from "@firebase/firestore";
+import VueBarcode from "vue-barcode";
 
 //upload image imports
 import { ref, onMounted } from "@vue/composition-api";
@@ -819,6 +823,7 @@ import {
   uploadBytesResumable,
   getDownloadURL,
 } from "firebase/storage";
+const barcodeTransactionRef = collection(db, "barcode-transactions");
 const itemImage = ref(
   "https://assumptaclinic.com/wp-content/uploads/2022/10/default-assumpta.jpg"
 );
@@ -826,8 +831,12 @@ const itemImage = ref(
 export default {
   components: {
     StreamBarcodeReader,
+    barcode: VueBarcode,
   },
   data: () => ({
+    barcodeTransactionTable: [],
+    base64: "",
+    barcodeValue: "046872030134",
     alignments: ["start", "center", "end"],
     loadingTable: true,
     scanIcon: mdiBarcodeScan,
@@ -837,6 +846,11 @@ export default {
     deleteIcon: mdiDelete,
     phpIcon: mdiCurrencyPhp,
     dateIcon: mdiCalendarMonth,
+    snackbar: false,
+    text: "",
+    timeout: 3000,
+    currentTransactionId: "",
+    currentTransactionName: "",
 
     // table header data
     headers: [
@@ -863,7 +877,7 @@ export default {
       {
         text: "Date/Time",
         sortable: false,
-        value: "datetime",
+        value: "timestamp",
       },
       {
         text: "Actions",
@@ -897,6 +911,7 @@ export default {
     editDialog: false,
     deductDialog: false,
     deleteDialog: false,
+    deleteConfirmation: false,
 
     //image
     uploadLoading: false,
@@ -907,7 +922,7 @@ export default {
     search: "",
     singleSelect: false,
     selected: [],
-    loadingTable: false,
+    // loadingTable: false,
 
     //rules
     valid: true,
@@ -937,9 +952,59 @@ export default {
     };
   },
 
+  created() {
+    this.initialize();
+  },
+
   methods: {
     onLoaded(result) {
       console.log(result);
+    },
+
+    formatDate(date) {
+      let to_date = date.toDate();
+      let format_date = moment(to_date).format("DD/MM/YYYY hh:mma");
+      return format_date;
+    },
+
+    generateBarcode() {
+      this.barcodeValue = Math.floor(
+        Math.random() * 899999999999 + 100000000000
+      );
+      console.log(this.barcodeValue);
+    },
+
+    async initialize() {
+      onSnapshot(barcodeTransactionRef, (snapshot) => {
+        let items = [];
+        snapshot.forEach((doc) => {
+          items.push({
+            ...doc.data(),
+            id: doc.id,
+          });
+        });
+        this.barcodeTransactionTable = items;
+        this.loadingTable = false;
+      });
+    },
+
+    async cancelBarcode() {
+      this.saveBarcodeLog("Cancelled");
+    },
+    async saveBarcode() {
+      this.saveBarcodeLog("Saved");
+    },
+    async saveBarcodeLog(action) {
+      const docRef = await addDoc(collection(db, "barcode-transactions"), {
+        code: this.barcodeValue,
+        item: "Generate Barcode",
+        inventory: "New Barcode",
+        action: action,
+        timestamp: Timestamp.now(),
+      });
+      this.generateDialog = false;
+      this.text = "Barcode log saved successfully.";
+      this.snackbar = true;
     },
 
     //upload avatar
@@ -980,6 +1045,20 @@ export default {
           });
         }
       );
+    },
+
+    deleteItem(item) {
+      this.deleteConfirmation = true;
+      this.currentTransactionId = item.id;
+      this.currentTransactionName = item.item;
+    },
+    async deleteLogs() {
+      this.deleteConfirmation = false;
+      await deleteDoc(
+        doc(db, "barcode-transactions", this.currentTransactionId)
+      );
+      this.text = "Log has been deleted successfully.";
+      this.snackbar = true;
     },
 
     onDecode(result) {
