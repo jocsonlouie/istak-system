@@ -1,7 +1,8 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import { getAuth, onAuthStateChanged } from "@firebase/auth";
-
+import { getDocs, collection, query } from "@firebase/firestore";
+import db from "@/fb";
 Vue.use(VueRouter)
 
 const routes = [
@@ -28,6 +29,7 @@ const routes = [
     name: 'dashboard',
     meta: {
       requiresAuth: true,
+     
     },
     component: () => import('@/views/dashboard/Dashboard.vue'),
 
@@ -91,6 +93,7 @@ const routes = [
     component: () => import('@/views/UserRolesView.vue'),
     meta: {
       requiresAuth: true,
+      requiresAdmin: true,
     },
   },
   {
@@ -130,10 +133,43 @@ const getCurrentUser = () => {
     }, reject)
   });
 }
+// router.beforeEach(async (to, from, next) => {
+//   if (to.matched.some((record) => record.meta.requiresAuth)) {
+//     if (await getCurrentUser()) {
+//       next();
+//     } else {
+//       alert("No Access!");
+//       next("/");
+//     }
+//   } else {
+//     next();
+//   }
+// });
+
+let auth;
 router.beforeEach(async (to, from, next) => {
   if (to.matched.some((record) => record.meta.requiresAuth)) {
     if (await getCurrentUser()) {
-      next();
+      auth = getAuth();
+      onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        const q = query(collection(db, "users"));
+        const querySnapshot = await getDocs(q);
+        querySnapshot.forEach((doc) => {
+          if (user.uid === doc.id) {
+            //console.log(doc.data().role)
+            if(doc.data().role == "Can't Access"){
+              alert("Registered but No Access");
+              next("/");
+            }else{
+              //alert("No Access!");
+              next();
+            }
+          }
+        });
+      }
+    });
+      // next();
     } else {
       alert("No Access!");
       next("/");
@@ -142,5 +178,38 @@ router.beforeEach(async (to, from, next) => {
     next();
   }
 });
+
+router.beforeEach(async (to, from, next) => {
+  if (to.matched.some((record) => record.meta.requiresAdmin)) {
+   
+    if (await getCurrentUser()) {
+     auth = getAuth();
+      onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        const q = query(collection(db, "users"));
+        const querySnapshot = await getDocs(q);
+        querySnapshot.forEach((doc) => {
+          if (user.uid === doc.id) {
+            //console.log(doc.data().role)
+            if(doc.data().role == 'Inventory Admin'){
+              next();
+            }else{
+              //alert("No Access!");
+              next("/");
+            }
+          }
+        });
+      }
+    });
+      
+    } else {
+      alert("No Access!");
+      next("/");
+    }
+  } else {
+    next();
+  }
+});
+
 
 export default router
