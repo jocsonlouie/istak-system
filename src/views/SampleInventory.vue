@@ -419,6 +419,25 @@
                         </v-text-field>
                       </v-col>
                     </v-row>
+
+                    <div class="d-flex  justify-center align-center">
+                      <p class="mr-3 text-subtitle-1">Custom Inventory</p>
+                      <v-divider></v-divider>
+                    </div>
+
+                    <v-row no-gutters class="d-flex justify-center">
+                      <v-col cols="12" sm="12" class="ma-2">
+                        <v-select
+                          v-model="dataItem.inventory_id"
+                          dense
+                          outlined
+                          label="Custom Inventory"
+                          :items="inventoryItems"
+                          item-text="label"
+                          item-value="value"
+                        ></v-select>
+                      </v-col>
+                    </v-row>
                   </v-form>
                 </v-container>
               </v-card-text>
@@ -629,6 +648,8 @@ export default {
   data: () => ({
     imageBase64: null,
 
+    inventoryItems: [],
+
     loadingTable: true,
     // icon data
     editIcon: mdiPencil,
@@ -724,6 +745,7 @@ export default {
       stockunit: "",
       reorderlevel: "",
       manufacturer: "",
+      inventory_id: "",
 
       available: 0,
       unitcost: 0,
@@ -741,6 +763,7 @@ export default {
       stockunit: "",
       reorderlevel: "",
       manufacturer: "",
+      inventory_id: "",
 
       available: 0,
       unitcost: 0,
@@ -760,6 +783,7 @@ export default {
       stockunit: "",
       reorderlevel: "",
       manufacturer: "",
+      inventory_id: "",
 
       available: 0,
       unitcost: 0,
@@ -803,8 +827,14 @@ export default {
   },
 
   setup(props) {
+    const status = [
+      "Inventory Admin",
+      "Inventory Staff",
+      "Non-Inventory Staff",
+      "Can't Access",
+    ];
     return {
-      // status,
+      status,
       // userRole,
       // userEmail,
       itemImage,
@@ -853,11 +883,19 @@ export default {
 
   methods: {
     async initialize() {
+      const customInventoryFilterRef = collection(db, "custom-inventory");
+      const inventorySnapshot = await getDocs(customInventoryFilterRef);
+      inventorySnapshot.forEach((doc) => {
+        this.inventoryItems.push({
+          label: doc.data().name,
+          value: doc.id,
+        });
+      });
       if (this.$route.query.filter != null) {
         const inventoriesFilterRef = collection(db, "inventory");
         const q = query(
           inventoriesFilterRef,
-          where("category_id", "==", this.$route.query.filter)
+          where("inventory_id", "==", this.$route.query.filter)
         );
         const querySnapshot = await getDocs(q);
         let items = [];
@@ -1057,6 +1095,7 @@ export default {
             stockunit: this.dataItem.stockunit,
             reorderlevel: this.dataItem.reorderlevel,
             manufacturer: this.dataItem.manufacturer,
+            inventory_id: this.dataItem.inventory_id,
 
             available: this.dataItem.available,
             unitcost: this.dataItem.unitcost,

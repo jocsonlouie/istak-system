@@ -141,7 +141,7 @@ export default {
           // userDisplayName.value = user.displayName;
           // userPhoto.value = user.photoURL;
           // console.log(userPhoto.value);
-          // console.log(user)
+          console.log(user.metadata);
           const q = query(collection(db, "users"));
           const querySnapshot = await getDocs(q);
           querySnapshot.forEach((doc) => {

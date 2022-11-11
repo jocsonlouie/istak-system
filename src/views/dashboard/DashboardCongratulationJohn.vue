@@ -10,13 +10,18 @@
         </v-card-subtitle>
         <v-card-text class="d-flex align-center mt-2 pb-2 ps-2">
           <div>
-            <p class=" font-weight-semibold primary--text mb-2">
-              Explore Inventory
-            </p>
+            <!-- <p class=" font-weight-semibold primary--text mb-4">
+              Last Login: <br />
+              {{ last_login }}
+            </p> -->
+            <v-chip class="mt-6" color="primary">
+              Last Login:
+              {{ last_login }}
+            </v-chip>
 
-            <v-btn small color="primary">
+            <!-- <v-btn small color="primary">
               View Inventory
-            </v-btn>
+            </v-btn> -->
           </div>
         </v-card-text>
       </v-col>
@@ -55,6 +60,7 @@ import db from "@/fb";
 const isLoggedIn = ref(false);
 const userDisplayName = ref();
 const userPhoto = ref();
+const last_login = ref("");
 let auth;
 
 export default {
@@ -68,6 +74,8 @@ export default {
           querySnapshot.forEach((doc) => {
             if (user.uid === doc.id) {
               userDisplayName.value = doc.data().name;
+              last_login.value = user.metadata.lastSignInTime;
+              last_login.value = moment(last_login.value).format("MMM Do, ddd");
               userDisplayName.value = userDisplayName.value.split(" ")[0];
               userPhoto.value = doc.data().avatar;
               isLoggedIn.value = true;
@@ -83,6 +91,7 @@ export default {
       userDisplayName,
       auth,
       userPhoto,
+      last_login,
     };
   },
   data() {

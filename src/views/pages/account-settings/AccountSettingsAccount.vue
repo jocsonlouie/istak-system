@@ -65,7 +65,7 @@
             ></v-text-field>
           </v-col>
 
-          <v-col cols="12" md="6">
+          <!-- <v-col cols="12" md="6">
             <v-select
               v-model="userRole"
               dense
@@ -73,7 +73,7 @@
               label="Role"
               :items="status"
             ></v-select>
-          </v-col>
+          </v-col> -->
 
           <!-- alert -->
           <v-col cols="12" v-if="!userVerified">
@@ -257,7 +257,6 @@ export default {
             if (user.uid === doc.id) {
               userFName.value = doc.data().name;
               userEmail.value = doc.data().email;
-              userRole.value = doc.data().role;
               userAvatar.value = doc.data().avatar;
             }
           });
@@ -267,7 +266,6 @@ export default {
 
     return {
       status,
-      userRole,
       userEmail,
       userAvatar,
       userFName,
@@ -336,7 +334,6 @@ export default {
         name: userFName.value,
         avatar: userAvatar.value,
         email: userEmail.value,
-        role: userRole.value,
       };
 
       const special = doc(db, "users/" + currentUserID.value);
