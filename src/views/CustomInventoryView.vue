@@ -13,10 +13,11 @@
 
     <div class="upper-btns mb-5 d-flex">
       <v-row no-gutters class="d-flex justify-center align-center">
-        <v-col cols="12" sm="5" md="3" class="pa-1">
+        <v-col cols="12" sm="5" md="3" class="pa-1" v-if="isNonInventoryStaff">
           <v-dialog v-model="addDialog" persistent max-width="500">
             <template v-slot:activator="{ on, attrs }">
               <v-card
+                
                 class=" bg-white d-flex justify-center align-center flex-column"
                 height="200"
                 v-bind="attrs"

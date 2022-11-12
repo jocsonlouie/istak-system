@@ -16,6 +16,7 @@
         class="ms-4"
         dot
       >
+      <v-chip color="primary" outlined class="mr-5" >{{userRole}}</v-chip>
         <v-avatar size="40px" v-bind="attrs" v-on="on">
           <v-img :src="userPhoto" v-if="userPhoto"></v-img>
           <v-img
@@ -130,6 +131,7 @@ import {
 const isLoggedIn = ref(false);
 const userDisplayName = ref();
 const userPhoto = ref();
+const userRole = ref();
 let auth;
 
 export default {
@@ -150,6 +152,7 @@ export default {
             if (user.uid === doc.id) {
               userDisplayName.value = doc.data().name;
               userPhoto.value = doc.data().avatar;
+              userRole.value = doc.data().role;
               isLoggedIn.value = true;
             }
           });
@@ -172,6 +175,7 @@ export default {
       },
       isLoggedIn,
       userDisplayName,
+      userRole,
       auth,
       userPhoto,
     };

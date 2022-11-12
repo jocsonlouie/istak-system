@@ -212,7 +212,7 @@
           <!-- Add & Edit Item Modal -->
           <v-dialog v-model="dialog" max-width="900">
             <template v-slot:activator="{ on, attrs }">
-              <v-btn color="primary" outlined class="" v-bind="attrs" v-on="on">
+              <v-btn color="primary" outlined class="" v-bind="attrs" v-on="on" v-if="isNonInventoryStaff">
                 New Item
               </v-btn>
             </template>
@@ -480,7 +480,7 @@
               </v-card-text>
 
               <v-card-actions>
-                <v-btn color="error" @click="openDelete" v-if="isInventoryStaff">
+                <v-btn color="error" @click="openDelete" v-if="isInventoryStaff" v-show="showDelete">
                   Delete</v-btn
                 >
                 <v-spacer></v-spacer>
@@ -685,7 +685,7 @@
       <template v-slot:item.actions="{ item }">
         <div class="d-flex flex-row align-center">
           <v-btn
-            v-if="isNonInventoryStaff"
+         
             color="primary"
             elevation="2"
             class="mr-2"
@@ -798,6 +798,7 @@ import { getAuth, onAuthStateChanged } from "@firebase/auth";
 //import db from "@/fb";
 const isInventoryStaff = ref(true);
 const isNonInventoryStaff = ref(true);
+const YesNonStaff = ref(false);
 let auth;
 
 //pdf
@@ -857,48 +858,48 @@ export default {
     singleExpand: false,
 
     // table header data
-    headers: [
-      {
-        text: "Barcode",
-        sortable: true,
-        value: "barcode",
-      },
-      {
-        text: "Image",
-        align: "start",
-        value: "image",
-      },
-      {
-        text: "Item Name",
-        value: "itemname",
-      },
+    // headers: [
+    //   {
+    //     text: "Barcode",
+    //     sortable: true,
+    //     value: "barcode",
+    //   },
+    //   {
+    //     text: "Image",
+    //     align: "start",
+    //     value: "image",
+    //   },
+    //   {
+    //     text: "Item Name",
+    //     value: "itemname",
+    //   },
 
-      {
-        text: "Retail Price",
-        sortable: true,
-        value: "retail",
-      },
-      {
-        text: "Available Stocks",
-        sortable: true,
-        value: "available",
-      },
-      {
-        text: "On Display",
-        sortable: true,
-        value: "display",
-      },
-      {
-        text: "Total Stocks",
-        sortable: true,
-        value: "totalstocks",
-      },
-      {
-        text: "Actions",
-        value: "actions",
-        sortable: true,
-      },
-    ],
+    //   {
+    //     text: "Retail Price",
+    //     sortable: true,
+    //     value: "retail",
+    //   },
+    //   {
+    //     text: "Available Stocks",
+    //     sortable: true,
+    //     value: "available",
+    //   },
+    //   {
+    //     text: "On Display",
+    //     sortable: true,
+    //     value: "display",
+    //   },
+    //   {
+    //     text: "Total Stocks",
+    //     sortable: true,
+    //     value: "totalstocks",
+    //   },
+    //   {
+    //     text: "Actions",
+    //     value: "actions",
+    //     sortable: true,
+    //   },
+    // ],
     // table data
     items: [],
     itemIndex: -1,
@@ -1002,7 +1003,7 @@ export default {
     uploadTakePicture: mdiCamera,
 
     //show delete button
-    //showDelete: false,
+    showDelete: false,
 
     //stocks
     stkAdd: "",
@@ -1026,6 +1027,7 @@ export default {
   setup(props) {
     onMounted(() => {
        auth = getAuth();
+       
       onAuthStateChanged(auth, async (user) => {
         if (user) {
           const q = query(collection(db, "users"));
@@ -1036,10 +1038,13 @@ export default {
               if(doc.data().role == 'Inventory Staff'){
                 isInventoryStaff.value = false;
               }else if(doc.data().role == 'Non-Inventory Staff'){
+                isInventoryStaff.value = false;
                 isNonInventoryStaff.value = false;
+                YesNonStaff.value = true;
               }else{
                 isInventoryStaff.value = true;
                 isNonInventoryStaff.value = true;
+                YesNonStaff.value = false;
               }
             }
           });
@@ -1064,6 +1069,59 @@ export default {
     formTitle() {
       return this.itemIndex === -1 ? "New Item" : "Edit Item";
     },
+
+    headers(){
+      const headers = [
+      {
+        text: "Barcode",
+        sortable: true,
+        value: "barcode",
+      },
+      {
+        text: "Image",
+        align: "start",
+        value: "image",
+      },
+      {
+        text: "Item Name",
+        value: "itemname",
+      },
+
+      {
+        text: "Retail Price",
+        sortable: true,
+        value: "retail",
+      },
+      {
+        text: "Available Stocks",
+        sortable: true,
+        value: "available",
+      },
+      {
+        text: "On Display",
+        sortable: true,
+        value: "display",
+      },
+      {
+        text: "Total Stocks",
+        sortable: true,
+        value: "totalstocks",
+      },
+    ]
+
+    console.log(isNonInventoryStaff.value)
+    console.log("Value: " + YesNonStaff.value)
+   
+    if(YesNonStaff.value){
+      console.log("truely")
+      return headers
+    }else{
+      console.log("falsey")
+      headers.push({ text: "Actions", value: "actions", sortable: true})
+      return headers
+    }
+   
+    }
   },
 
   watch: {
@@ -1322,7 +1380,8 @@ export default {
         this.itemId = this.dataItem.id;
         this.docRef = doc(inventoryColRef, this.itemId);
         itemImage.value = this.dataItem.image;
-        //this.showDelete = true;
+        this.showDelete = true;
+
       }
       this.dialog = true;
     },
@@ -1368,7 +1427,7 @@ export default {
       });
       itemImage.value =
         "https://assumptaclinic.com/wp-content/uploads/2022/10/default-assumpta.jpg";
-      //this.showDelete = false;
+      this.showDelete = false;
     },
 
     // close function for delete
