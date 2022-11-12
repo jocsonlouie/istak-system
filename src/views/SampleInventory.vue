@@ -480,7 +480,7 @@
               </v-card-text>
 
               <v-card-actions>
-                <v-btn color="error" @click="openDelete" v-if="showDelete">
+                <v-btn color="error" @click="openDelete" v-if="isInventoryStaff">
                   Delete</v-btn
                 >
                 <v-spacer></v-spacer>
@@ -685,6 +685,7 @@
       <template v-slot:item.actions="{ item }">
         <div class="d-flex flex-row align-center">
           <v-btn
+            v-if="isNonInventoryStaff"
             color="primary"
             elevation="2"
             class="mr-2"
@@ -790,6 +791,14 @@ import {
 const itemImage = ref(
   "https://assumptaclinic.com/wp-content/uploads/2022/10/default-assumpta.jpg"
 );
+//user access
+//import { onMounted, ref } from "@vue/composition-api";
+import { getAuth, onAuthStateChanged } from "@firebase/auth";
+//import { getDocs, collection, query } from "@firebase/firestore";
+//import db from "@/fb";
+const isInventoryStaff = ref(true);
+const isNonInventoryStaff = ref(true);
+let auth;
 
 //pdf
 import { jsPDF } from "jspdf";
@@ -993,7 +1002,7 @@ export default {
     uploadTakePicture: mdiCamera,
 
     //show delete button
-    showDelete: false,
+    //showDelete: false,
 
     //stocks
     stkAdd: "",
@@ -1015,7 +1024,32 @@ export default {
   },
 
   setup(props) {
+    onMounted(() => {
+       auth = getAuth();
+      onAuthStateChanged(auth, async (user) => {
+        if (user) {
+          const q = query(collection(db, "users"));
+          const querySnapshot = await getDocs(q);
+          querySnapshot.forEach((doc) => {
+            if (user.uid === doc.id) {
+              console.log(doc.data().role)
+              if(doc.data().role == 'Inventory Staff'){
+                isInventoryStaff.value = false;
+              }else if(doc.data().role == 'Non-Inventory Staff'){
+                isNonInventoryStaff.value = false;
+              }else{
+                isInventoryStaff.value = true;
+                isNonInventoryStaff.value = true;
+              }
+            }
+          });
+        }
+      });
+       
+    });
     return {
+      isInventoryStaff,
+      isNonInventoryStaff,
       itemImage,
       icons: {
         mdiAlertOutline,
@@ -1288,7 +1322,7 @@ export default {
         this.itemId = this.dataItem.id;
         this.docRef = doc(inventoryColRef, this.itemId);
         itemImage.value = this.dataItem.image;
-        this.showDelete = true;
+        //this.showDelete = true;
       }
       this.dialog = true;
     },
@@ -1334,7 +1368,7 @@ export default {
       });
       itemImage.value =
         "https://assumptaclinic.com/wp-content/uploads/2022/10/default-assumpta.jpg";
-      this.showDelete = false;
+      //this.showDelete = false;
     },
 
     // close function for delete
