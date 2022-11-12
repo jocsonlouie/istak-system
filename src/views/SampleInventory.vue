@@ -1034,7 +1034,7 @@ export default {
           const querySnapshot = await getDocs(q);
           querySnapshot.forEach((doc) => {
             if (user.uid === doc.id) {
-              console.log(doc.data().role)
+              //console.log(doc.data().role)
               if(doc.data().role == 'Inventory Staff'){
                 isInventoryStaff.value = false;
               }else if(doc.data().role == 'Non-Inventory Staff'){
@@ -1109,14 +1109,14 @@ export default {
       },
     ]
 
-    console.log(isNonInventoryStaff.value)
-    console.log("Value: " + YesNonStaff.value)
+    //console.log(isNonInventoryStaff.value)
+    //console.log("Value: " + YesNonStaff.value)
    
     if(YesNonStaff.value){
-      console.log("truely")
+      //console.log("truely")
       return headers
     }else{
-      console.log("falsey")
+      //console.log("falsey")
       headers.push({ text: "Actions", value: "actions", sortable: true})
       return headers
     }

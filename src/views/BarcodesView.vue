@@ -12,10 +12,11 @@
     </v-snackbar>
     <div class="upper-btns mb-5">
       <v-row no-gutters class="d-flex justify-center align-center">
-        <v-col cols="12" sm="6" md="2" class="pa-1">
+        <v-col cols="12" sm="6" md="2" class="pa-1" v-if="isNonInventoryStaff">
           <v-dialog v-model="scanDialog" max-width="500" persistent="">
             <template v-slot:activator="{ on, attrs }">
-              <v-card class=" bg-white d-flex justify-center align-center flex-column" height="200" v-bind="attrs"
+              <v-card 
+              class="bg-white d-flex justify-center align-center flex-column" height="200" v-bind="attrs"
                 v-on="on">
                 <v-icon x-large class="mb-2" color="primary">{{
                   scanIcon
@@ -48,7 +49,10 @@
                       <v-btn color="primary" large class="mb-2" @click="deductDialog = !deductDialog">
                         Consume Stocks
                       </v-btn>
-                      <v-btn color="primary" large class="mb-2" @click="deleteDialog = !deleteDialog">
+                      <v-btn color="primary" large class="mb-2" >
+                        Add Stocks
+                      </v-btn>
+                      <v-btn v-if="isInventoryStaff" color="error" large class="mb-2" @click="deleteDialog = !deleteDialog">
                         Delete Item
                       </v-btn>
                     </div>
@@ -383,7 +387,7 @@
           </v-card>
         </v-dialog>
 
-        <v-col cols="12" sm="6" md="2" class="pa-1">
+        <v-col cols="12" sm="6" md="2" class="pa-1" v-if="isNonInventoryStaff">
           <v-dialog v-model="generateDialog" persistent max-width="500">
             <template v-slot:activator="{ on, attrs }">
               <v-card class=" bg-white d-flex justify-center align-center flex-column" height="200" v-bind="attrs"
@@ -460,12 +464,12 @@
     </div>
     <div class="barcode-table">
       <v-data-table :headers="headers" :items="barcodeTransactionTable" sort-by="item" class="elevation-1 pt-3"
-        :search="search" v-model="selected" :single-select="singleSelect" item-key="code" show-select
+        :search="search" item-key="code" 
         :loading="loadingTable">
         <template v-slot:top>
           <v-toolbar flat>
             <!-- Table Top Functions -->
-            <v-switch v-model="singleSelect" class="mb-n6 mr-4"></v-switch>
+            
             <v-icon class="mr-2">{{ searchIcon }}</v-icon>
             <v-text-field v-model="search" label="Search Item..." single-line hide-details>
             </v-text-field>
@@ -552,7 +556,9 @@
   } from "@firebase/auth";
   //import { getDocs, collection, query } from "@firebase/firestore";
   //import db from "@/fb";
-  const isAdmin = ref(false);
+  const isInventoryStaff = ref(true);
+  const isNonInventoryStaff = ref(true);
+  const YesNonStaff = ref(false);
   let auth;
 
   const barcodeTransactionRef = collection(db, "barcode-transactions");
@@ -585,38 +591,38 @@
       currentTransactionName: "",
 
       // table header data
-      headers: [
-        {
-          text: "Code",
-          align: "start",
-          value: "code",
-        },
-        {
-          text: "Item",
-          sortable: false,
-          value: "item",
-        },
-        {
-          text: "Inventory",
-          sortable: false,
-          value: "inventory",
-        },
-        {
-          text: "Action",
-          value: "action",
-          sortable: false,
-        },
-        {
-          text: "Date/Time",
-          sortable: false,
-          value: "timestamp",
-        },
-        // {
-        //   text: "Actions",
-        //   value: "actions",
-        //   sortable: false,
-        // },
-      ],
+      // headers: [
+      //   {
+      //     text: "Code",
+      //     align: "start",
+      //     value: "code",
+      //   },
+      //   {
+      //     text: "Item",
+      //     sortable: false,
+      //     value: "item",
+      //   },
+      //   {
+      //     text: "Inventory",
+      //     sortable: false,
+      //     value: "inventory",
+      //   },
+      //   {
+      //     text: "Action",
+      //     value: "action",
+      //     sortable: false,
+      //   },
+      //   {
+      //     text: "Date/Time",
+      //     sortable: false,
+      //     value: "timestamp",
+      //   },
+      //   // {
+      //   //   text: "Actions",
+      //   //   value: "actions",
+      //   //   sortable: false,
+      //   // },
+      // ],
 
       // table data
       items: [{
@@ -687,23 +693,20 @@
             const querySnapshot = await getDocs(q);
             querySnapshot.forEach((doc) => {
               if (user.uid === doc.id) {
-                console.log(doc.data().role)
-                let headerz = [];
-                if (doc.data().role == 'Inventory Admin') {
-                  // headerz.push({
-                  //   text: "Actions",
-                  //   value: "actions",
-                  //   sortable: false,
-                  // })
-                  
-                  // //this.headers = headerz;
-                  // console.log(headerz)
-
-                  isAdmin.value = true;
-                  console.log(isAdmin.value)
-                  checkifAdmin()
-                }
+              //console.log(doc.data().role)
+              if(doc.data().role == 'Inventory Staff'){
+                isInventoryStaff.value = false;
+                YesNonStaff.value = true;
+              }else if(doc.data().role == 'Non-Inventory Staff'){
+                isInventoryStaff.value = false;
+                isNonInventoryStaff.value = false;
+                YesNonStaff.value = true;
+              }else{
+                isInventoryStaff.value = true;
+                isNonInventoryStaff.value = true;
+                YesNonStaff.value = false;
               }
+            }
             });
           }
         });
@@ -711,13 +714,58 @@
       });
       return {
         //headers: [],
-        isAdmin,
+        isInventoryStaff,
+        isNonInventoryStaff,
         itemImage,
         icons: {
           mdiCloudUploadOutline,
         },
       };
 
+    },
+    computed:{
+      headers(){
+      const headers = [
+      {
+          text: "Code",
+          align: "start",
+          value: "code",
+        },
+        {
+          text: "Item",
+          sortable: false,
+          value: "item",
+        },
+        {
+          text: "Inventory",
+          sortable: false,
+          value: "inventory",
+        },
+        {
+          text: "Action",
+          value: "action",
+          sortable: false,
+        },
+        {
+          text: "Date/Time",
+          sortable: false,
+          value: "timestamp",
+        },
+    ]
+
+    //console.log(isNonInventoryStaff.value)
+    //console.log("Value: " + YesNonStaff.value)
+   
+    if(YesNonStaff.value){
+      //console.log("truely")
+      return headers
+    }else{
+      //console.log("falsey")
+      headers.push({ text: "Actions", value: "actions", sortable: true})
+      return headers
+    }
+   
+    }
     },
     created() {
       this.initialize();
@@ -729,12 +777,7 @@
         console.log(result);
       },
 
-      checkifAdmin(){
-        if(isAdmin.value == 'true'){
-        let see = console.log("User is admin")
-        return see;
-        }
-      },
+  
 
       formatDate(date) {
         let to_date = date.toDate();
