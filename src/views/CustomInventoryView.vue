@@ -166,11 +166,11 @@
         </v-col>
         <v-col cols="12" sm="6" md="3" class="pa-1">
           <v-card
-            class=" bg-white d-flex flex-column pa-4 justify-center align-center"
+            class=" bg-primary d-flex flex-column pa-4 justify-center align-center"
             height="200"
             @click="gotoAllInventory"
           >
-            <p class="">All</p>
+            <p class="">All Inventories</p>
           </v-card>
         </v-col>
         <v-col cols="12" sm="4" md="3" class="pa-1 ">
