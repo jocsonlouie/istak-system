@@ -7,6 +7,7 @@
     content-class="user-profile-menu-content"
   >
     <template v-slot:activator="{ on, attrs }">
+      
       <v-badge
         bottom
         color="success"
@@ -16,6 +17,7 @@
         class="ms-4"
         dot
       >
+      
         <v-avatar size="40px" v-bind="attrs" v-on="on">
           <v-img :src="userPhoto" v-if="userPhoto"></v-img>
           <v-img
@@ -51,6 +53,7 @@
           <span class="text--primary font-weight-semibold mb-n1">
             <div v-if="userDisplayName">{{ userDisplayName }}</div>
             <div v-else>Clinic</div>
+            <v-chip color="primary" outlined class="mr-5" x-small >{{userRole}}</v-chip>
           </span>
           <!-- <small class="text--disabled text-capitalize">Admin</small> -->
         </div>
@@ -130,6 +133,7 @@ import {
 const isLoggedIn = ref(false);
 const userDisplayName = ref();
 const userPhoto = ref();
+const userRole = ref();
 let auth;
 
 export default {
@@ -150,6 +154,7 @@ export default {
             if (user.uid === doc.id) {
               userDisplayName.value = doc.data().name;
               userPhoto.value = doc.data().avatar;
+              userRole.value = doc.data().role;
               isLoggedIn.value = true;
             }
           });
@@ -172,6 +177,7 @@ export default {
       },
       isLoggedIn,
       userDisplayName,
+      userRole,
       auth,
       userPhoto,
     };

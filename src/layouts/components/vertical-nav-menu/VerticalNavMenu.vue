@@ -51,6 +51,7 @@
         :icon="icons.mdiTruckFast"
       ></nav-menu-link>
       <nav-menu-link
+        v-if="isAdmin"
         title="User Roles"
         :to="{ name: 'user-roles' }"
         :icon="icons.mdiAccountLock"
@@ -99,6 +100,14 @@ import NavMenuSectionTitle from "./components/NavMenuSectionTitle.vue";
 import NavMenuGroup from "./components/NavMenuGroup.vue";
 import NavMenuLink from "./components/NavMenuLink.vue";
 
+//user access
+import { onMounted, ref } from "@vue/composition-api";
+import { getAuth, onAuthStateChanged } from "@firebase/auth";
+import { getDocs, collection, query } from "@firebase/firestore";
+import db from "@/fb";
+const isAdmin = ref(false);
+let auth;
+
 export default {
   components: {
     NavMenuSectionTitle,
@@ -112,6 +121,26 @@ export default {
     },
   },
   setup() {
+    onMounted(() => {
+       auth = getAuth();
+      onAuthStateChanged(auth, async (user) => {
+        if (user) {
+          const q = query(collection(db, "users"));
+          const querySnapshot = await getDocs(q);
+          querySnapshot.forEach((doc) => {
+            if (user.uid === doc.id) {
+              //console.log(doc.data().role)
+              if(doc.data().role == 'Inventory Admin'){
+                isAdmin.value = true;
+              }else{
+                isAdmin.value = false;
+              }
+            }
+          });
+        }
+      });
+
+    });
     return {
       icons: {
         mdiHomeOutline,
@@ -128,6 +157,7 @@ export default {
         mdiTruckFast,
         mdiAccountLock,
       },
+      isAdmin
     };
   },
 };

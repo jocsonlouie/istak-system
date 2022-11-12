@@ -71,7 +71,7 @@
               dense
               outlined
               label="Role"
-              :items="status"
+              :items="status" disabled
             ></v-select>
           </v-col>
 

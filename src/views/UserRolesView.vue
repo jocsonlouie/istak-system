@@ -836,8 +836,10 @@ export default {
 
     getColor(role) {
       if (role == "Inventory Admin") return "success";
+      else if (role == "Inventory Staff") return "primary";
+      else if (role == "Non-Inventory Staff") return "secondary";
       else if (role == null) return "";
-      else return "primary";
+      else return "error";
     },
 
     //upload avatar

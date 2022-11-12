@@ -13,10 +13,11 @@
 
     <div class="upper-btns mb-5 d-flex">
       <v-row no-gutters class="d-flex justify-center align-center">
-        <v-col cols="12" sm="5" md="3" class="pa-1">
+        <v-col cols="12" sm="5" md="3" class="pa-1" v-if="isNonInventoryStaff">
           <v-dialog v-model="addDialog" persistent max-width="500">
             <template v-slot:activator="{ on, attrs }">
               <v-card
+                
                 class=" bg-white d-flex justify-center align-center flex-column"
                 height="200"
                 v-bind="attrs"
@@ -165,11 +166,11 @@
         </v-col>
         <v-col cols="12" sm="6" md="3" class="pa-1">
           <v-card
-            class=" bg-white d-flex flex-column pa-4 justify-center align-center"
+            class=" bg-primary d-flex flex-column pa-4 justify-center align-center"
             height="200"
             @click="gotoAllInventory"
           >
-            <p class="">All</p>
+            <p class="">All Inventories</p>
           </v-card>
         </v-col>
         <v-col cols="12" sm="4" md="3" class="pa-1 ">
@@ -261,7 +262,7 @@
           <v-card @click="gotoInventory(inventory.id)">
             <v-img :src="inventory.image" height="150" />
             <v-menu bottom left>
-              <template v-slot:activator="{ on, attrs }">
+              <template v-slot:activator="{ on, attrs }" v-if="isNonInventoryStaff">
                 <v-btn
                   icon
                   v-bind="attrs"
@@ -278,7 +279,7 @@
               </template>
 
               <v-list>
-                <v-list-item>
+                <v-list-item v-if="isInventoryStaff">
                   <v-btn
                     color="error"
                     outlined
@@ -293,7 +294,7 @@
                     Delete
                   </v-btn>
                 </v-list-item>
-                <v-list-item>
+                <v-list-item >
                   <v-btn
                     color="primary"
                     outlined
@@ -379,7 +380,6 @@ import {
 import db from "@/fb";
 import {
   addDoc,
-  getDocs,
   doc,
   setDoc,
   deleteDoc,
@@ -388,8 +388,8 @@ import {
   collection,
   where,
   query,
+  getDocs
 } from "@firebase/firestore";
-import { ref } from "@vue/composition-api";
 import {
   getStorage,
   uploadBytes,
@@ -399,7 +399,16 @@ import {
   uploadString,
 } from "firebase/storage";
 
+import { onMounted, ref } from "@vue/composition-api";
+import { getAuth, onAuthStateChanged } from "@firebase/auth";
+//import { getDocs, collection, query } from "@firebase/firestore";
+//import db from "@/fb";
+const isInventoryStaff = ref(true);
+const isNonInventoryStaff = ref(true);
+let auth;
+
 const customInventoryColRef = collection(db, "custom-inventory");
+
 
 export default {
   data: () => ({
@@ -479,7 +488,35 @@ export default {
       },
     ],
   }),
-
+  setup(){
+    onMounted(() => {
+       auth = getAuth();
+      onAuthStateChanged(auth, async (user) => {
+        if (user) {
+          const q = query(collection(db, "users"));
+          const querySnapshot = await getDocs(q);
+          querySnapshot.forEach((doc) => {
+            if (user.uid === doc.id) {
+              //console.log(doc.data().role)
+              if(doc.data().role == 'Inventory Staff'){
+                isInventoryStaff.value = false;
+              }else if(doc.data().role == 'Non-Inventory Staff'){
+                isNonInventoryStaff.value = false;
+              }else{
+                isInventoryStaff.value = true;
+                isNonInventoryStaff.value = true;
+              }
+            }
+          });
+        }
+      });
+       
+    });
+    return{
+      isInventoryStaff,
+      isNonInventoryStaff,
+    }
+  },
   created() {
     // to fetch data
     this.initialize();
