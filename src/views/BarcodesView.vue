@@ -684,9 +684,7 @@
 
     setup(props) {
       onMounted(() => {
-      
         auth = getAuth();
-
         onAuthStateChanged(auth, async (user) => {
           if (user) {
             const q = query(collection(db, "users"));

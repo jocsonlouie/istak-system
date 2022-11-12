@@ -39,7 +39,7 @@
           <!-- Add & Edit Item Modal -->
           <v-dialog v-model="dialog" max-width="700px">
             <template v-slot:activator="{ on, attrs }">
-              <v-btn color="primary" outlined class="" v-bind="attrs" v-on="on">
+              <v-btn color="primary" outlined class="" v-bind="attrs" v-on="on" v-if="isNonInventoryStaff">
                 New Supplier
               </v-btn>
             </template>
@@ -103,7 +103,7 @@
               </v-card-text>
 
               <v-card-actions>
-                <v-btn color="error" @click="openDelete" v-if="showDelete">
+                <v-btn color="error" @click="openDelete" v-if="isInventoryStaff" v-show="showDelete">
                   Delete</v-btn
                 >
                 <v-spacer></v-spacer>
@@ -248,10 +248,19 @@ import {
   doc,
   deleteDoc,
   onSnapshot,
-  updateDoc
+  updateDoc,
+  query,
+  getDocs,
 } from '@firebase/firestore';
 
-
+import {
+    getAuth,
+    onAuthStateChanged
+  } from "@firebase/auth";
+  import {
+    ref,
+    onMounted
+  } from "@vue/composition-api";
 const inventoryColRef = collection(db, "supplier");
 
 //email
@@ -264,6 +273,10 @@ import {
 import autoTable from 'jspdf-autotable';
 window.jsPDF = require('jspdf');
 
+const isInventoryStaff = ref(true);
+const isNonInventoryStaff = ref(true);
+const YesNonStaff = ref(false);
+let auth;
 
 export default {
   data: () => ({
@@ -290,32 +303,32 @@ export default {
 
 
     // table header data
-    headers: [{
-      text: 'Name',
-      align: 'start',
-      value: 'name',
-    },
-    {
-      text: 'Email',
-      sortable: false,
-      value: 'email'
-    },
-    {
-      text: 'Contact Number',
-      sortable: false,
-      value: 'contactno'
-    },
-    {
-      text: 'Contact Person',
-      sortable: false,
-      value: 'contactper'
-    },
-    {
-      text: 'Actions',
-      value: 'actions',
-      sortable: false
-    },
-    ],
+    // headers: [{
+    //   text: 'Name',
+    //   align: 'start',
+    //   value: 'name',
+    // },
+    // {
+    //   text: 'Email',
+    //   sortable: false,
+    //   value: 'email'
+    // },
+    // {
+    //   text: 'Contact Number',
+    //   sortable: false,
+    //   value: 'contactno'
+    // },
+    // {
+    //   text: 'Contact Person',
+    //   sortable: false,
+    //   value: 'contactper'
+    // },
+    // {
+    //   text: 'Actions',
+    //   value: 'actions',
+    //   sortable: false
+    // },
+    // ],
     // table data
     items: [],
     itemIndex: -1,
@@ -389,11 +402,84 @@ export default {
     report: 'Supplier List Report'
   }),
 
+  setup(){
+    onMounted(() => {
+        auth = getAuth();
+        onAuthStateChanged(auth, async (user) => {
+          if (user) {
+            const q = query(collection(db, "users"));
+            const querySnapshot = await getDocs(q);
+            querySnapshot.forEach((doc) => {
+              if (user.uid === doc.id) {
+              //console.log(doc.data().role)
+              if(doc.data().role == 'Inventory Staff'){
+                isInventoryStaff.value = false;
+                YesNonStaff.value = false;
+              }else if(doc.data().role == 'Non-Inventory Staff'){
+                isInventoryStaff.value = false;
+                isNonInventoryStaff.value = false;
+                YesNonStaff.value = true;
+              }else{
+                isInventoryStaff.value = true;
+                isNonInventoryStaff.value = true;
+                YesNonStaff.value = false;
+              }
+            }
+            });
+          }
+        });
+
+      });
+      return {
+        isInventoryStaff,
+        isNonInventoryStaff,
+      };
+
+  },
+
   computed: {
     // to change modal to add or edit
     formTitle() {
       return this.itemIndex === -1 ? 'New Supplier' : 'Edit Supplier'
     },
+
+    headers(){
+      const headers = [
+      {
+      text: 'Name',
+      align: 'start',
+      value: 'name',
+    },
+    {
+      text: 'Email',
+      sortable: false,
+      value: 'email'
+    },
+    {
+      text: 'Contact Number',
+      sortable: false,
+      value: 'contactno'
+    },
+    {
+      text: 'Contact Person',
+      sortable: false,
+      value: 'contactper'
+    },
+    ]
+
+    //console.log(isNonInventoryStaff.value)
+    //console.log("Value: " + YesNonStaff.value)
+   
+    if(YesNonStaff.value){
+      return headers
+    }else{
+      headers.push({ text: "Actions", value: "actions", sortable: true})
+      return headers
+    }
+   
+    }
+
+   
   },
 
   watch: {
