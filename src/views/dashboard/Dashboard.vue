@@ -100,6 +100,19 @@ import DashboardCardSalesByCountries from "./DashboardCardSalesByCountries.vue";
 import DashboardWeeklyOverview from "./DashboardWeeklyOverview.vue";
 import DashboardDatatable from "./DashboardDatatable.vue";
 
+import { onMounted, ref } from "@vue/composition-api";
+import { getAuth, onAuthStateChanged } from "@firebase/auth";
+import {
+  getDocs,
+  collection,
+  query,
+  where,
+  doc as docFB,
+  setDoc,
+  updateDoc,
+} from "@firebase/firestore";
+import db from "@/fb";
+
 export default {
   components: {
     StatisticsCardVertical,
@@ -110,6 +123,44 @@ export default {
     DashboardCardSalesByCountries,
     DashboardWeeklyOverview,
     DashboardDatatable,
+  },
+
+  data() {
+    return {
+      inventoryItems: [],
+    };
+  },
+
+  async created() {
+    const inventoriesFilterRef = collection(db, "inventory");
+
+    const querySnapshot = await getDocs(inventoriesFilterRef);
+    let items = [];
+    if (querySnapshot.empty) {
+      this.items = items;
+      this.loadingTable = false;
+    } else {
+      querySnapshot.forEach(async (doc) => {
+        await setDoc(
+          docFB(db, "inventory", doc.id),
+          {
+            level: doc.data().available <= 10 ? "error" : "info",
+            // state: "open",
+          },
+          { merge: true }
+        );
+      });
+    }
+
+    // console.log(items);
+
+    // items.forEach(async (item) => {
+    //   await setDoc(doc(db, "notification", item.id), {
+    //     name: item.itemname,
+    //     available: item.available,
+    //     expiry: item.expiry,
+    //   });
+    // });
   },
   setup() {
     const totalProfit = {
