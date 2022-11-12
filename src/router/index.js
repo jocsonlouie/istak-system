@@ -29,7 +29,7 @@ const routes = [
     name: 'dashboard',
     meta: {
       requiresAuth: true,
-     
+
     },
     component: () => import('@/views/dashboard/Dashboard.vue'),
 
@@ -147,69 +147,79 @@ const getCurrentUser = () => {
 // });
 
 let auth;
+let isRegistered = false;
 router.beforeEach(async (to, from, next) => {
   if (to.matched.some((record) => record.meta.requiresAuth)) {
     if (await getCurrentUser()) {
       auth = getAuth();
       onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        const q = query(collection(db, "users"));
-        const querySnapshot = await getDocs(q);
-        querySnapshot.forEach((doc) => {
-          if (user.uid === doc.id) {
-            //console.log(doc.data().role)
-            if(doc.data().role == "Can't Access"){
-              alert("Registered but No Access");
-              next("/");
-            }else{
-              //alert("No Access!");
-              next();
+        if (user) {
+          const q = query(collection(db, "users"));
+          const querySnapshot = await getDocs(q);
+          querySnapshot.forEach((doc) => {
+            if (user.uid === doc.id) {
+              if (doc.data().role == "Can't Access") {
+                alert("Registered but No Access");
+                isRegistered = true;
+                return;
+              } else {
+                //alert("No Access!");
+                isRegistered = true;
+                next();
+              }
+            } else {
+              return;
             }
+          });
+          if (!isRegistered) {
+            alert("This account is not registered");
+            alert("Account created but no access. Please contact admin for access.");
           }
-        });
-      }
-    });
+        }
+      });
       // next();
     } else {
-      alert("No Access!");
+      alert("No Access.");
       next("/");
     }
   } else {
     next();
   }
+
+
 });
 
-router.beforeEach(async (to, from, next) => {
-  if (to.matched.some((record) => record.meta.requiresAdmin)) {
-   
-    if (await getCurrentUser()) {
-     auth = getAuth();
-      onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        const q = query(collection(db, "users"));
-        const querySnapshot = await getDocs(q);
-        querySnapshot.forEach((doc) => {
-          if (user.uid === doc.id) {
-            //console.log(doc.data().role)
-            if(doc.data().role == 'Inventory Admin'){
-              next();
-            }else{
-              //alert("No Access!");
-              next("/");
-            }
-          }
-        });
-      }
-    });
-      
-    } else {
-      alert("No Access!");
-      next("/");
-    }
-  } else {
-    next();
-  }
-});
+// router.beforeEach(async (to, from, next) => {
+//   if (to.matched.some((record) => record.meta.requiresAdmin)) {
+
+//     if (await getCurrentUser()) {
+//       auth = getAuth();
+//       onAuthStateChanged(auth, async (user) => {
+//         if (user) {
+//           const q = query(collection(db, "users"));
+//           const querySnapshot = await getDocs(q);
+//           querySnapshot.forEach((doc) => {
+//             if (user.uid === doc.id) {
+//               //console.log(doc.data().role)
+//               if (doc.data().role == 'Inventory Admin') {
+//                 next();
+//               } else {
+//                 //alert("No Access!");
+//                 next("/");
+//               }
+//             }
+//           });
+//         }
+//       });
+
+//     } else {
+//       alert("No Access!");
+//       next("/");
+//     }
+//   } else {
+//     next();
+//   }
+// });
 
 
 export default router
