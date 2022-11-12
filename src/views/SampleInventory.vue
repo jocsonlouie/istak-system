@@ -963,6 +963,8 @@ export default {
       totalcost: 0,
       expiry: "",
       supplier: "",
+      state: "open",
+      level: "info",
     },
     defaultItem: {
       image: itemImage.value,
@@ -981,6 +983,8 @@ export default {
       totalcost: 0,
       expiry: "",
       supplier: "",
+      state: "open",
+      level: "info",
     },
 
     // add item
@@ -1001,6 +1005,8 @@ export default {
       totalcost: 0,
       expiry: "",
       supplier: "",
+      state: "open",
+      level: "info",
     },
 
     //rules
@@ -1541,6 +1547,8 @@ export default {
             totalcost: this.dataItem.totalcost,
             expiry: this.dataItem.expiry,
             supplier: this.dataItem.supplier,
+            state: this.dataItem.state,
+            level: this.dataItem.level,
           });
           // await setDoc(this.docRef, this.dataItem);
           this.close();
@@ -1575,6 +1583,8 @@ export default {
             totalcost: this.dataItem.totalcost,
             expiry: this.dataItem.expiry,
             supplier: this.dataItem.supplier,
+            state: this.dataItem.state,
+            level: this.dataItem.level,
           });
           this.close();
           this.itemStatus = "Added";
