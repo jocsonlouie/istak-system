@@ -79,6 +79,34 @@
             </v-card>
           </v-dialog>
 
+          <!-- Scan Barcode Field Modal -->
+          <v-dialog v-model="dialogScanField" max-width="550px">
+            <v-card class="pa-5 d-flex flex-column justify-center">
+              <v-chip
+                color="primary"
+                class="d-flex justify-center rounded-pill font-weight-bold text-h6 pa-5 "
+                >Scan barcode field
+              </v-chip>
+              <v-card-title
+                class="-d-flex justify-center pa-0 rounded-lg my-3 overflow-hidden"
+              >
+                <StreamBarcodeReader
+                  @decode="onDecodeField"
+                  @loaded="onLoadedField"
+                  stop
+                ></StreamBarcodeReader>
+              </v-card-title>
+
+              <v-card-actions class="mb-n5">
+                <v-spacer></v-spacer>
+                <v-btn color="secondary" @click="closeDialogScanField"
+                  >Cancel</v-btn
+                >
+                <v-spacer></v-spacer>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
+
           <!-- Scan View Modal -->
           <v-dialog v-model="dialogScanView" max-width="550px">
             <v-card flat class="pa-3 mt-2">
@@ -212,7 +240,14 @@
           <!-- Add & Edit Item Modal -->
           <v-dialog v-model="dialog" max-width="900">
             <template v-slot:activator="{ on, attrs }">
-              <v-btn color="primary" outlined class="" v-bind="attrs" v-on="on" v-if="isNonInventoryStaff">
+              <v-btn
+                color="primary"
+                outlined
+                class=""
+                v-bind="attrs"
+                v-on="on"
+                v-if="isNonInventoryStaff"
+              >
                 New Item
               </v-btn>
             </template>
@@ -308,6 +343,8 @@
                           clearable
                           outlined
                           dense
+                          :append-icon="barcodeIcon"
+                          @click:append="openDialogScanField"
                         >
                         </v-text-field>
 
@@ -480,7 +517,12 @@
               </v-card-text>
 
               <v-card-actions>
-                <v-btn color="error" @click="openDelete" v-if="isInventoryStaff" v-show="showDelete">
+                <v-btn
+                  color="error"
+                  @click="openDelete"
+                  v-if="isInventoryStaff"
+                  v-show="showDelete"
+                >
                   Delete</v-btn
                 >
                 <v-spacer></v-spacer>
@@ -685,7 +727,6 @@
       <template v-slot:item.actions="{ item }">
         <div class="d-flex flex-row align-center">
           <v-btn
-         
             color="primary"
             elevation="2"
             class="mr-2"
@@ -831,12 +872,14 @@ export default {
     consumeIcon: mdiAutorenew,
     dateIcon: mdiCalendarMonth,
     phpIcon: mdiCurrencyPhp,
+    barcodeIcon: mdiBarcodeScan,
 
     // modal data
     dialog: false,
     dialogDelete: false,
     dialogScan: false,
     dialogScanView: false,
+    dialogScanField: false,
     capturePhoto: false,
     dialogAddStocks: false,
     dialogConsume: false,
@@ -1026,8 +1069,8 @@ export default {
 
   setup(props) {
     onMounted(() => {
-       auth = getAuth();
-       
+      auth = getAuth();
+
       onAuthStateChanged(auth, async (user) => {
         if (user) {
           const q = query(collection(db, "users"));
@@ -1035,13 +1078,13 @@ export default {
           querySnapshot.forEach((doc) => {
             if (user.uid === doc.id) {
               //console.log(doc.data().role)
-              if(doc.data().role == 'Inventory Staff'){
+              if (doc.data().role == "Inventory Staff") {
                 isInventoryStaff.value = false;
-              }else if(doc.data().role == 'Non-Inventory Staff'){
+              } else if (doc.data().role == "Non-Inventory Staff") {
                 isInventoryStaff.value = false;
                 isNonInventoryStaff.value = false;
                 YesNonStaff.value = true;
-              }else{
+              } else {
                 isInventoryStaff.value = true;
                 isNonInventoryStaff.value = true;
                 YesNonStaff.value = false;
@@ -1050,7 +1093,6 @@ export default {
           });
         }
       });
-       
     });
     return {
       isInventoryStaff,
@@ -1070,58 +1112,57 @@ export default {
       return this.itemIndex === -1 ? "New Item" : "Edit Item";
     },
 
-    headers(){
+    headers() {
       const headers = [
-      {
-        text: "Barcode",
-        sortable: true,
-        value: "barcode",
-      },
-      {
-        text: "Image",
-        align: "start",
-        value: "image",
-      },
-      {
-        text: "Item Name",
-        value: "itemname",
-      },
+        {
+          text: "Barcode",
+          sortable: true,
+          value: "barcode",
+        },
+        {
+          text: "Image",
+          align: "start",
+          value: "image",
+        },
+        {
+          text: "Item Name",
+          value: "itemname",
+        },
 
-      {
-        text: "Retail Price",
-        sortable: true,
-        value: "retail",
-      },
-      {
-        text: "Available Stocks",
-        sortable: true,
-        value: "available",
-      },
-      {
-        text: "On Display",
-        sortable: true,
-        value: "display",
-      },
-      {
-        text: "Total Stocks",
-        sortable: true,
-        value: "totalstocks",
-      },
-    ]
+        {
+          text: "Retail Price",
+          sortable: true,
+          value: "retail",
+        },
+        {
+          text: "Available Stocks",
+          sortable: true,
+          value: "available",
+        },
+        {
+          text: "On Display",
+          sortable: true,
+          value: "display",
+        },
+        {
+          text: "Total Stocks",
+          sortable: true,
+          value: "totalstocks",
+        },
+      ];
 
-    //console.log(isNonInventoryStaff.value)
-    //console.log("Value: " + YesNonStaff.value)
-   
-    if(YesNonStaff.value){
-      //console.log("truely")
-      return headers
-    }else{
-      //console.log("falsey")
-      headers.push({ text: "Actions", value: "actions", sortable: true})
-      return headers
-    }
-   
-    }
+      //console.log(isNonInventoryStaff.value)
+      //console.log("Value: " + YesNonStaff.value)
+
+      if (YesNonStaff.value) {
+        //console.log("truely")
+        return headers;
+      } else {
+        //console.log("falsey")
+        headers.push({ text: "Actions", value: "actions", sortable: true });
+        return headers;
+      }
+    },
   },
 
   watch: {
@@ -1136,6 +1177,9 @@ export default {
     },
     dialogScanView(val) {
       val || this.closeScanView();
+    },
+    dialogScanField(val) {
+      val || this.closeDialogScanField();
     },
     capturePhoto(val) {
       val || this.closeCapturePhoto();
@@ -1381,7 +1425,6 @@ export default {
         this.docRef = doc(inventoryColRef, this.itemId);
         itemImage.value = this.dataItem.image;
         this.showDelete = true;
-
       }
       this.dialog = true;
     },
@@ -1450,6 +1493,10 @@ export default {
       this.$router.go();
     },
 
+    closeDialogScanField() {
+      this.dialogScanField = false;
+    },
+
     closeCapturePhoto() {
       this.capturePhoto = false;
     },
@@ -1460,6 +1507,10 @@ export default {
 
     openBarcodeScanner() {
       this.dialogScan = true;
+    },
+
+    openDialogScanField(e) {
+      this.dialogScanField = true;
     },
 
     // function for edit and add
@@ -1560,7 +1611,17 @@ export default {
       }
     },
 
+    async onDecodeField(result) {
+      console.log(result);
+      this.dataItem.barcode = result;
+      this.closeDialogScanField();
+    },
+
     onLoaded(result) {
+      console.log(result);
+    },
+
+    onLoadedField(result) {
       console.log(result);
     },
 

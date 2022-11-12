@@ -7,7 +7,7 @@ exports.newUserSignUp = functions.auth.user().onCreate((user) => {
         email: user.email,
         name: user.displayName !== null ? user.displayName : "Clinic",
         avatar: user.photoURL !== null ? user.photoURL : "https://assumptaclinic.com/wp-content/uploads/2022/10/profile-icon-default.jpeg",
-        role: "Non-Inventory Staff"
+        role: "Can't Access"
     });
 });
 

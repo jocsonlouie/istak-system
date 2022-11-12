@@ -168,6 +168,24 @@
                         >
                         </v-text-field>
 
+                        <v-text-field
+                          v-model="password"
+                          outlined
+                          dense
+                          :type="isPasswordVisible ? 'text' : 'password'"
+                          label="Password"
+                          placeholder="············"
+                          :append-icon="
+                            isPasswordVisible
+                              ? icons.mdiEyeOffOutline
+                              : icons.mdiEyeOutline
+                          "
+                          hide-details
+                          @click:append="isPasswordVisible = !isPasswordVisible"
+                          :rules="itemNameRules"
+                          v-if="!showDelete"
+                        ></v-text-field>
+
                         <v-select
                           v-model="dataItem.role"
                           dense
@@ -175,6 +193,7 @@
                           label="Role"
                           :items="status"
                           :rules="itemNameRules"
+                          v-if="showDelete"
                         ></v-select>
                       </v-col>
                     </v-row>
@@ -294,6 +313,8 @@ import {
   mdiCamera,
   mdiCheckCircle,
   mdiProgressDownload,
+  mdiEyeOutline,
+  mdiEyeOffOutline,
 } from "@mdi/js";
 
 // crud imports
@@ -365,6 +386,8 @@ export default {
     dialogScanView: false,
     capturePhoto: false,
     createNewUserDialog: false,
+    password: "",
+    isPasswordVisible: false,
 
     // Scan Modal
     scanItemImage:
@@ -496,6 +519,8 @@ export default {
         mdiCloudUploadOutline,
         mdiCheckCircle,
         mdiProgressDownload,
+        mdiEyeOutline,
+        mdiEyeOffOutline,
       },
     };
   },
@@ -540,6 +565,7 @@ export default {
           });
         });
         this.items = items;
+        console.log(items);
         this.loadingTable = false;
       });
     },
@@ -703,7 +729,7 @@ export default {
         if (this.$refs.form.validate()) {
           let data = {
             displayName: this.dataItem.name,
-            password: "Default@123!!",
+            password: this.password,
             email: this.dataItem.email,
           };
           const functions = getFunctions();
