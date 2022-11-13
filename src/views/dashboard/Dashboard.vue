@@ -112,6 +112,7 @@ import {
   updateDoc,
 } from "@firebase/firestore";
 import db from "@/fb";
+import schedule from "node-schedule";
 
 export default {
   components: {
@@ -132,25 +133,27 @@ export default {
   },
 
   async created() {
-    const inventoriesFilterRef = collection(db, "inventory");
+    schedule.scheduleJob("30 8 * * *", async () => {
+      const inventoriesFilterRef = collection(db, "inventory");
 
-    const querySnapshot = await getDocs(inventoriesFilterRef);
-    let items = [];
-    if (querySnapshot.empty) {
-      this.items = items;
-      this.loadingTable = false;
-    } else {
-      querySnapshot.forEach(async (doc) => {
-        await setDoc(
-          docFB(db, "inventory", doc.id),
-          {
-            level: doc.data().available <= 10 ? "error" : "info",
-            // state: "open",
-          },
-          { merge: true }
-        );
-      });
-    }
+      const querySnapshot = await getDocs(inventoriesFilterRef);
+      let items = [];
+      if (querySnapshot.empty) {
+        this.items = items;
+        this.loadingTable = false;
+      } else {
+        querySnapshot.forEach(async (doc) => {
+          await setDoc(
+            docFB(db, "inventory", doc.id),
+            {
+              level: doc.data().available <= 10 ? "error" : "info",
+              state: "open",
+            },
+            { merge: true }
+          );
+        });
+      }
+    });
 
     // console.log(items);
 
