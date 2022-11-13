@@ -1,14 +1,15 @@
 <template>
   <div>
     <!-- snackbar -->
-    <v-snackbar v-model="snackbar" :timeout="timeout" top>
+    <v-snackbar v-model="snackbar" :timeout="timeout" top color="primary" outlined rounded="pill">
       {{ text }}
 
-      <template v-slot:action="{ attrs }">
-        <v-btn color="blue" text v-bind="attrs" @click="snackbar = false">
-          Close
-        </v-btn>
-      </template>
+      <template v-slot:action="{ attrs2 }">
+              <v-spacer></v-spacer>
+              <v-btn color="primary" text v-bind="attrs2" @click="snackbar = false">
+                  Dismiss
+              </v-btn>
+          </template>
     </v-snackbar>
 
     <div class="upper-btns mb-5 d-flex">
@@ -149,11 +150,18 @@
 
           <!-- Delete Inventory-->
           <v-dialog v-model="deleteDialog" persistent max-width="500">
-            <v-card class="d-flex justify-center flex-column pa-md-10">
-              <p class="text-h10">
-                Are you sure you want to DELETE "{{ deleteInventoryName }}"
-                Inventory
-              </p>
+            <v-card class="pa-5 d-flex justify-center flex-column pa-md-10">
+            
+                          <v-chip color="error" class="d-flex justify-center  font-weight-bold text-h5 pa-5">Delete
+                              Inventory
+                          </v-chip>
+                          <v-card-title class="text-center">Are you sure you want to delete this inventory?
+                          </v-card-title>
+                          <p class="text-center font-weight-bold text-h5">
+                            {{ deleteInventoryName }}
+                          </p>
+              
+             
               <v-card-actions class="mx-auto">
                 <v-spacer></v-spacer>
                 <v-btn color="secondary" @click="deleteDialog = false">
@@ -187,7 +195,7 @@
               </v-col>
               <v-col cols="12" xs="4" sm="9" md="9" class="align-self-center">
                 <p class="text-caption mb-n1 mt-4">Total Inventories</p>
-                <p class="text-subtitle-1">8 inventories</p>
+                <p class="text-subtitle-1">{{ totalinvt }} inventories</p>
               </v-col>
             </v-row>
           </v-card>
@@ -223,7 +231,7 @@
               </v-col>
               <v-col cols="12" xs="4" sm="9" md="9" class="align-self-center">
                 <p class="text-caption mb-n1 mt-4">Total Items</p>
-                <p class="text-subtitle-1">147 items</p>
+                <p class="text-subtitle-1">{{ totalitms }} items</p>
               </v-col>
             </v-row>
           </v-card>
@@ -408,7 +416,7 @@ const isNonInventoryStaff = ref(true);
 let auth;
 
 const customInventoryColRef = collection(db, "custom-inventory");
-
+const mainInventoryColRef = collection(db, "inventory");
 
 export default {
   data: () => ({
@@ -540,6 +548,20 @@ export default {
           });
         });
         this.custom_inventories = items;
+         //TOTAL INVENTORY
+         this.totalinvt = items.length;
+      });
+
+      onSnapshot(mainInventoryColRef, (snapshot) => {
+        let items2 = [];
+        snapshot.forEach((doc) => {
+          items2.push({
+            ...doc.data(),
+            id: doc.id,
+          });
+        });
+        //TOTAL ITEMS
+      this.totalitms = items2.length;
       });
     },
 
@@ -633,6 +655,37 @@ export default {
         this.snackbar = true;
       }
     },
+
+    // async totalInventory(){
+    //   db.collection('custom-inventory').get().then(snap => {
+    //   size = snap.size // will return the collection size
+    //   this.totalinventory
+    //   });
+    // },
+
+    // async totalStocks(){
+    //   const inventoryColRef = collection(db, "inventory");
+    //   const query_ = query(coll, where('totalstocks'));
+    //   const  snapshot = await getCountFromServer(inventoryColRef);
+    //   console.log('count: ',  snapshot.data().count);
+    //   this.totalstocks
+    // },
+
+    // async itemTotal(){
+    //   const inventoryColRef = collection(db, "inventory");
+    //   const  snapshot = await getCountFromServer(inventoryColRef);
+    //   console.log('count: ',  snapshot.data().count);
+    //   this.itemtotal
+    // },
+
+    // async newItems(){
+    //   const inventoryColRef = collection(db, "inventory");
+    //   const  snapshot = await getCountFromServer(inventoryColRef);
+    //   console.log('count: ',  snapshot.data().count);
+    //   this.newitem
+    // },
+
+
   },
 };
 </script>
