@@ -427,7 +427,7 @@
               </v-col>
               <v-col cols="12" xs="4" sm="9" md="9" class="align-self-center">
                 <p class="text-caption mb-n1 mt-4">Total Scans Today</p>
-                <p class="text-subtitle-1">14 scans</p>
+                <p class="text-subtitle-1">{{ totalbrcd }} scans</p>
               </v-col>
             </v-row>
           </v-card>
@@ -438,7 +438,7 @@
               </v-col>
               <v-col cols="12" xs="4" sm="9" md="9" class="align-self-center">
                 <p class="text-caption mb-n1 mt-4">Total Barcodes</p>
-                <p class="text-subtitle-1">45 barcodes</p>
+                <p class="text-subtitle-1">{{ totalbrcd }} barcodes</p>
               </v-col>
             </v-row>
           </v-card>
@@ -801,7 +801,10 @@
           });
           this.barcodeTransactionTable = items;
           this.loadingTable = false;
+           //TOTAL BARCODES
+          this.totalbrcd = items.length;
         });
+        
       },
 
       async cancelBarcode() {
