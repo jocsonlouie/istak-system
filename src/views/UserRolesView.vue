@@ -11,7 +11,7 @@
     >
       <v-icon color="primary">{{ successIcon }}</v-icon>
 
-      Item {{ itemStatus }} Successfully!
+      User {{ itemStatus }} Successfully!
       <template v-slot:action="{ attrs2 }">
         <v-spacer></v-spacer>
         <v-btn color="primary" text v-bind="attrs2" @click="snackbar = false">
@@ -233,10 +233,10 @@
               <v-chip
                 color="error"
                 class="d-flex justify-center font-weight-bold text-h6 pa-5"
-                >Delete Item
+                >Delete User
               </v-chip>
-              <v-card-title class="-d-flex justify-center"
-                >Are you sure you want to delete this item?</v-card-title
+              <v-card-title class="-d-flex justify-center subtitle-1"
+                >Are you sure you want to delete this User?</v-card-title
               >
               <p class="text-center font-weight-bold text-h5">
                 {{ dataItem.itemname }}
