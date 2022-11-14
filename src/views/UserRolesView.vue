@@ -20,6 +20,63 @@
       </template>
     </v-snackbar>
 
+    <!-- ANALYTICS -->
+    <div class="upper-btns mb-5 d-flex">
+      <v-row no-gutters class="d-flex justify-center align-center">
+        <v-col cols="12" sm="4" md="3" class="pa-1 ">
+          <v-card class="d-flex justify-center mb-2" height="95">
+            <v-row no-gutters class="pa-2 text-center text-sm-start">
+              <v-col cols="12" xs="1" sm="3" md="3" class="d-flex justify-center flex-column">
+                <v-icon class="" color="primary">{{ usersIcon }}</v-icon>
+              </v-col>
+              <v-col cols="12" xs="4" sm="9" md="9" class="align-self-center">
+                <p class="text-caption mb-n1 mt-4">Total Users</p>
+                <p class="text-subtitle-1">{{totalusers}} users </p>
+              </v-col>
+            </v-row>
+          </v-card>
+        </v-col>
+        <v-col cols="12" sm="4" md="3" class="pa-1 ">
+          <v-card class="d-flex justify-center mb-2" height="95">
+            <v-row no-gutters class="pa-2 text-center text-sm-start">
+              <v-col cols="12" xs="1" sm="3" md="3" class="d-flex justify-center flex-column">
+                <v-icon class="" color="primary">{{ adminsIcon }}</v-icon>
+              </v-col>
+              <v-col cols="12" xs="4" sm="9" md="9" class="align-self-center">
+                <p class="text-caption mb-n1 mt-4">Total Inventory Admins</p>
+                <p class="text-subtitle-1">{{totaladmins}} admins </p>
+              </v-col>
+            </v-row>
+          </v-card>
+        </v-col>
+        <v-col cols="12" sm="4" md="3" class="pa-1 ">
+          <v-card class="d-flex justify-center mb-2" height="95">
+            <v-row no-gutters class="pa-2 text-center text-sm-start">
+              <v-col cols="12" xs="1" sm="3" md="3" class="d-flex justify-center flex-column">
+                <v-icon class="" color="primary">{{ staffsIcon }}</v-icon>
+              </v-col>
+              <v-col cols="12" xs="4" sm="9" md="9" class="align-self-center">
+                <p class="text-caption mb-n1 mt-4">Total Inventory Staffs</p>
+                <p class="text-subtitle-1">{{totalstaffs}} staffs</p>
+              </v-col>
+            </v-row>
+          </v-card>
+        </v-col>
+        <v-col cols="12" sm="4" md="3" class="pa-1 ">
+          <v-card class="d-flex justify-center mb-2" height="95">
+            <v-row no-gutters class="pa-2 text-center text-sm-start">
+              <v-col cols="12" xs="1" sm="3" md="3" class="d-flex justify-center flex-column">
+                <v-icon class="" color="primary">{{ nonstaffsIcon }}</v-icon>
+              </v-col>
+              <v-col cols="12" xs="4" sm="9" md="9" class="align-self-center">
+                <p class="text-caption mb-n1 mt-4">Total Non-Inventory Staffs</p>
+                <p class="text-subtitle-1">{{totalnons}} staffs</p>
+              </v-col>
+            </v-row>
+          </v-card>
+        </v-col>
+      </v-row>
+    </div>
     <!-- Data Table -->
     <v-data-table
       :headers="headers"
@@ -315,6 +372,10 @@ import {
   mdiProgressDownload,
   mdiEyeOutline,
   mdiEyeOffOutline,
+  mdiAccountGroup,
+  mdiAccountSupervisor,
+  mdiAccountStar,
+  mdiAccount,
 } from "@mdi/js";
 
 // crud imports
@@ -336,7 +397,7 @@ import {
 import "vue-media-recorder/src/assets/scss/main.scss";
 import { PhotoCapture } from "vue-media-recorder";
 
-const inventoryColRef = collection(db, "users");
+const usersColRef = collection(db, "users");
 
 //upload image imports
 import { ref, onMounted } from "@vue/composition-api";
@@ -378,6 +439,10 @@ export default {
     plusIcon: mdiPlus,
     numberIcon: mdiCircle,
     consumeIcon: mdiHandHeart,
+    usersIcon: mdiAccountGroup,
+    adminsIcon: mdiAccountSupervisor,
+    staffsIcon: mdiAccountStar,
+    nonstaffsIcon: mdiAccount,
 
     // modal data
     dialog: false,
@@ -488,6 +553,12 @@ export default {
 
     //show delete button
     showDelete: false,
+
+    //analytics
+    totalusers: 0,
+    totaladmins: 0,
+    totalstaffs: 0,
+    totalnons: 0,
   }),
 
   props: {
@@ -504,6 +575,7 @@ export default {
       "Non-Inventory Staff",
       "Can't Access",
     ];
+
     return {
       status,
       // userRole,
@@ -556,7 +628,7 @@ export default {
 
   methods: {
     async initialize() {
-      onSnapshot(inventoryColRef, (snapshot) => {
+      onSnapshot(usersColRef, (snapshot) => {
         let items = [];
         snapshot.forEach((doc) => {
           items.push({
@@ -568,6 +640,8 @@ export default {
         console.log(items);
         this.loadingTable = false;
       });
+
+
     },
 
     dataURLtoFile(dataurl, filename) {
@@ -635,7 +709,7 @@ export default {
       if (this.itemIndex > -1) {
         this.dataItem = Object.assign({}, item);
         this.itemId = this.dataItem.id;
-        this.docRef = doc(inventoryColRef, this.itemId);
+        this.docRef = doc(usersColRef, this.itemId);
         itemImage.value = this.dataItem.avatar;
         this.showDelete = true;
       }
@@ -739,7 +813,7 @@ export default {
             this.itemStatus = "Added";
             this.snackbar = true;
           });
-          // await addDoc(inventoryColRef, {
+          // await addDoc(usersColRef, {
           //   avatar: itemImage.value,
           //   name: this.dataItem.name,
           //   role: this.dataItem.role,

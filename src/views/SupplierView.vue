@@ -14,6 +14,38 @@
       </template>
     </v-snackbar>
 
+    <!-- ANALYTICS -->
+    <div class="upper-btns mb-5 d-flex">
+      <v-row no-gutters class="d-flex justify-center align-center">
+        <v-col cols="12" sm="4" md="3" class="pa-1 ">
+          <v-card class="d-flex justify-center mb-2" height="95">
+            <v-row no-gutters class="pa-2 text-center text-sm-start">
+              <v-col cols="12" xs="1" sm="3" md="3" class="d-flex justify-center flex-column">
+                <v-icon class="" color="primary">{{ usersIcon }}</v-icon>
+              </v-col>
+              <v-col cols="12" xs="4" sm="9" md="9" class="align-self-center">
+                <p class="text-caption mb-n1 mt-4">Total Suppliers</p>
+                <p class="text-subtitle-1">{{totalsupp}} suppliers</p>
+              </v-col>
+            </v-row>
+          </v-card>
+        </v-col>
+        <v-col cols="12" sm="4" md="3" class="pa-1 ">
+          <v-card class="d-flex justify-center mb-2" height="95">
+            <v-row no-gutters class="pa-2 text-center text-sm-start">
+              <v-col cols="12" xs="1" sm="3" md="3" class="d-flex justify-center flex-column">
+                <v-icon class="" color="primary">{{ staffsIcon }}</v-icon>
+              </v-col>
+              <v-col cols="12" xs="4" sm="9" md="9" class="align-self-center">
+                <p class="text-caption mb-n1 mt-4">Total Email Sent</p>
+                <p class="text-subtitle-1">{{totalemail}} email</p>
+              </v-col>
+            </v-row>
+          </v-card>
+        </v-col>
+        </v-row>
+      </div>
+
      <!-- Data Table -->
      <v-data-table
       :headers="headers"

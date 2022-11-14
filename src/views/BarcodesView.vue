@@ -66,11 +66,16 @@
                         color="primary"
                         large
                         class="mb-2"
-                        @click="deductDialog = !deductDialog"
+                        @click="consumeDialog = !consumeDialog"
                       >
                         Consume Stocks
                       </v-btn>
-                      <v-btn color="primary" large class="mb-2">
+                      <v-btn
+                        color="primary"
+                        large
+                        class="mb-2"
+                        @click="dialogAddStocks = !dialogAddStocks"
+                      >
                         Add Stocks
                       </v-btn>
                       <v-btn
@@ -514,8 +519,8 @@
             </v-card>
           </v-dialog>
 
-          <!-- dialog for deducting -->
-          <v-dialog v-model="deductDialog" max-width="900px">
+          <!-- dialog for Consume -->
+          <!-- <v-dialog v-model="consumeDialog" max-width="900px">
             <v-card class="">
               <v-card-title class="d-flex justify-center ">
                 <v-chip
@@ -579,12 +584,161 @@
               </v-container>
               <v-card-actions>
                 <v-spacer></v-spacer>
-                <v-btn color="primary" @click="deductDialog = false"
+                <v-btn color="primary" @click="consumeDialog = false"
                   >DONE</v-btn
                 >
-                <v-btn color="secondary" @click="deductDialog = false"
+                <v-btn color="secondary" @click="consumeDialog = false"
                   >CANCEL</v-btn
                 >
+                <v-spacer></v-spacer>
+              </v-card-actions>
+            </v-card>
+          </v-dialog> -->
+
+          <!-- UI Consume -->
+
+          <v-dialog v-model="consumeDialog" max-width="700px">
+            <v-card class="pa-5 d-flex flex-column justify-center">
+                <v-chip
+                  color="primary"
+                  class="d-flex justify-center font-weight-bold text-h6 pa-5"
+                >
+                  Consume Stocks
+                </v-chip>
+              <div class="my-5 px-12">
+                <v-form ref="form">
+                  <div class="d-flex  justify-center align-center">
+                    <p class="mr-3 text-subtitle-1">Stock Information</p>
+                    <v-divider></v-divider>
+                  </div>
+                  <v-row no-gutters class="d-flex justify-center">
+                    <v-col cols="12" sm="8" class="ma-2 align-self-center">
+                      <v-card-title
+                        class="-d-flex justify-center pa-0 rounded-lg my-3 overflow-hidden"
+                      >
+                        <StreamBarcodeReader @decode="decodeConsumeStock" stop>
+                        </StreamBarcodeReader>
+                      </v-card-title>
+                    </v-col>
+                  </v-row>
+                  <div class="d-flex  justify-center align-center">
+                    <p class="mr-3 text-subtitle-1">Consume Stock Information</p>
+                    <v-divider></v-divider>
+                  </div>
+                  <v-text-field
+                    v-model="dataItem.itemname"
+                    label="Item Name"
+                    dense
+                    readonly
+                    class="mb-4"
+                  >
+                  </v-text-field>
+
+                  <v-text-field
+                    v-model="stkConsume"
+                    :rules="fieldRules"
+                    label="Quantity to Consume"
+                    outlined
+                    dense
+                    type="number"
+                  >
+                  <p class="text-center font-weight-black text-h7 mb-2">
+                          {{ dataItem.itemname }}
+                  </p>
+                  </v-text-field>
+                  <p class="text-caption">
+                    Current Available Stocks: {{ dataItem.available }}
+                  </p>
+                  <p class="text-caption">
+                    Current On Display Stocks: {{ dataItem.display }}
+                  </p>
+                  <v-select
+                    :items="consumeWhere"
+                    v-model="stkWhere"
+                    label="Consume in"
+                    outlined
+                    dense
+                    :rules="fieldRules"
+                  ></v-select>
+                </v-form>
+              </div>
+                <v-card-actions class="mb-n5">
+                <v-spacer></v-spacer>
+                <v-btn color="secondary" @click="consumeDialog = false">Cancel</v-btn>
+                <v-btn color="primary" @click="consumeDialog = false">Consume</v-btn>
+                <v-spacer></v-spacer>
+              </v-card-actions>
+              </v-card>
+              </v-dialog>
+
+          <!-- Add Stocks -->
+          <v-dialog v-model="dialogAddStocks" max-width="700px">
+            <v-card class="pa-5 d-flex flex-column justify-center">
+              <v-chip
+                color="primary"
+                class="d-flex justify-center font-weight-bold text-h6 pa-5 mb-6"
+                >Add Stocks
+              </v-chip>
+              <div class="mx-5 mx-sm-10">
+                <v-form ref="formAddStocks">
+                  <div class="d-flex  justify-center align-center">
+                    <p class="mr-3 text-subtitle-1">Scan Barcode</p>
+                    <v-divider></v-divider>
+                  </div>
+
+                  <v-row no-gutters class="d-flex justify-center">
+                    <v-col cols="12" sm="8" class="ma-2 align-self-center">
+                      <v-card-title
+                        class="-d-flex justify-center pa-0 rounded-lg my-3 overflow-hidden"
+                      >
+                        <StreamBarcodeReader @decode="decodeEditItem" stop>
+                        </StreamBarcodeReader>
+                      </v-card-title>
+                    </v-col>
+                  </v-row>
+                  <div class="d-flex  justify-center align-center">
+                    <p class="mr-3 text-subtitle-1">Add Stock Information</p>
+                    <v-divider></v-divider>
+                  </div>
+                  <v-text-field
+                    v-model="dataItem.itemname"
+                    label="Item Name"
+                    dense
+                    readonly
+                    class="mb-4"
+                  >
+                  </v-text-field>
+                  <p class="text-caption">
+                    Current Available Stocks: 
+                  </p>
+                  <v-text-field
+                    v-model="stkStore"
+                    :rules="fieldRules"
+                    label="Quantity to Store"
+                    outlined
+                    dense
+                    type="number"
+                  >
+                  </v-text-field>
+                  <p class="text-caption">
+                    Current On Display Stocks: 
+                  </p>
+                  <v-text-field
+                    v-model="stkAdd"
+                    :rules="fieldRules"
+                    label="Quantity to Display"
+                    outlined
+                    dense
+                    type="number"
+                  >
+                  </v-text-field>
+                </v-form>
+              </div>
+              <v-card-actions class="mb-n5">
+                <v-spacer></v-spacer>
+                <v-btn color="secondary" @click="dialogAddStocks = false">Cancel</v-btn>
+                <v-btn color="primary" @click="dialogAddStocks = false">Add Stock
+                  </v-btn>
                 <v-spacer></v-spacer>
               </v-card-actions>
             </v-card>
@@ -625,8 +779,7 @@
                       >
                         <p class="text-center font-weight-black text-h7">
                           Are you sure you want to delete <br /><span
-                            class="text-h5"
-                            >'{{ dataItem.itemname }}'</span
+                            class="text-h5"> {{ dataItem.itemname }} </span
                           >
                           item?
                         </p>
@@ -714,38 +867,26 @@
         <v-col cols="12" sm="5" md="2" class="pa-1">
           <v-card class="mb-2" height="95">
             <v-row no-gutters class="pa-2 text-center text-sm-start">
-              <v-col cols="12" xs="12" class="align-self-center ">
+              <v-col cols="12" xs="1" sm="3" md="3" class="d-flex justify-center flex-column">
                 <v-icon class="" color="primary">{{ scanIcon }}</v-icon>
               </v-col>
-              <v-col cols="12" xs="12" class="align-self-center">
-                <p class="text-caption mb-n1 mt-4">Total Scans Today</p>
-                <p class="text-subtitle-1">{{ totalbrcd }} scans</p>
+              <v-col cols="12" xs="4" sm="9" md="9" class="align-self-center">
+                <p class="text-caption mb-n1 mt-4">Total Scans</p>
+                <p class="text-subtitle-1">{{ totalscns }} scans</p>
               </v-col>
             </v-row>
           </v-card>
           <v-card class="text-center" height="95" justify-center align-center>
             <v-row no-gutters class="pa-2 text-center text-sm-start">
-              <v-col cols="12" xs="12" class="align-self-center ">
+              <v-col cols="12" xs="1" sm="3" md="3" class="d-flex justify-center flex-column">
                 <v-icon class="" color="primary">{{ generateIcon }}</v-icon>
               </v-col>
-              <v-col cols="12" xs="12" class="align-self-center">
-                <p class="text-caption mb-n1 mt-4">Total Barcodes</p>
-                <p class="text-subtitle-1">{{ totalbrcd }} barcodes</p>
+              <v-col cols="12" xs="4" sm="9" md="9" class="align-self-center">
+                <p class="text-caption mb-n1 mt-4">Total Generates</p>
+                <p class="text-subtitle-1">{{ totalgens }} generates</p>
               </v-col>
             </v-row>
           </v-card>
-          <!-- <v-card class="d-flex justify-center" height="95">
-                        <v-row no-gutters class="pa-2 text-center text-sm-start">
-                            <v-col cols="12" xs="1" sm="3" md="3" class="d-flex justify-center flex-column">
-                                <v-icon class="" color="primary">{{ generateIcon }}</v-icon>
-                            </v-col>
-                            <v-col cols="12" xs="4" sm="9" md="9" class="align-self-center">
-                                <p class="text-caption mb-n1 mt-4">Total Barcodes</p>
-                                <p class="text-subtitle-1">45 barcodes</p>
-
-                            </v-col>
-                        </v-row>
-                    </v-card> -->
         </v-col>
         <v-col cols="12" sm="7" md="6" class="pa-1">
           <v-card class=" bg-white d-flex flex-column pa-4" height="200">
@@ -894,7 +1035,8 @@ export default {
     timeout: 3000,
     currentTransactionId: "",
     currentTransactionName: "",
-    totalbrcd: 0,
+    totalgens: 0,
+    totalscns: 1,
 
     // add item
     dataItem: {
@@ -975,9 +1117,10 @@ export default {
     generateDialog: false,
     viewDialog: false,
     editDialog: false,
-    deductDialog: false,
+    consumeDialog: false,
     deleteDialog: false,
     deleteConfirmation: false,
+    dialogAddStocks: false,
 
     //image
     uploadLoading: false,
@@ -1050,22 +1193,22 @@ export default {
     headers() {
       const headers = [
         {
-          text: "Code",
+          text: "Barcode",
           align: "start",
           value: "code",
         },
+        // {
+        //   text: "Item",
+        //   sortable: false,
+        //   value: "item",
+        // },
         {
-          text: "Item",
+          text: "Scan or Generate",
           sortable: false,
-          value: "item",
+          value: "scanorgen",
         },
         {
-          text: "Inventory",
-          sortable: false,
-          value: "inventory",
-        },
-        {
-          text: "Action",
+          text: "Log",
           value: "action",
           sortable: false,
         },
@@ -1122,27 +1265,77 @@ export default {
         });
         this.barcodeTransactionTable = items;
         this.loadingTable = false;
-        //TOTAL BARCODES
-        this.totalbrcd = items.length;
       });
+     
+      // const q1 = query(
+      //     barcodeTransactionRef,
+      //     where("scanorgen", "==", "Generate")
+      //   );
+      // const querySnapshot1 = await getDocs(q1);
+      // let barGens = [];
+      // querySnapshot1.forEach((doc) => {
+      //       barGens.push({
+      //         ...doc.data(),
+      //         id: doc.id,
+      //       });
+           
+      //     });
+      // console.log( barGens)
+      //   //TOTAL GENERATES
+      // this.totalgens = barGens.length;
+
+      const q1 = query(
+          barcodeTransactionRef,
+          where("scanorgen", "==", "Generate")
+        );
+        onSnapshot(q1, (querySnapshot1) => {
+          let barGens = [];
+          querySnapshot1.forEach((doc) => {
+            barGens.push({
+              ...doc.data(),
+              id: doc.id,
+            });
+           
+          });
+          this.totalgens = barGens.length;
+        });
+       
+    
+
+      const q2 = query(
+          barcodeTransactionRef,
+          where("scanorgen", "==", "Scan")
+        );
+
+        onSnapshot(q2, (querySnapshot2) => {
+          let barScans = [];
+          querySnapshot2.forEach((doc) => {
+            barScans.push({
+              ...doc.data(),
+              id: doc.id,
+            });
+           
+          });
+          this.totalscns = barScans.length;
+        });
     },
 
     async cancelBarcode() {
-      this.saveBarcodeLog("Cancelled");
+      this.saveBarcodeLog("Barcode Generated Cancelled");
     },
     async saveBarcode() {
-      this.saveBarcodeLog("Saved");
+      this.saveBarcodeLog("Barcode Generated Saved");
     },
     async saveBarcodeLog(action) {
       const docRef = await addDoc(collection(db, "barcode-transactions"), {
         code: this.barcodeValue,
-        item: "Generate Barcode",
-        inventory: "New Barcode",
+        // item: "Generate Barcode",
+        scanorgen: "Generate",
         action: action,
         timestamp: Timestamp.now(),
       });
       this.generateDialog = false;
-      this.text = "Barcode log saved successfully.";
+      this.text = "Transaction Saved Successfully";
       this.snackbar = true;
     },
 
