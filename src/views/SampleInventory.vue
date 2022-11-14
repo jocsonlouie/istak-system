@@ -1363,6 +1363,7 @@ export default {
 
     //consume stocks
     async consumeStocks(item) {
+      console.log(item);
       this.dataItem = Object.assign({}, item);
       this.itemId = this.dataItem.id;
       this.docRef = doc(inventoryColRef, this.itemId);
@@ -1559,7 +1560,6 @@ export default {
         // add function
         if (this.$refs.form.validate()) {
           // const addedDoc = await addDoc(inventoryColRef, this.$data.dataItem);
-          console.log(itemImage.value);
           await addDoc(inventoryColRef, {
             // image: itemImage.value,
             // itemname: this.dataItem.itemname,
