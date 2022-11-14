@@ -14,6 +14,38 @@
       </template>
     </v-snackbar>
 
+    <!-- ANALYTICS -->
+    <div class="upper-btns mb-5 d-flex">
+      <v-row no-gutters class="d-flex justify-center align-center">
+        <v-col cols="12" sm="4" md="3" class="pa-1 ">
+          <v-card class="d-flex justify-center mb-2" height="95">
+            <v-row no-gutters class="pa-2 text-center text-sm-start">
+              <v-col cols="12" xs="1" sm="3" md="3" class="d-flex justify-center flex-column">
+                <v-icon class="" color="primary">{{ splrIcon }}</v-icon>
+              </v-col>
+              <v-col cols="12" xs="4" sm="9" md="9" class="align-self-center">
+                <p class="text-caption mb-n1 mt-4">Total Suppliers</p>
+                <p class="text-subtitle-1">{{ totalsupplier }} suppliers</p>
+              </v-col>
+            </v-row>
+          </v-card>
+        </v-col>
+        <v-col cols="12" sm="4" md="3" class="pa-1 ">
+          <v-card class="d-flex justify-center mb-2" height="95">
+            <v-row no-gutters class="pa-2 text-center text-sm-start">
+              <v-col cols="12" xs="1" sm="3" md="3" class="d-flex justify-center flex-column">
+                <v-icon class="" color="primary">{{ emailIcon }}</v-icon>
+              </v-col>
+              <v-col cols="12" xs="4" sm="9" md="9" class="align-self-center">
+                <p class="text-caption mb-n1 mt-4">Total Email Sent</p>
+                <p class="text-subtitle-1">{{ totalemail }} email</p>
+              </v-col>
+            </v-row>
+          </v-card>
+        </v-col>
+        </v-row>
+      </div>
+
      <!-- Data Table -->
      <v-data-table
       :headers="headers"
@@ -233,6 +265,8 @@ import {
   mdiDelete,
   mdiCheckboxMarkedCircleOutline,
   mdiMagnify,
+  mdiEmail,
+  mdiDolly,
   mdiFilePdfBox,
   mdiDotsVertical
 } from '@mdi/js'
@@ -262,6 +296,7 @@ import {
     onMounted
   } from "@vue/composition-api";
 const inventoryColRef = collection(db, "supplier");
+const emailColRef = collection(db, "emails");
 
 //email
 import emailjs from '@emailjs/browser';
@@ -289,6 +324,9 @@ export default {
     searchIcon: mdiMagnify,
     pdfIcon: mdiFilePdfBox,
     moreIcon: mdiDotsVertical,
+    emailIcon: mdiEmail,
+    splrIcon: mdiDolly,
+
 
     // modal data
     dialog: false,
@@ -399,7 +437,11 @@ export default {
     business: 'Assumpta Dog and Cat Clinic - Cainta Branch',
     address: 'Ortigas Ave., Extension Corner Hunter ROTC. Guerilla St. Brgy. San Juan, Cainta Rizal',
     contact: '09190090841 / 09269910470 / 897-3264 / assumptacainta.yahoo.com',
-    report: 'Supplier List Report'
+    report: 'Supplier List Report',
+
+    //analytics
+    totalsupplier: 0,
+    totalemail: 0,
   }),
 
   setup(){
@@ -509,7 +551,23 @@ export default {
         });
         this.items = items;
         this.loadingTable = false;
-      })
+        //TOTAL SUPPLIERS
+        this.totalsupplier = items.length;
+      });
+
+      onSnapshot(emailColRef, (snapshot) => {
+        let items2 = []
+        snapshot.forEach((doc) => {
+          items2.push({
+            ...doc.data(),
+            id: doc.id
+          })
+        });
+        this.items2 = items2;
+        this.loadingTable = false;
+        //TOTAL EMAIL
+        this.totalemail = items2.length;
+      });
     },
 
     // edit function
@@ -631,7 +689,7 @@ export default {
       this.$refs.form.reset();
     },
 
-    sendEmailzz() {
+    async sendEmailzz() {
       if (this.$refs.formEmail.validate()) {
         console.log("Test");
         console.log(this.$refs.formEmail.$el);
@@ -642,6 +700,14 @@ export default {
           }, (error) => {
             console.log('FAILED...', error.text);
           });
+
+          await addDoc(emailColRef, {
+            to: this.sendData.toEmail,
+            from: this.sendData.fromEmail,
+            subject: this.sendData.subject,
+            message: this.sendData.message,
+          })
+
         this.closeEmail();
         this.itemStatus = 'SUCCESSFULY SENT EMAIL TO THE SUPPLIER';
         this.snackbar = true;
