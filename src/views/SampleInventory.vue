@@ -119,7 +119,7 @@
               <div v-if="scanStatus">
                 <v-card-text class="d-flex align-center">
                   <v-avatar rounded size="120" class="me-6">
-                    <v-img :src="scanItemImage"></v-img>
+                    <v-img :src="itemImage"></v-img>
                   </v-avatar>
                   <!-- upload photo -->
                   <div class="align-center">
@@ -166,9 +166,19 @@
                       </v-col>
                       <v-col cols="12" md="6">
                         <v-text-field
-                          v-model="scanStorebox"
+                          v-model="scanRetailPrice"
                           dense
-                          label="Storebox"
+                          label="Retail Price"
+                          outlined
+                          :prepend-inner-icon="phpIcon"
+                          readonly
+                        ></v-text-field>
+                      </v-col>
+                      <v-col cols="12" md="6">
+                        <v-text-field
+                          v-model="scanAvailableStocks"
+                          dense
+                          label="Available Stocks"
                           outlined
                           readonly
                         ></v-text-field>
@@ -885,8 +895,6 @@ export default {
     dialogConsume: false,
 
     // Scan Modal
-    scanItemImage:
-      "https://assumptaclinic.com/wp-content/uploads/2022/10/profile-icon-default.jpeg",
     scanItemName: "Sample Name",
     scanBarcode: "12312312312",
     scanStorebox: "686",
@@ -1608,13 +1616,13 @@ export default {
         querySnapshot.forEach((doc) => {
           // doc.data() is never undefined for query doc snapshots
           this.scanStatus = true;
+          this.scanItemName = "" + doc.data().itemname;
           this.scanBarcode = "" + doc.data().barcode;
           this.scanDisplayStocks = "" + doc.data().display;
-          this.scanItemImage =
-            "https://assumptaclinic.com/wp-content/uploads/2022/10/profile-icon-default.jpeg";
-          this.scanItemName = "" + doc.data().itemname;
-          this.scanStorebox = "" + doc.data().storebox;
-          this.scanTotalStocks = "" + doc.data().total;
+          itemImage.value = doc.data().image;
+          this.scanRetailPrice = "" + doc.data().retail;
+          this.scanAvailableStocks = "" + doc.data().available;
+          this.scanTotalStocks = "" + doc.data().totalstocks;
         });
         this.dialogScan = false;
         this.dialogScanView = true;
