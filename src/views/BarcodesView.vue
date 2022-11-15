@@ -519,94 +519,18 @@
             </v-card>
           </v-dialog>
 
-          <!-- dialog for Consume -->
-          <!-- <v-dialog v-model="consumeDialog" max-width="900px">
-            <v-card class="">
-              <v-card-title class="d-flex justify-center ">
-                <v-chip
-                  color="primary"
-                  class="d-flex justify-center font-weight-bold text-h6 pa-5"
-                >
-                  Consume Stocks
-                </v-chip>
-              </v-card-title>
-
-              <v-container class="my-5 px-12">
-                <v-form ref="form">
-                  <div class="d-flex  justify-center align-center">
-                    <p class="mr-3 text-subtitle-1">Stock Information</p>
-                    <v-divider></v-divider>
-                  </div>
-
-                  <v-row no-gutters class="d-flex justify-center">
-                    <v-col
-                      cols="12"
-                      sm="12"
-                      class="d-flex justify-center flex-column flex-sm-row"
-                    >
-                      <v-card-text
-                        class="-d-flex justify-center pa-0 rounded-lg my-3 overflow-hidden"
-                      >
-                        <StreamBarcodeReader @decode="decodeConsumeStock" stop>
-                        </StreamBarcodeReader>
-                      </v-card-text>
-                      <v-card-text
-                        class="d-flex justify-center flex-column align-center mt-2"
-                      >
-                        <p class="text-center font-weight-black text-h7 mb-2">
-                          {{ dataItem.itemname }}
-                        </p>
-                        <p class="ma-0">
-                          Available stock: {{ dataItem.available }}
-                        </p>
-                        <p class="ma-0">
-                          Display stock: {{ dataItem.display }}
-                        </p>
-                        <v-avatar rounded size="180" class="">
-                          <v-img :src="itemImage"></v-img>
-                        </v-avatar>
-                        <p></p>
-                      </v-card-text>
-                    </v-col>
-                    <v-col cols="12" sm="12" class=" align-self-center">
-                      <v-data-table
-                        :headers="headers"
-                        :items="items"
-                        sort-by="name"
-                        class="elevation-1 pt-3"
-                        item-key="itemname"
-                        :loading="loadingTable"
-                      >
-                      </v-data-table>
-                    </v-col>
-                  </v-row>
-                </v-form>
-              </v-container>
-              <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn color="primary" @click="consumeDialog = false"
-                  >DONE</v-btn
-                >
-                <v-btn color="secondary" @click="consumeDialog = false"
-                  >CANCEL</v-btn
-                >
-                <v-spacer></v-spacer>
-              </v-card-actions>
-            </v-card>
-          </v-dialog> -->
-
           <!-- UI Consume -->
 
           <v-dialog v-model="consumeDialog" max-width="700px">
             <v-card class="pa-5 d-flex flex-column justify-center">
-                <v-chip
-                  color="primary"
-                  class="d-flex justify-center font-weight-bold text-h6 pa-5"
-                >
-                  Consume Stocks
-                </v-chip>
+              <v-chip
+                color="primary"
+                class="d-flex justify-center font-weight-bold text-h6 pa-5"
+              >
+                Consume Stocks
+              </v-chip>
               <div class="my-5 px-12">
-                <v-form ref="form">
+                <v-form ref="formConsumeStock">
                   <div class="d-flex  justify-center align-center">
                     <p class="mr-3 text-subtitle-1">Stock Information</p>
                     <v-divider></v-divider>
@@ -622,7 +546,9 @@
                     </v-col>
                   </v-row>
                   <div class="d-flex  justify-center align-center">
-                    <p class="mr-3 text-subtitle-1">Consume Stock Information</p>
+                    <p class="mr-3 text-subtitle-1">
+                      Consume Stock Information
+                    </p>
                     <v-divider></v-divider>
                   </div>
                   <v-text-field
@@ -642,9 +568,9 @@
                     dense
                     type="number"
                   >
-                  <p class="text-center font-weight-black text-h7 mb-2">
-                          {{ dataItem.itemname }}
-                  </p>
+                    <p class="text-center font-weight-black text-h7 mb-2">
+                      {{ dataItem.itemname }}
+                    </p>
                   </v-text-field>
                   <p class="text-caption">
                     Current Available Stocks: {{ dataItem.available }}
@@ -662,14 +588,18 @@
                   ></v-select>
                 </v-form>
               </div>
-                <v-card-actions class="mb-n5">
+              <v-card-actions class="mb-n5">
                 <v-spacer></v-spacer>
-                <v-btn color="secondary" @click="consumeDialog = false">Cancel</v-btn>
-                <v-btn color="primary" @click="consumeDialog = false">Consume</v-btn>
+                <v-btn color="secondary" @click="consumeDialog = false"
+                  >Cancel</v-btn
+                >
+                <v-btn color="primary" @click="consumeStockScan(dataItem.id)"
+                  >Consume</v-btn
+                >
                 <v-spacer></v-spacer>
               </v-card-actions>
-              </v-card>
-              </v-dialog>
+            </v-card>
+          </v-dialog>
 
           <!-- Add Stocks -->
           <v-dialog v-model="dialogAddStocks" max-width="700px">
@@ -691,7 +621,7 @@
                       <v-card-title
                         class="-d-flex justify-center pa-0 rounded-lg my-3 overflow-hidden"
                       >
-                        <StreamBarcodeReader @decode="decodeEditItem" stop>
+                        <StreamBarcodeReader @decode="decodeAddStocks" stop>
                         </StreamBarcodeReader>
                       </v-card-title>
                     </v-col>
@@ -709,7 +639,7 @@
                   >
                   </v-text-field>
                   <p class="text-caption">
-                    Current Available Stocks: 
+                    Current Available Stocks: {{ dataItem.available }}
                   </p>
                   <v-text-field
                     v-model="stkStore"
@@ -721,7 +651,7 @@
                   >
                   </v-text-field>
                   <p class="text-caption">
-                    Current On Display Stocks: 
+                    Current On Display Stocks: {{ dataItem.display }}
                   </p>
                   <v-text-field
                     v-model="stkAdd"
@@ -736,9 +666,12 @@
               </div>
               <v-card-actions class="mb-n5">
                 <v-spacer></v-spacer>
-                <v-btn color="secondary" @click="dialogAddStocks = false">Cancel</v-btn>
-                <v-btn color="primary" @click="dialogAddStocks = false">Add Stock
-                  </v-btn>
+                <v-btn color="secondary" @click="dialogAddStocks = false"
+                  >Cancel</v-btn
+                >
+                <v-btn color="primary" @click="addStockScan(dataItem.id)"
+                  >Add Stock
+                </v-btn>
                 <v-spacer></v-spacer>
               </v-card-actions>
             </v-card>
@@ -779,8 +712,10 @@
                       >
                         <p class="text-center font-weight-black text-h7">
                           Are you sure you want to delete <br /><span
-                            class="text-h5"> {{ dataItem.itemname }} </span
+                            class="text-h5"
                           >
+                            {{ dataItem.itemname }}
+                          </span>
                           item?
                         </p>
                         <v-avatar rounded size="150" class="">
@@ -867,7 +802,13 @@
         <v-col cols="12" sm="5" md="2" class="pa-1">
           <v-card class="mb-2" height="95">
             <v-row no-gutters class="pa-2 text-center text-sm-start">
-              <v-col cols="12" xs="1" sm="3" md="3" class="d-flex justify-center flex-column">
+              <v-col
+                cols="12"
+                xs="1"
+                sm="3"
+                md="3"
+                class="d-flex justify-center flex-column"
+              >
                 <v-icon class="" color="primary">{{ scanIcon }}</v-icon>
               </v-col>
               <v-col cols="12" xs="4" sm="9" md="9" class="align-self-center">
@@ -878,7 +819,13 @@
           </v-card>
           <v-card class="text-center" height="95" justify-center align-center>
             <v-row no-gutters class="pa-2 text-center text-sm-start">
-              <v-col cols="12" xs="1" sm="3" md="3" class="d-flex justify-center flex-column">
+              <v-col
+                cols="12"
+                xs="1"
+                sm="3"
+                md="3"
+                class="d-flex justify-center flex-column"
+              >
                 <v-icon class="" color="primary">{{ generateIcon }}</v-icon>
               </v-col>
               <v-col cols="12" xs="4" sm="9" md="9" class="align-self-center">
@@ -899,10 +846,11 @@
       <v-data-table
         :headers="headers"
         :items="barcodeTransactionTable"
-        sort-by="item"
+        sort-by="timestamp"
+        :sort-desc="true"
         class="elevation-1 pt-3"
         :search="search"
-        item-key="code"
+        item-key="id"
         :loading="loadingTable"
       >
         <template v-slot:top>
@@ -1038,6 +986,13 @@ export default {
     totalgens: 0,
     totalscns: 1,
 
+    //Consume
+    stkConsume: 0,
+    consumeWhere: ["Available Stocks", "On Display Stocks"],
+    stkWhere: "",
+    stkStore: 0,
+    stkAdd: 0,
+
     // add item
     dataItem: {
       image: "",
@@ -1059,40 +1014,6 @@ export default {
       state: "open",
       level: "info",
     },
-
-    // table header data
-    // headers: [
-    //   {
-    //     text: "Code",
-    //     align: "start",
-    //     value: "code",
-    //   },
-    //   {
-    //     text: "Item",
-    //     sortable: false,
-    //     value: "item",
-    //   },
-    //   {
-    //     text: "Inventory",
-    //     sortable: false,
-    //     value: "inventory",
-    //   },
-    //   {
-    //     text: "Action",
-    //     value: "action",
-    //     sortable: false,
-    //   },
-    //   {
-    //     text: "Date/Time",
-    //     sortable: false,
-    //     value: "timestamp",
-    //   },
-    //   // {
-    //   //   text: "Actions",
-    //   //   value: "actions",
-    //   //   sortable: false,
-    //   // },
-    // ],
 
     // table data
     items: [
@@ -1266,7 +1187,7 @@ export default {
         this.barcodeTransactionTable = items;
         this.loadingTable = false;
       });
-     
+
       // const q1 = query(
       //     barcodeTransactionRef,
       //     where("scanorgen", "==", "Generate")
@@ -1278,46 +1199,39 @@ export default {
       //         ...doc.data(),
       //         id: doc.id,
       //       });
-           
+
       //     });
       // console.log( barGens)
       //   //TOTAL GENERATES
       // this.totalgens = barGens.length;
 
       const q1 = query(
-          barcodeTransactionRef,
-          where("scanorgen", "==", "Generate")
-        );
-        onSnapshot(q1, (querySnapshot1) => {
-          let barGens = [];
-          querySnapshot1.forEach((doc) => {
-            barGens.push({
-              ...doc.data(),
-              id: doc.id,
-            });
-           
+        barcodeTransactionRef,
+        where("scanorgen", "==", "Generate")
+      );
+      onSnapshot(q1, (querySnapshot1) => {
+        let barGens = [];
+        querySnapshot1.forEach((doc) => {
+          barGens.push({
+            ...doc.data(),
+            id: doc.id,
           });
-          this.totalgens = barGens.length;
         });
-       
-    
+        this.totalgens = barGens.length;
+      });
 
-      const q2 = query(
-          barcodeTransactionRef,
-          where("scanorgen", "==", "Scan")
-        );
+      const q2 = query(barcodeTransactionRef, where("scanorgen", "==", "Scan"));
 
-        onSnapshot(q2, (querySnapshot2) => {
-          let barScans = [];
-          querySnapshot2.forEach((doc) => {
-            barScans.push({
-              ...doc.data(),
-              id: doc.id,
-            });
-           
+      onSnapshot(q2, (querySnapshot2) => {
+        let barScans = [];
+        querySnapshot2.forEach((doc) => {
+          barScans.push({
+            ...doc.data(),
+            id: doc.id,
           });
-          this.totalscns = barScans.length;
         });
+        this.totalscns = barScans.length;
+      });
     },
 
     async cancelBarcode() {
@@ -1403,9 +1317,9 @@ export default {
       const q = query(inventoryColRef, where("barcode", "==", result));
       const deleteItemSnapshot = await getDocs(q);
       if (deleteItemSnapshot.empty) {
+        this.deleteDialog = false;
         this.text = "No item found.";
         this.snackbar = true;
-        this.deleteDialog = false;
       } else {
         deleteItemSnapshot.forEach((doc) => {
           itemImage.value = doc.data().image;
@@ -1417,16 +1331,20 @@ export default {
         this.dataItem = Object.assign({}, deleteItem[0]);
         this.text = "Item found: " + this.dataItem.itemname;
         this.snackbar = true;
+        this.barcodeLog(
+          this.dataItem.itemname + " Deleted via Scan",
+          this.dataItem.barcode,
+          "Scan"
+        );
       }
     },
 
     async deleteInventoryItem(id, name) {
       console.log(id);
       await deleteDoc(doc(inventoryColRef, id));
-
+      this.deleteDialog = false;
       this.text = name + " item successfully deleted.";
       this.snackbar = true;
-      this.deleteDialog = false;
     },
 
     async decodeViewItem(result) {
@@ -1435,9 +1353,9 @@ export default {
       const q = query(inventoryColRef, where("barcode", "==", result));
       const viewSnapshot = await getDocs(q);
       if (viewSnapshot.empty) {
+        this.viewDialog = false;
         this.text = "No item found.";
         this.snackbar = true;
-        this.deleteDialog = false;
       } else {
         viewSnapshot.forEach((doc) => {
           itemImage.value = doc.data().image;
@@ -1449,6 +1367,11 @@ export default {
         this.dataItem = Object.assign({}, viewItem[0]);
         this.text = "Item found: " + this.dataItem.itemname;
         this.snackbar = true;
+        this.barcodeLog(
+          this.dataItem.itemname + " Viewed via Scan",
+          this.dataItem.barcode,
+          "Scan"
+        );
       }
     },
 
@@ -1458,9 +1381,9 @@ export default {
       const q = query(inventoryColRef, where("barcode", "==", result));
       const viewSnapshot = await getDocs(q);
       if (viewSnapshot.empty) {
+        this.editDialog = false;
         this.text = "No item found.";
         this.snackbar = true;
-        this.deleteDialog = false;
       } else {
         viewSnapshot.forEach((doc) => {
           itemImage.value = doc.data().image;
@@ -1470,9 +1393,13 @@ export default {
           });
         });
         this.dataItem = Object.assign({}, editItem[0]);
-        console.log(this.dataItem);
         this.text = "Item found: " + this.dataItem.itemname;
         this.snackbar = true;
+        this.barcodeLog(
+          this.dataItem.itemname + " to be edited via Scan",
+          this.dataItem.barcode,
+          "Scan"
+        );
       }
     },
 
@@ -1482,9 +1409,9 @@ export default {
       const q = query(inventoryColRef, where("barcode", "==", result));
       const viewSnapshot = await getDocs(q);
       if (viewSnapshot.empty) {
+        this.consumeDialog = false;
         this.text = "No item found.";
         this.snackbar = true;
-        this.deleteDialog = false;
       } else {
         viewSnapshot.forEach((doc) => {
           itemImage.value = doc.data().image;
@@ -1496,6 +1423,11 @@ export default {
         this.dataItem = Object.assign({}, consumeStockItem[0]);
         this.text = "Item found: " + this.dataItem.itemname;
         this.snackbar = true;
+        this.barcodeLog(
+          "Consume stocks for " + this.dataItem.itemname,
+          this.dataItem.barcode,
+          "Scan"
+        );
       }
     },
 
@@ -1521,11 +1453,92 @@ export default {
           state: this.dataItem.state,
           level: this.dataItem.level,
         });
-
+        this.editDialog = false;
         this.text = this.dataItem.itemname + " item successfully deleted.";
         this.snackbar = true;
-        this.editDialog = false;
       }
+    },
+
+    async consumeStockScan(id) {
+      if (this.$refs.formConsumeStock.validate()) {
+        if (this.stkWhere == "Available Stocks") {
+          await updateDoc(
+            doc(inventoryColRef, id),
+            {
+              available: this.dataItem.available - this.stkConsume,
+            },
+            { merge: true }
+          );
+          this.consumeDialog = false;
+          this.text = "Consumed stocks successfully.";
+          this.snackbar = true;
+        } else {
+          await updateDoc(
+            doc(inventoryColRef, id),
+            {
+              display: this.dataItem.display - this.stkConsume,
+            },
+            { merge: true }
+          );
+          this.consumeDialog = false;
+          this.text = "Consumed stocks successfully.";
+          this.snackbar = true;
+        }
+      }
+    },
+
+    async decodeAddStocks(result) {
+      audio.play();
+
+      let addStocksItem = [];
+      const q = query(inventoryColRef, where("barcode", "==", result));
+      const addStockSnapshot = await getDocs(q);
+      if (addStockSnapshot.empty) {
+        this.dialogAddStocks = false;
+        this.text = "No item found.";
+        this.snackbar = true;
+      } else {
+        addStockSnapshot.forEach((doc) => {
+          itemImage.value = doc.data().image;
+          addStocksItem.push({
+            ...doc.data(),
+            id: doc.id,
+          });
+        });
+        this.dataItem = Object.assign({}, addStocksItem[0]);
+        this.text = "Item found: " + this.dataItem.itemname;
+        this.snackbar = true;
+        this.barcodeLog(
+          "Added stocks for " + this.dataItem.itemname,
+          this.dataItem.barcode,
+          "Scan"
+        );
+      }
+    },
+
+    async addStockScan(id) {
+      if (this.$refs.formAddStocks.validate()) {
+        await updateDoc(
+          doc(inventoryColRef, id),
+          {
+            available: this.dataItem.available + this.stkAdd,
+            display: this.dataItem.display + this.stkAdd,
+          },
+          { merge: true }
+        );
+        this.dialogAddStocks = false;
+        this.text = "Stocks added successfully.";
+        this.snackbar = true;
+      }
+    },
+
+    async barcodeLog(action, code, option) {
+      const docRef = await addDoc(collection(db, "barcode-transactions"), {
+        code: code,
+        scanorgen: option,
+        action: action,
+        timestamp: Timestamp.now(),
+      });
     },
   },
 };
