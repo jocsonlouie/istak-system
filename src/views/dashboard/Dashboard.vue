@@ -44,6 +44,14 @@
       <dashboard-user-roles></dashboard-user-roles>
     </v-col>
 
+    <v-col cols="12" sm="6" md="4">
+      <dashboard-most-consumed></dashboard-most-consumed>
+    </v-col>
+
+    <v-col cols="12" sm="6" md="4">
+      <dashboard-total-items></dashboard-total-items>
+    </v-col>
+
     <!-- <v-col cols="12" md="4" sm="6">
       <dashboard-card-total-earning></dashboard-card-total-earning>
     </v-col> -->
@@ -121,6 +129,8 @@ import DashboardWeeklyOverview from "./DashboardWeeklyOverview.vue";
 import DashboardDatatable from "./DashboardDatatable.vue";
 import DashboardSmallCard from "./DashboardSmallCard.vue";
 import DashboardUserRoles from "./DashboardUserRoles.vue";
+import DashboardMostConsumed from "./DashboardMostConsumed.vue";
+import DashboardTotalItems from "./DashboardTotalItems.vue";
 
 import db from "@/fb";
 import {
@@ -148,13 +158,15 @@ export default {
     DashboardDatatable,
     DashboardSmallCard,
     DashboardUserRoles,
+    DashboardMostConsumed,
+    DashboardTotalItems,
   },
 
   data() {
     return {
       inventoryItems: [],
       totalInventory: {
-        name: "Total Inventory",
+        name: "Total items",
         value: "-",
         footer: "Inventory Analytics",
         icon: mdiPackageVariant,
