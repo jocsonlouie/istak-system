@@ -1,7 +1,7 @@
 <template>
   <v-card>
     <v-card-title class="align-start">
-      <span class="font-weight-semibold">Quick Statistics</span>
+      <span class="font-weight-semibold">Quick Analytics</span>
       <v-spacer></v-spacer>
       <v-btn icon small class="me-n3 mt-n2">
         <v-icon>
@@ -16,29 +16,65 @@
 
     <v-card-text>
       <v-row>
-        <v-col
-          v-for="data in statisticsData"
-          :key="data.title"
-          cols="6"
-          md="3"
-          class="d-flex align-center"
-        >
-          <v-avatar
-            size="44"
-            :color="resolveStatisticsIconVariation(data.title).color"
-            rounded
-            class="elevation-1"
-          >
+        <v-col cols="6" md="3" class="d-flex align-center">
+          <v-avatar size="44" color="primary" rounded class="elevation-1">
             <v-icon dark color="white" size="30">
-              {{ resolveStatisticsIconVariation(data.title).icon }}
+              {{ icons.mdiPackage }}
             </v-icon>
           </v-avatar>
           <div class="ms-3">
             <p class="text-xs mb-0">
-              {{ data.title }}
+              Inventory
             </p>
             <h3 class="text-xl font-weight-semibold">
-              {{ data.total }}
+              {{ totalCustomInventory }}
+            </h3>
+          </div>
+        </v-col>
+        <v-col cols="6" md="3" class="d-flex align-center">
+          <v-avatar size="44" color="success" rounded class="elevation-1">
+            <v-icon dark color="white" size="30">
+              {{ icons.mdiPackage }}
+            </v-icon>
+          </v-avatar>
+          <div class="ms-3">
+            <p class="text-xs mb-0">
+              Display Stocks
+            </p>
+            <h3 class="text-xl font-weight-semibold">
+              {{ displayStocks }}
+            </h3>
+          </div>
+        </v-col>
+
+        <v-col cols="6" md="3" class="d-flex align-center">
+          <v-avatar size="44" color="warning" rounded class="elevation-1">
+            <v-icon dark color="white" size="30">
+              {{ icons.mdiPackage }}
+            </v-icon>
+          </v-avatar>
+          <div class="ms-3">
+            <p class="text-xs mb-0">
+              Total stocks
+            </p>
+            <h3 class="text-xl font-weight-semibold">
+              {{ totalStocks }}
+            </h3>
+          </div>
+        </v-col>
+
+        <v-col cols="6" md="3" class="d-flex align-center">
+          <v-avatar size="44" color="info" rounded class="elevation-1">
+            <v-icon dark color="white" size="30">
+              {{ icons.mdiEmail }}
+            </v-icon>
+          </v-avatar>
+          <div class="ms-3">
+            <p class="text-xs mb-0">
+              Emails
+            </p>
+            <h3 class="text-xl font-weight-semibold">
+              {{ newItems }}
             </h3>
           </div>
         </v-col>
@@ -60,9 +96,32 @@ import {
   mdiPackageVariant,
   mdiTablePlus,
   mdiDog,
+  mdiEmail,
 } from "@mdi/js";
+import db from "@/fb";
+import {
+  addDoc,
+  getDocs,
+  doc,
+  deleteDoc,
+  onSnapshot,
+  updateDoc,
+  collection,
+  where,
+  query,
+} from "@firebase/firestore";
+
+const customInventory = collection(db, "custom-inventory");
+const mainInventoryColRef = collection(db, "inventory");
+const emailRef = collection(db, "emails");
 
 export default {
+  data: () => ({
+    totalCustomInventory: "-",
+    displayStocks: "-",
+    totalStocks: "-",
+    newItems: "-",
+  }),
   setup() {
     const statisticsData = [
       {
@@ -109,8 +168,57 @@ export default {
         mdiPackageVariant,
         mdiTablePlus,
         mdiDog,
+        mdiEmail,
       },
     };
+  },
+
+  created() {
+    this.initialize();
+  },
+
+  methods: {
+    initialize() {
+      onSnapshot(customInventory, (snapshot) => {
+        let items = [];
+        snapshot.forEach((doc) => {
+          items.push({
+            value: doc.data().name,
+            id: doc.id,
+          });
+        });
+        this.totalCustomInventory = items.length;
+      });
+
+      onSnapshot(emailRef, (snapshot) => {
+        let items = [];
+        snapshot.forEach((doc) => {
+          items.push({
+            value: doc.data().name,
+            id: doc.id,
+          });
+        });
+        this.newItems = items.length;
+      });
+
+      onSnapshot(mainInventoryColRef, (snapshot) => {
+        let items2 = [];
+        let sumAv = 0;
+        let sumDis = 0;
+        snapshot.forEach((doc) => {
+          items2.push({
+            ...doc.data(),
+            id: doc.id,
+          });
+
+          sumAv += doc.data().available;
+          sumDis += doc.data().display;
+        });
+        //TOTAL ITEMS, TOTAL AVAILABLE, TOTAL DISPLAY
+        this.totalStocks = sumAv;
+        this.displayStocks = sumDis;
+      });
+    },
   },
 };
 </script>

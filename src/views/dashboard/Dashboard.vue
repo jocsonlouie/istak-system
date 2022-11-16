@@ -7,8 +7,33 @@
       <dashboard-statistics-card></dashboard-statistics-card>
     </v-col>
 
-    <v-col cols="12" sm="6" md="4">
-      <dashboard-weekly-overview></dashboard-weekly-overview>
+    <v-col cols="12" md="4">
+      <v-row class="match-height">
+        <v-col cols="12" sm="12">
+          <dashboard-small-card></dashboard-small-card>
+        </v-col>
+        <v-col cols="12" sm="6">
+          <statistics-card-vertical
+            color="primary"
+            :icon="totalInventory.icon"
+            :statistics="totalInventory.value"
+            :stat-title="totalInventory.name"
+            :subtitle="totalInventory.footer"
+            change="+items"
+          ></statistics-card-vertical>
+        </v-col>
+
+        <v-col cols="12" sm="6">
+          <statistics-card-vertical
+            color="warning"
+            :icon="scanInventory.icon"
+            :statistics="scanInventory.value"
+            :stat-title="scanInventory.name"
+            :subtitle="scanInventory.footer"
+            change="+scans"
+          ></statistics-card-vertical>
+        </v-col>
+      </v-row>
     </v-col>
 
     <v-col cols="12" sm="6" md="4">
@@ -16,7 +41,7 @@
     </v-col>
 
     <v-col cols="12" sm="6" md="4">
-      <dashboard-weekly-overview></dashboard-weekly-overview>
+      <dashboard-user-roles></dashboard-user-roles>
     </v-col>
 
     <!-- <v-col cols="12" md="4" sm="6">
@@ -83,12 +108,7 @@
 
 <script>
 // eslint-disable-next-line object-curly-newline
-import {
-  mdiPoll,
-  mdiLabelVariantOutline,
-  mdiCurrencyUsd,
-  mdiHelpCircleOutline,
-} from "@mdi/js";
+import { mdiPackageVariant, mdiBarcodeScan } from "@mdi/js";
 import StatisticsCardVertical from "@/components/statistics-card/StatisticsCardVertical.vue";
 
 // demos
@@ -99,20 +119,22 @@ import DashboardCardDepositAndWithdraw from "./DashboardCardDepositAndWithdraw.v
 import DashboardCardSalesByCountries from "./DashboardCardSalesByCountries.vue";
 import DashboardWeeklyOverview from "./DashboardWeeklyOverview.vue";
 import DashboardDatatable from "./DashboardDatatable.vue";
+import DashboardSmallCard from "./DashboardSmallCard.vue";
+import DashboardUserRoles from "./DashboardUserRoles.vue";
 
-import { onMounted, ref } from "@vue/composition-api";
-import { getAuth, onAuthStateChanged } from "@firebase/auth";
+import db from "@/fb";
 import {
   getDocs,
+  onSnapshot,
   collection,
-  query,
   where,
-  doc as docFB,
-  setDoc,
-  updateDoc,
+  query,
 } from "@firebase/firestore";
-import db from "@/fb";
+
 import schedule from "node-schedule";
+
+const mainInventoryColRef = collection(db, "inventory");
+const barcodeRef = collection(db, "barcode-transactions");
 
 export default {
   components: {
@@ -124,11 +146,25 @@ export default {
     DashboardCardSalesByCountries,
     DashboardWeeklyOverview,
     DashboardDatatable,
+    DashboardSmallCard,
+    DashboardUserRoles,
   },
 
   data() {
     return {
       inventoryItems: [],
+      totalInventory: {
+        name: "Total Inventory",
+        value: "-",
+        footer: "Inventory Analytics",
+        icon: mdiPackageVariant,
+      },
+      scanInventory: {
+        name: "Barcode scans",
+        value: "-",
+        footer: "Scan Analytics",
+        icon: mdiBarcodeScan,
+      },
     };
   },
 
@@ -155,6 +191,8 @@ export default {
       }
     });
 
+    this.initialized();
+
     // console.log(items);
 
     // items.forEach(async (item) => {
@@ -165,50 +203,31 @@ export default {
     //   });
     // });
   },
-  setup() {
-    const totalProfit = {
-      statTitle: "Total Profit",
-      icon: mdiPoll,
-      color: "success",
-      subtitle: "Weekly Project",
-      statistics: "$25.6k",
-      change: "+42%",
-    };
 
-    const totalSales = {
-      statTitle: "Refunds",
-      icon: mdiCurrencyUsd,
-      color: "secondary",
-      subtitle: "Past Month",
-      statistics: "$78",
-      change: "-15%",
-    };
-
-    // vertical card options
-    const newProject = {
-      statTitle: "New Project",
-      icon: mdiLabelVariantOutline,
-      color: "primary",
-      subtitle: "Yearly Project",
-      statistics: "862",
-      change: "-18%",
-    };
-
-    const salesQueries = {
-      statTitle: "Sales Quries",
-      icon: mdiHelpCircleOutline,
-      color: "warning",
-      subtitle: "Last week",
-      statistics: "15",
-      change: "-18%",
-    };
-
-    return {
-      totalProfit,
-      totalSales,
-      newProject,
-      salesQueries,
-    };
+  methods: {
+    async initialized() {
+      onSnapshot(mainInventoryColRef, (snapshot) => {
+        let items = [];
+        snapshot.forEach((doc) => {
+          items.push({
+            ...doc.data(),
+            id: doc.id,
+          });
+        });
+        this.totalInventory.value = "" + items.length;
+      });
+      const q2 = query(barcodeRef, where("scanorgen", "==", "Scan"));
+      onSnapshot(q2, (snapshot) => {
+        let items = [];
+        snapshot.forEach((doc) => {
+          items.push({
+            ...doc.data(),
+            id: doc.id,
+          });
+        });
+        this.scanInventory.value = "" + items.length;
+      });
+    },
   },
 };
 </script>

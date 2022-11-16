@@ -2,7 +2,7 @@
   <v-card class="greeting-card">
     <v-row class="ma-0 pa-0">
       <v-col cols="8">
-        <v-card-title class="text-no-wrap pt-1 ps-2">
+        <v-card-title class="text-no-wrap pt-1 ps-2 font-weight-semibold">
           Welcome, {{ userDisplayName }}! 👋🏻
         </v-card-title>
         <v-card-subtitle class="text-no-wrap ps-2">

@@ -1,7 +1,7 @@
 <template>
   <v-card>
     <v-card-title class="align-start">
-      <span>Inventory Levels</span>
+      <span class="font-weight-semibold">Total Stock Analytics</span>
 
       <v-spacer></v-spacer>
 
@@ -15,9 +15,11 @@
     <v-card-text>
       <!-- Chart -->
       <vue-apex-charts
+        ref="myChart"
+        type="bar"
         :options="chartOptions"
-        :series="chartData"
-        width="80%"
+        :series="series"
+        width="100%"
         height="210"
       ></vue-apex-charts>
 
@@ -44,100 +46,262 @@ import { mdiDotsVertical, mdiTrendingUp, mdiCurrencyUsd } from "@mdi/js";
 import { getCurrentInstance } from "@vue/composition-api";
 import { onMounted, ref } from "@vue/composition-api";
 
+import db from "@/fb";
+import {
+  addDoc,
+  getDocs,
+  doc,
+  deleteDoc,
+  onSnapshot,
+  updateDoc,
+  collection,
+  where,
+  query,
+} from "@firebase/firestore";
+
+const customInventoryRef = collection(db, "custom-inventory");
+const mainInventoryRef = collection(db, "inventory");
+
 export default {
   components: {
     VueApexCharts,
   },
-  setup() {
-    const ins = getCurrentInstance()?.proxy;
-    const $vuetify = ins && ins.$vuetify ? ins.$vuetify : null;
 
-    const chartOptions = {
-      colors: [
-        $vuetify.theme.currentTheme.primary,
-        $vuetify.theme.currentTheme.primary,
-        $vuetify.theme.currentTheme.primary,
-        $vuetify.theme.currentTheme.primary,
-        $vuetify.theme.currentTheme.success,
-        $vuetify.theme.currentTheme.primary,
-        $vuetify.theme.currentTheme.primary,
-      ],
-      chart: {
-        type: "bar",
-        toolbar: {
-          show: true,
+  data: function() {
+    return {
+      chart_data: [30, 40, 45],
+      chart_header: ["Vaccines", "Lab Tests", "Topical"],
+      chartOptions: {
+        chart: {
+          id: "vuechart-example",
+          offsetX: -15,
+          redrawOnParentResize: true,
         },
-        offsetX: -15,
-        redrawOnParentResize: true,
-      },
-      plotOptions: {
-        bar: {
-          columnWidth: "40%",
-          distributed: true,
-          borderRadius: 8,
-          startingShape: "rounded",
-          endingShape: "rounded",
+        xaxis: {
+          categories: ["Vaccines", "Lab Tests", "Topical"],
+          labels: {
+            show: false,
+            style: {
+              fontSize: "10px",
+            },
+          },
         },
-      },
-      dataLabels: {
-        enabled: false,
-      },
-      legend: {
-        show: false,
-      },
-      xaxis: {
-        categories: [
-          "Vaccines",
-          "Lab Tests",
-          "Topical",
-          "Steroids",
-          "Medications",
-          "Oral Antibiotics",
-          "Foods",
-        ],
-        axisBorder: {
-          show: false,
+        dataLabels: {
+          enabled: true,
         },
-        axisTicks: {
-          show: false,
+        plotOptions: {
+          bar: {
+            columnWidth: "40%",
+            borderRadius: 8,
+            startingShape: "rounded",
+            endingShape: "rounded",
+          },
         },
-        tickPlacement: "on",
-        labels: {
-          show: true,
-          style: {
-            fontSize: "10px",
+        grid: {
+          strokeDashArray: 12,
+          padding: {
+            right: 0,
           },
         },
       },
-      yaxis: {
-        show: true,
-        tickAmount: 4,
-        labels: {
-          offsetY: 3,
-          formatter: (value) => `${value}`,
-        },
-      },
-      stroke: {
-        width: [2, 2],
-      },
-      grid: {
-        strokeDashArray: 12,
-        padding: {
-          right: 0,
-        },
-      },
-    };
 
-    const chartData = [
-      {
-        data: [40, 60, 50, 60, 75, 60, 50],
-      },
-    ];
+      series: [
+        {
+          name: "Stock",
+          data: [30, 40, 45],
+        },
+      ],
+    };
+  },
+
+  created() {
+    this.initialize();
+  },
+  methods: {
+    initialize() {
+      console.log("helo");
+      let itemsCustomInventory = [];
+      let itemsInventory = [];
+      let header = [];
+      let data = [];
+      onSnapshot(customInventoryRef, (snapshot) => {
+        snapshot.forEach((doc) => {
+          itemsCustomInventory.push({
+            name: doc.data().name,
+            id: doc.id,
+          });
+        });
+      });
+
+      onSnapshot(mainInventoryRef, (snapshot) => {
+        let stocks = [];
+        snapshot.forEach((doc) => {
+          itemsCustomInventory.forEach((item) => {
+            if (doc.data().inventory_id === item.id) {
+              stocks.push({
+                name: item.name,
+                stock: doc.data().totalstocks,
+                id: item.id,
+              });
+            }
+          });
+          itemsInventory.push({
+            name: doc.data().itemname,
+            id: doc.data().inventory_id,
+          });
+        });
+
+        let res = stocks.reduce((ac, a) => {
+          let ind = ac.findIndex((x) => x.id === a.id);
+          ind === -1 ? ac.push(a) : (ac[ind].stock += a.stock);
+          return ac;
+        }, []);
+
+        res.forEach((item) => {
+          header.push(item.name);
+          data.push(item.stock);
+        });
+        console.log(header, data);
+
+        this.series = [
+          {
+            data: data,
+          },
+        ];
+
+        this.chartOptions = {
+          ...this.chartOptions,
+          ...{
+            xaxis: {
+              categories: header,
+            },
+          },
+        };
+      });
+    },
+  },
+  setup() {
+    // const ins = getCurrentInstance()?.proxy;
+    // const $vuetify = ins && ins.$vuetify ? ins.$vuetify : null;
+    // let chart_header = [];
+    // let chart_data = [];
+    // let itemsCustomInventory = [];
+    // let itemsInventory = [];
+    // let itemsStocksInventory = [];
+    // onSnapshot(customInventoryRef, (snapshot) => {
+    //   snapshot.forEach((doc) => {
+    //     itemsCustomInventory.push({
+    //       name: doc.data().name,
+    //       id: doc.id,
+    //     });
+    //   });
+    //   // console.log(itemsCustomInventory);
+    // });
+
+    // onSnapshot(mainInventoryRef, (snapshot) => {
+    //   let stocks = [];
+    //   snapshot.forEach((doc) => {
+    //     itemsCustomInventory.forEach((item) => {
+    //       if (doc.data().inventory_id === item.id) {
+    //         stocks.push({
+    //           name: item.name,
+    //           stock: doc.data().totalstocks,
+    //           id: item.id,
+    //         });
+    //       }
+    //     });
+    //     itemsInventory.push({
+    //       name: doc.data().itemname,
+    //       id: doc.data().inventory_id,
+    //     });
+    //   });
+
+    //   let res = stocks.reduce((ac, a) => {
+    //     let ind = ac.findIndex((x) => x.id === a.id);
+    //     ind === -1 ? ac.push(a) : (ac[ind].stock += a.stock);
+    //     return ac;
+    //   }, []);
+
+    //   res.forEach((item) => {
+    //     chart_header.push(item.name);
+    //     chart_data.push(item.stock);
+    //   });
+
+    //   console.log(chart_header);
+    //   console.log(["chart_header", "test", "Test"]);
+    // });
+
+    // const chartOptions = {
+    //   colors: [
+    //     $vuetify.theme.currentTheme.primary,
+    //     $vuetify.theme.currentTheme.info,
+    //     $vuetify.theme.currentTheme.warning,
+    //   ],
+    //   chart: {
+    //     type: "bar",
+    //     toolbar: {
+    //       show: false,
+    //     },
+    //     offsetX: -15,
+    //     redrawOnParentResize: true,
+    //   },
+    //   plotOptions: {
+    //     bar: {
+    //       columnWidth: "40%",
+    //       distributed: true,
+    //       borderRadius: 8,
+    //       startingShape: "rounded",
+    //       endingShape: "rounded",
+    //     },
+    //   },
+    //   dataLabels: {
+    //     enabled: false,
+    //   },
+    //   legend: {
+    //     show: false,
+    //   },
+    //   xaxis: {
+    //     categories: chart_header,
+    //     axisBorder: {
+    //       show: false,
+    //     },
+    //     axisTicks: {
+    //       show: false,
+    //     },
+    //     tickPlacement: "on",
+    //     labels: {
+    //       show: true,
+    //       style: {
+    //         fontSize: "10px",
+    //       },
+    //     },
+    //   },
+    //   yaxis: {
+    //     show: true,
+    //     tickAmount: 4,
+    //     labels: {
+    //       offsetY: 3,
+    //       formatter: (value) => `${value}`,
+    //     },
+    //   },
+    //   stroke: {
+    //     width: [2, 2],
+    //   },
+    //   grid: {
+    //     strokeDashArray: 12,
+    //     padding: {
+    //       right: 0,
+    //     },
+    //   },
+    // };
+
+    // const chartData = [
+    //   {
+    //     data: chart_data,
+    //   },
+    // ];
 
     return {
-      chartOptions,
-      chartData,
-
       icons: {
         mdiDotsVertical,
         mdiTrendingUp,
