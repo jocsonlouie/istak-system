@@ -1,5 +1,5 @@
 <template>
-  <component :is="resolveLayout">
+  <component :is="resolveLayout" class="overflow-hidden">
     <router-view></router-view>
   </component>
 </template>

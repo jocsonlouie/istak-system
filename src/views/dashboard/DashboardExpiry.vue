@@ -1,7 +1,7 @@
 <template>
   <v-card style="height: 100%">
     <v-card-title class="align-start">
-      <span class="font-weight-semibold">Total Items Analytics</span>
+      <span class="font-weight-semibold">Expiry Analytics</span>
 
       <v-spacer></v-spacer>
 
@@ -15,10 +15,10 @@
     <v-card-text>
       <!-- Chart -->
       <vue-apex-charts
-        ref="myChart"
-        type="pie"
+        type="bar"
         :options="chartOptions"
         :series="series"
+        height="210"
       ></vue-apex-charts>
 
       <!-- <div class="d-flex align-center">
@@ -53,6 +53,7 @@ import {
   query,
   getCountFromServer,
 } from "@firebase/firestore";
+import moment from "moment";
 
 const usersRef = collection(db, "users");
 const mainInventoryRef = collection(db, "inventory");
@@ -64,40 +65,44 @@ export default {
 
   data: function() {
     return {
-      chart_data: [30, 40, 45],
-      countAdmin: 0,
-      countNonStaff: 0,
-      countStaff: 0,
-      countBlock: 0,
-      chart_header: [
-        "Inventory Admin",
-        "Inventory Staff",
-        "Non-Inventory Staff",
-        "Can't Access",
+      series: [
+        {
+          name: "Days",
+          data: [400, 430, 448, 470, 540, 580, 690, 1100, 1200, 1380],
+        },
       ],
-      series: [44, 55, 13, 43, 22],
       chartOptions: {
         chart: {
+          id: "vuechart-example",
           offsetX: -15,
-          type: "pie",
+          redrawOnParentResize: true,
         },
-        labels: ["Team A", "Team B", "Team C", "Team D", "Team E"],
-        legend: {
-          position: "bottom",
-        },
-        responsive: [
-          {
-            breakpoint: 480,
-            options: {
-              chart: {
-                width: 200,
-              },
-              legend: {
-                position: "bottom",
-              },
+        xaxis: {
+          categories: ["Vaccines", "Lab Tests", "Topical"],
+          labels: {
+            show: false,
+            style: {
+              fontSize: "10px",
             },
           },
-        ],
+        },
+        dataLabels: {
+          enabled: true,
+        },
+        plotOptions: {
+          bar: {
+            columnWidth: "40%",
+            borderRadius: 8,
+            startingShape: "rounded",
+            endingShape: "rounded",
+          },
+        },
+        grid: {
+          strokeDashArray: 12,
+          padding: {
+            right: 0,
+          },
+        },
       },
     };
   },
@@ -111,47 +116,48 @@ export default {
       let mainInventory = [];
       let header = [];
       let data = [];
-      const querySnapshot = await getDocs(collection(db, "custom-inventory"));
-      querySnapshot.forEach((doc) => {
-        // doc.data() is never undefined for query doc snapshots
-        customInventory.push({
-          name: doc.data().name,
-          id: doc.id,
+      onSnapshot(mainInventoryRef, (snapshot) => {
+        header = [];
+        data = [];
+        mainInventory = [];
+        snapshot.forEach((doc) => {
+          let dateExpiry = moment(doc.data().expiry);
+          let todaysDate = moment();
+
+          let diff =
+            dateExpiry.diff(todaysDate, "days") === 0
+              ? dateExpiry.diff(todaysDate, "days")
+              : dateExpiry.diff(todaysDate, "days") + 1;
+
+          if (diff <= 10) {
+            mainInventory.push({
+              name: doc.data().itemname,
+              expiry: diff,
+              id: doc.id,
+            });
+          }
         });
-      });
 
-      const querySnapshot2 = await getDocs(collection(db, "inventory"));
-      querySnapshot2.forEach((doc) => {
-        // doc.data() is never undefined for query doc snapshots
-        mainInventory.push({
-          name: doc.data().itemname,
-          id: doc.data().inventory_id,
+        mainInventory.forEach((item) => {
+          header.push(item.name);
+          data.push(item.expiry);
         });
+
+        this.series = [
+          {
+            data: data,
+          },
+        ];
+
+        this.chartOptions = {
+          ...this.chartOptions,
+          ...{
+            xaxis: {
+              categories: header,
+            },
+          },
+        };
       });
-
-      const result = Object.entries(
-        mainInventory.reduce((acc, { id }) => {
-          acc[id] = (acc[id] || 0) + 1;
-
-          return acc;
-        }, {})
-      ).map(([k, v]) => ({ id: k, count: v }));
-
-      let arr3 = result.map((item, i) =>
-        Object.assign({}, item, customInventory[i])
-      );
-
-      arr3.forEach((item) => {
-        header.push(item.name);
-        data.push(item.count);
-      });
-
-      this.chartOptions = {
-        ...this.chartOptions,
-        labels: header,
-      };
-
-      this.series = data;
     },
   },
   setup() {

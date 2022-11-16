@@ -52,6 +52,14 @@
       <dashboard-total-items></dashboard-total-items>
     </v-col>
 
+    <v-col cols="12" sm="6" md="4">
+      <dashboard-low-stocks></dashboard-low-stocks>
+    </v-col>
+
+    <v-col cols="12" sm="6" md="4">
+      <dashboard-expiry></dashboard-expiry>
+    </v-col>
+
     <!-- <v-col cols="12" md="4" sm="6">
       <dashboard-card-total-earning></dashboard-card-total-earning>
     </v-col> -->
@@ -105,12 +113,12 @@
     <!-- <v-col cols="12" md="4">
       <dashboard-card-sales-by-countries></dashboard-card-sales-by-countries>
     </v-col> -->
-    <v-col cols="12">
+    <!-- <v-col cols="12">
       <dashboard-datatable></dashboard-datatable>
     </v-col>
     <v-col cols="12" md="8">
       <dashboard-card-deposit-and-withdraw></dashboard-card-deposit-and-withdraw>
-    </v-col>
+    </v-col> -->
   </v-row>
 </template>
 
@@ -131,6 +139,8 @@ import DashboardSmallCard from "./DashboardSmallCard.vue";
 import DashboardUserRoles from "./DashboardUserRoles.vue";
 import DashboardMostConsumed from "./DashboardMostConsumed.vue";
 import DashboardTotalItems from "./DashboardTotalItems.vue";
+import DashboardLowStocks from "./DashboardLowStocks.vue";
+import DashboardExpiry from "./DashboardExpiry.vue";
 
 import db from "@/fb";
 import {
@@ -160,6 +170,8 @@ export default {
     DashboardUserRoles,
     DashboardMostConsumed,
     DashboardTotalItems,
+    DashboardLowStocks,
+    DashboardExpiry,
   },
 
   data() {

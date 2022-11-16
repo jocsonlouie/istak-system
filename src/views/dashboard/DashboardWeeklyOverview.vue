@@ -138,8 +138,6 @@ export default {
           });
         });
         this.customInventories = itemsCInventory;
-        console.log(this.customInventories);
-        //
 
         onSnapshot(mainInventoryRef, (snapshot2) => {
           let header = [];
@@ -167,12 +165,12 @@ export default {
             ind === -1 ? ac.push(a) : (ac[ind].stock += a.stock);
             return ac;
           }, []);
+          // console.log(stocks, res);
 
           res.forEach((item) => {
             header.push(item.name);
             data.push(item.stock);
           });
-          console.log(header, data);
 
           this.series = [
             {

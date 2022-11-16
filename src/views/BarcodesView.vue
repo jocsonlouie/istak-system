@@ -837,7 +837,11 @@
         </v-col>
         <v-col cols="12" sm="7" md="6" class="pa-1">
           <v-card class=" bg-white d-flex flex-column pa-4" height="200">
-            <p>Barcode Transactions per day</p>
+            <vue-apex-charts
+              type="bar"
+              :options="chartOptions"
+              :series="series"
+            ></vue-apex-charts>
           </v-card>
         </v-col>
       </v-row>
@@ -906,6 +910,7 @@
 </template>
 <script>
 import moment from "moment";
+import VueApexCharts from "vue-apexcharts";
 import {
   mdiBarcodeScan,
   mdiBarcode,
@@ -931,6 +936,8 @@ import {
   where,
   query,
   Timestamp,
+  orderBy,
+  limit,
 } from "@firebase/firestore";
 import VueBarcode from "vue-barcode";
 
@@ -964,6 +971,7 @@ export default {
   components: {
     StreamBarcodeReader,
     barcode: VueBarcode,
+    VueApexCharts,
   },
   data: () => ({
     barcodeTransactionTable: [],
@@ -1071,6 +1079,74 @@ export default {
     menu: false,
     modal: false,
     menu2: false,
+
+    // Chart
+    series: [
+      {
+        name: "PRODUCT A",
+        data: [44, 55, 41, 67, 22, 43],
+      },
+      {
+        name: "PRODUCT B",
+        data: [13, 23, 20, 8, 13, 27],
+      },
+      {
+        name: "PRODUCT C",
+        data: [11, 17, 15, 15, 21, 14],
+      },
+      {
+        name: "PRODUCT D",
+        data: [21, 7, 25, 13, 22, 8],
+      },
+    ],
+    chartOptions: {
+      chart: {
+        type: "bar",
+
+        height: 180,
+        stacked: true,
+        toolbar: {
+          show: true,
+        },
+        zoom: {
+          enabled: true,
+        },
+      },
+
+      plotOptions: {
+        bar: {
+          horizontal: false,
+          borderRadius: 10,
+          dataLabels: {
+            total: {
+              enabled: true,
+              style: {
+                fontSize: "10px",
+                fontWeight: 900,
+              },
+            },
+          },
+        },
+      },
+      xaxis: {
+        type: "text",
+        categories: [
+          "01/01/2011 GMT",
+          "01/02/2011 GMT",
+          "01/03/2011 GMT",
+          "01/04/2011 GMT",
+          "01/05/2011 GMT",
+          "01/06/2011 GMT",
+        ],
+      },
+      legend: {
+        position: "right",
+        offsetY: 40,
+      },
+      fill: {
+        opacity: 1,
+      },
+    },
   }),
 
   setup(props) {
@@ -1178,6 +1254,7 @@ export default {
     async initialize() {
       onSnapshot(barcodeTransactionRef, (snapshot) => {
         let items = [];
+
         snapshot.forEach((doc) => {
           items.push({
             ...doc.data(),
@@ -1186,6 +1263,194 @@ export default {
         });
         this.barcodeTransactionTable = items;
         this.loadingTable = false;
+      });
+      let today = moment();
+      let lastWeek = today.subtract(1, "w");
+      const q = query(
+        barcodeTransactionRef,
+        where("timestamp", ">=", lastWeek.toDate()),
+        orderBy("timestamp", "desc")
+      );
+      onSnapshot(q, (snapshot) => {
+        let consumeItems = [];
+        let deleteItems = [];
+        let viewItems = [];
+        let addItems = [];
+        let updateItems = [];
+        let items = [];
+
+        let overall_header = [];
+
+        let consume_header = [];
+        let consume_data = [];
+
+        let delete_header = [];
+        let delete_data = [];
+
+        let view_header = [];
+        let view_data = [];
+
+        let add_header = [];
+        let add_data = [];
+
+        let update_header = [];
+        let update_data = [];
+
+        snapshot.forEach((doc) => {
+          items.push({
+            action: doc.data().action,
+            id: doc.id,
+            date: moment(doc.data().timestamp.toDate()).format("MMM D, YYYY"),
+          });
+
+          if (
+            doc.data().action.includes("Consume") ||
+            doc.data().action.includes("Consumed")
+          ) {
+            consumeItems.push({
+              date: moment(doc.data().timestamp.toDate()).format("MMM D, YYYY"),
+              name: "Consume",
+            });
+          }
+
+          if (doc.data().action.includes("Deleted")) {
+            deleteItems.push({
+              date: moment(doc.data().timestamp.toDate()).format("MMM D, YYYY"),
+              name: "Delete",
+            });
+          }
+
+          if (doc.data().action.includes("Viewed")) {
+            viewItems.push({
+              date: moment(doc.data().timestamp.toDate()).format("MMM D, YYYY"),
+              name: "View",
+            });
+          }
+
+          if (doc.data().action.includes("Added")) {
+            addItems.push({
+              date: moment(doc.data().timestamp.toDate()).format("MMM D, YYYY"),
+              name: "Add",
+            });
+          }
+
+          if (doc.data().action.includes("edited")) {
+            updateItems.push({
+              date: moment(doc.data().timestamp.toDate()).format("MMM D, YYYY"),
+              name: "Update",
+            });
+          }
+        });
+
+        const result_consume = Object.entries(
+          consumeItems.reduce((acc, { date }) => {
+            acc[date] = (acc[date] || 0) + 1;
+
+            return acc;
+          }, {})
+        ).map(([k, v]) => ({ id: k, count: v }));
+
+        result_consume.forEach((item) => {
+          consume_data.push(item.count);
+          consume_header.push(item.id);
+        });
+
+        const result_delete = Object.entries(
+          deleteItems.reduce((acc, { date }) => {
+            acc[date] = (acc[date] || 0) + 1;
+
+            return acc;
+          }, {})
+        ).map(([k, v]) => ({ id: k, count: v }));
+
+        result_delete.forEach((item) => {
+          delete_data.push(item.count);
+          delete_header.push(item.id);
+        });
+
+        const result_view = Object.entries(
+          viewItems.reduce((acc, { date }) => {
+            acc[date] = (acc[date] || 0) + 1;
+
+            return acc;
+          }, {})
+        ).map(([k, v]) => ({ id: k, count: v }));
+
+        result_view.forEach((item) => {
+          view_data.push(item.count);
+          view_header.push(item.id);
+        });
+
+        const result_add = Object.entries(
+          addItems.reduce((acc, { date }) => {
+            acc[date] = (acc[date] || 0) + 1;
+
+            return acc;
+          }, {})
+        ).map(([k, v]) => ({ id: k, count: v }));
+
+        result_add.forEach((item) => {
+          add_data.push(item.count);
+          add_header.push(item.id);
+        });
+
+        const result_update = Object.entries(
+          updateItems.reduce((acc, { date }) => {
+            acc[date] = (acc[date] || 0) + 1;
+
+            return acc;
+          }, {})
+        ).map(([k, v]) => ({ id: k, count: v }));
+
+        result_update.forEach((item) => {
+          update_data.push(item.count);
+          update_header.push(item.id);
+        });
+
+        this.series = [
+          {
+            name: "Consume",
+            data: consume_data,
+          },
+          {
+            name: "Delete",
+            data: delete_data,
+          },
+          {
+            name: "View",
+            data: view_data,
+          },
+          {
+            name: "Add",
+            data: add_data,
+          },
+
+          {
+            name: "Update",
+            data: update_data,
+          },
+        ];
+
+        const result = Object.entries(
+          items.reduce((acc, { date }) => {
+            acc[date] = (acc[date] || 0) + 1;
+
+            return acc;
+          }, {})
+        ).map(([k, v]) => ({ id: k, count: v }));
+
+        result.forEach((item) => {
+          overall_header.push(item.id);
+        });
+
+        this.chartOptions = {
+          ...this.chartOptions,
+          ...{
+            xaxis: {
+              categories: overall_header,
+            },
+          },
+        };
       });
 
       // const q1 = query(

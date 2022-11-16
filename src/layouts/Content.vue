@@ -1,10 +1,11 @@
 <template>
-  <v-app>
+  <v-app style="overflow: hidden;">
     <vertical-nav-menu :is-drawer-open.sync="isDrawerOpen"></vertical-nav-menu>
     <v-navigation-drawer
       v-model="drawer"
       absolute
       fixed
+      floating
       hide-overlay
       temporary
       right
