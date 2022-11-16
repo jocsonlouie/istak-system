@@ -1,7 +1,7 @@
 <template>
   <v-card style="height: 100%">
     <v-card-title class="align-start">
-      <span class="font-weight-semibold">User Role Analytics</span>
+      <span class="font-weight-semibold">Total Items Analytics</span>
 
       <v-spacer></v-spacer>
 
@@ -16,7 +16,7 @@
       <!-- Chart -->
       <vue-apex-charts
         ref="myChart"
-        type="donut"
+        type="pie"
         :options="chartOptions"
         :series="series"
       ></vue-apex-charts>
@@ -51,6 +51,7 @@ import {
   collection,
   where,
   query,
+  getCountFromServer,
 } from "@firebase/firestore";
 
 const usersRef = collection(db, "users");
@@ -74,22 +75,13 @@ export default {
         "Non-Inventory Staff",
         "Can't Access",
       ],
+      series: [44, 55, 13, 43, 22],
       chartOptions: {
-        labels: [
-          "Inventory Admin",
-          "Inventory Staff",
-          "Non-Inventory Staff",
-          "Can't Access",
-        ],
         chart: {
-          type: "donut",
           offsetX: -15,
+          type: "pie",
         },
-        plotOptions: {
-          donut: {
-            // size: "120%",
-          },
-        },
+        labels: ["Team A", "Team B", "Team C", "Team D", "Team E"],
         legend: {
           position: "bottom",
         },
@@ -107,8 +99,6 @@ export default {
           },
         ],
       },
-
-      series: [44, 55, 41, 17, 15],
     };
   },
 
@@ -117,40 +107,38 @@ export default {
   },
   methods: {
     async initialize() {
-      let users = [];
+      let customInventory = [];
+      let mainInventory = [];
 
-      const querySnapshot = await getDocs(collection(db, "users"));
+      const querySnapshot = await getDocs(collection(db, "custom-inventory"));
       querySnapshot.forEach((doc) => {
         // doc.data() is never undefined for query doc snapshots
-
-        users.push({
+        customInventory.push({
           name: doc.data().name,
           id: doc.id,
         });
-
-        if (doc.data().role == "Inventory Admin") {
-          this.countAdmin++;
-        }
-
-        if (doc.data().role == "Inventory Staff") {
-          this.countStaff++;
-        }
-
-        if (doc.data().role == "Non-Inventory Staff") {
-          this.countNonStaff++;
-        }
-
-        if (doc.data().role == "Can't Access") {
-          this.countBlock++;
-        }
       });
 
-      this.series = [
-        this.countAdmin,
-        this.countStaff,
-        this.countNonStaff,
-        this.countBlock,
-      ];
+      const querySnapshot2 = await getDocs(collection(db, "inventory"));
+      querySnapshot2.forEach((doc) => {
+        // doc.data() is never undefined for query doc snapshots
+        mainInventory.push({
+          name: doc.data().itemname,
+          id: doc.data().inventory_id,
+        });
+      });
+
+      const result = Object.entries(
+        mainInventory.reduce((acc, { id, name }) => {
+          acc[id] = (acc[id] || 0) + 1;
+          acc[name] = name;
+          return acc;
+        }, {})
+      ).map(([k, v]) => ({ id: k, count: v }));
+
+      console.log(result);
+
+      // console.log(customInventory, mainInventory);
     },
   },
   setup() {

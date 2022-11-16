@@ -21,6 +21,7 @@
         :series="series"
         width="100%"
         height="210"
+        :key="tickingKey"
       ></vue-apex-charts>
 
       <!-- <div class="d-flex align-center">
@@ -70,6 +71,7 @@ export default {
   data: function() {
     return {
       chart_data: [30, 40, 45],
+      tickingKey: 1,
       chart_header: ["Vaccines", "Lab Tests", "Topical"],
       chartOptions: {
         chart: {
@@ -118,65 +120,75 @@ export default {
     this.initialize();
   },
   methods: {
-    initialize() {
-      console.log("helo");
-      let itemsCustomInventory = [];
-      let itemsInventory = [];
-      let header = [];
-      let data = [];
-      onSnapshot(customInventoryRef, (snapshot) => {
-        snapshot.forEach((doc) => {
-          itemsCustomInventory.push({
+    tickingKeyEdit() {
+      setInterval(this.tickingKey++, 1000);
+      console.log(this.tickingKey);
+    },
+    async initialize() {
+      onSnapshot(customInventoryRef, (snapshot1) => {
+        let itemsCInventory = [];
+        let itemsInventory = [];
+        let header = [];
+        let data = [];
+
+        snapshot1.forEach((doc) => {
+          itemsCInventory.push({
             name: doc.data().name,
             id: doc.id,
           });
         });
-      });
+        this.customInventories = itemsCInventory;
+        console.log(this.customInventories);
+        //
 
-      onSnapshot(mainInventoryRef, (snapshot) => {
-        let stocks = [];
-        snapshot.forEach((doc) => {
-          itemsCustomInventory.forEach((item) => {
-            if (doc.data().inventory_id === item.id) {
-              stocks.push({
-                name: item.name,
-                stock: doc.data().totalstocks,
-                id: item.id,
-              });
-            }
+        onSnapshot(mainInventoryRef, (snapshot2) => {
+          let header = [];
+          let data = [];
+          let stocks = [];
+          snapshot2.forEach((doc) => {
+            itemsCInventory.forEach((item) => {
+              if (doc.data().inventory_id === item.id) {
+                stocks.push({
+                  name: item.name,
+                  stock: doc.data().totalstocks,
+                  id: item.id,
+                });
+              }
+            });
+
+            itemsInventory.push({
+              name: doc.data().itemname,
+              id: doc.data().inventory_id,
+            });
           });
-          itemsInventory.push({
-            name: doc.data().itemname,
-            id: doc.data().inventory_id,
+
+          let res = stocks.reduce((ac, a) => {
+            let ind = ac.findIndex((x) => x.id === a.id);
+            ind === -1 ? ac.push(a) : (ac[ind].stock += a.stock);
+            return ac;
+          }, []);
+
+          res.forEach((item) => {
+            header.push(item.name);
+            data.push(item.stock);
           });
-        });
+          console.log(header, data);
 
-        let res = stocks.reduce((ac, a) => {
-          let ind = ac.findIndex((x) => x.id === a.id);
-          ind === -1 ? ac.push(a) : (ac[ind].stock += a.stock);
-          return ac;
-        }, []);
-
-        res.forEach((item) => {
-          header.push(item.name);
-          data.push(item.stock);
-        });
-        console.log(header, data);
-
-        this.series = [
-          {
-            data: data,
-          },
-        ];
-
-        this.chartOptions = {
-          ...this.chartOptions,
-          ...{
-            xaxis: {
-              categories: header,
+          this.series = [
+            {
+              data: data,
             },
-          },
-        };
+          ];
+
+          this.chartOptions = {
+            ...this.chartOptions,
+            ...{
+              xaxis: {
+                categories: header,
+              },
+            },
+          };
+        });
       });
     },
   },

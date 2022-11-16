@@ -1424,7 +1424,7 @@ export default {
         this.text = "Item found: " + this.dataItem.itemname;
         this.snackbar = true;
         this.barcodeLog(
-          "Consume stocks for " + this.dataItem.itemname,
+          "Consume stocks scan for " + this.dataItem.itemname,
           this.dataItem.barcode,
           "Scan"
         );
@@ -1472,6 +1472,14 @@ export default {
           this.consumeDialog = false;
           this.text = "Consumed stocks successfully.";
           this.snackbar = true;
+          this.barcodeLogConsumed(
+            "Consumed stocks for " + this.dataItem.itemname,
+            this.dataItem.barcode,
+            this.dataItem.itemname,
+            "Scan",
+            "Consumed",
+            this.stkConsume
+          );
         } else {
           await updateDoc(
             doc(inventoryColRef, id),
@@ -1483,6 +1491,14 @@ export default {
           this.consumeDialog = false;
           this.text = "Consumed stocks successfully.";
           this.snackbar = true;
+          this.barcodeLogConsumed(
+            "Consumed stocks for " + this.dataItem.itemname,
+            this.dataItem.barcode,
+            this.dataItem.itemname,
+            "Scan",
+            "Consumed",
+            this.stkConsume
+          );
         }
       }
     },
@@ -1521,8 +1537,9 @@ export default {
         await updateDoc(
           doc(inventoryColRef, id),
           {
-            available: this.dataItem.available + this.stkAdd,
-            display: this.dataItem.display + this.stkAdd,
+            available:
+              parseInt(this.dataItem.available) + parseInt(this.stkAdd),
+            display: parseInt(this.dataItem.display) + parseInt(this.stkAdd),
           },
           { merge: true }
         );
@@ -1539,6 +1556,22 @@ export default {
         action: action,
         timestamp: Timestamp.now(),
       });
+    },
+
+    async barcodeLogConsumed(action, code, name, option, type, amount) {
+      const docRef = await addDoc(
+        collection(db, "barcode-transactions"),
+        {
+          code: code,
+          scanorgen: option,
+          action: action,
+          itemname: name,
+          consume: type,
+          amount: amount,
+          timestamp: Timestamp.now(),
+        },
+        { merge: true }
+      );
     },
   },
 };
