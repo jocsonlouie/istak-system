@@ -7,12 +7,12 @@
       <dashboard-statistics-card></dashboard-statistics-card>
     </v-col>
 
-    <v-col cols="12" md="4">
+    <v-col cols="12" sm="4" md="2">
       <v-row class="match-height">
         <v-col cols="12" sm="12">
           <dashboard-small-card></dashboard-small-card>
         </v-col>
-        <v-col cols="12" sm="6">
+        <!-- <v-col cols="12" sm="6">
           <statistics-card-vertical
             color="primary"
             :icon="totalInventory.icon"
@@ -32,31 +32,32 @@
             :subtitle="scanInventory.footer"
             change="+scans"
           ></statistics-card-vertical>
-        </v-col>
+        </v-col> -->
       </v-row>
     </v-col>
 
-    <v-col cols="12" sm="6" md="4">
+    <v-col cols="12" sm="8" md="5">
+      <dashboard-total-items></dashboard-total-items>
+    </v-col>
+    <v-col cols="12" sm="6" md="5">
       <dashboard-weekly-overview></dashboard-weekly-overview>
     </v-col>
 
-    <v-col cols="12" sm="6" md="4">
+    <v-col cols="12" sm="6" md="3">
       <dashboard-user-roles></dashboard-user-roles>
     </v-col>
 
-    <v-col cols="12" sm="6" md="4">
+    <v-col cols="12" sm="6" md="3">
       <dashboard-most-consumed></dashboard-most-consumed>
     </v-col>
 
-    <v-col cols="12" sm="6" md="4">
-      <dashboard-total-items></dashboard-total-items>
-    </v-col>
+    
 
-    <v-col cols="12" sm="6" md="4">
+    <v-col cols="12" sm="6" md="3">
       <dashboard-low-stocks></dashboard-low-stocks>
     </v-col>
 
-    <v-col cols="12" sm="6" md="4">
+    <v-col cols="12" sm="6" md="3">
       <dashboard-expiry></dashboard-expiry>
     </v-col>
 

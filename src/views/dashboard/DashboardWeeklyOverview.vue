@@ -1,42 +1,30 @@
 <template>
-  <v-card>
+  <v-card style="height: 100%" >
     <v-card-title class="align-start">
-      <span class="font-weight-semibold">Total Stock Analytics</span>
+      <span class="font-weight-semibold text-subtitle-1 text-md-h6">Total Stocks Per Inventory</span>
 
-      <v-spacer></v-spacer>
+      <!-- <v-spacer></v-spacer>
 
       <v-btn icon small class="mt-n2 me-n3">
         <v-icon size="22">
           {{ icons.mdiDotsVertical }}
         </v-icon>
-      </v-btn>
+      </v-btn> -->
     </v-card-title>
 
-    <v-card-text>
+    <div class="d-flex justify-center my-2 align-content-center h-100" >
       <!-- Chart -->
       <vue-apex-charts
         ref="myChart"
         type="bar"
         :options="chartOptions"
         :series="series"
-        width="100%"
-        height="210"
+        class="w-100 bg-primary"
         :key="tickingKey"
+        height="300"
       ></vue-apex-charts>
 
-      <!-- <div class="d-flex align-center">
-        <h3 class="text-2xl font-weight-semibold me-4">
-          45%
-        </h3>
-        <span
-          >Your sales perfomance in 45% 🤩 better compare to last month</span
-        >
-      </div> -->
-
-      <v-btn block color="primary" class="mt-3" outlined>
-        Details
-      </v-btn>
-    </v-card-text>
+    </div>
   </v-card>
 </template>
 
@@ -75,14 +63,18 @@ export default {
       chart_header: ["Vaccines", "Lab Tests", "Topical"],
       chartOptions: {
         chart: {
+          toolbar:{
+            show:false,
+          },
           id: "vuechart-example",
           offsetX: -15,
           redrawOnParentResize: true,
+          //width: 400
         },
         xaxis: {
           categories: ["Vaccines", "Lab Tests", "Topical"],
           labels: {
-            show: false,
+            show: true,
             style: {
               fontSize: "10px",
             },
@@ -105,6 +97,7 @@ export default {
             right: 0,
           },
         },
+       
       },
 
       series: [

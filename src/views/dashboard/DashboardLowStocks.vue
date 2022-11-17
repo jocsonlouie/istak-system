@@ -1,15 +1,15 @@
 <template>
   <v-card style="height: 100%">
     <v-card-title class="align-start">
-      <span class="font-weight-semibold">Low Stock Analytics</span>
+      <span class="font-weight-semibold text-subtitle-1 text-md-h6">Items in Low Stocks</span>
 
-      <v-spacer></v-spacer>
+      <!-- <v-spacer></v-spacer>
 
       <v-btn icon small class="mt-n2 me-n3">
         <v-icon size="22">
           {{ icons.mdiDotsVertical }}
         </v-icon>
-      </v-btn>
+      </v-btn> -->
     </v-card-title>
 
     <v-card-text>
@@ -72,6 +72,9 @@ export default {
       ],
       chartOptions: {
         chart: {
+          toolbar:{
+            show:false,
+          },
           type: "bar",
           offsetX: -15,
         },
