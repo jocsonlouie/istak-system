@@ -1,15 +1,15 @@
 <template>
   <v-card style="height: 100%">
     <v-card-title class="align-start">
-      <span class="font-weight-semibold">Expiry Analytics</span>
+      <span class="font-weight-semibold text-subtitle-1 text-md-h6">Items Expiring in 10 Days</span>
 
-      <v-spacer></v-spacer>
+      <!-- <v-spacer></v-spacer>
 
       <v-btn icon small class="mt-n2 me-n3">
         <v-icon size="22">
           {{ icons.mdiDotsVertical }}
         </v-icon>
-      </v-btn>
+      </v-btn> -->
     </v-card-title>
 
     <v-card-text>
@@ -18,7 +18,7 @@
         type="bar"
         :options="chartOptions"
         :series="series"
-        height="210"
+        height="220"
       ></vue-apex-charts>
 
       <!-- <div class="d-flex align-center">
@@ -67,12 +67,15 @@ export default {
     return {
       series: [
         {
-          name: "Days",
+          name: "Days Left",
           data: [400, 430, 448, 470, 540, 580, 690, 1100, 1200, 1380],
         },
       ],
       chartOptions: {
         chart: {
+          toolbar:{
+            show:false,
+          },
           id: "vuechart-example",
           offsetX: -15,
           redrawOnParentResize: true,
@@ -80,7 +83,7 @@ export default {
         xaxis: {
           categories: ["Vaccines", "Lab Tests", "Topical"],
           labels: {
-            show: false,
+            show: true,
             style: {
               fontSize: "10px",
             },
@@ -92,7 +95,7 @@ export default {
         plotOptions: {
           bar: {
             columnWidth: "40%",
-            borderRadius: 8,
+            borderRadius: 4,
             startingShape: "rounded",
             endingShape: "rounded",
           },

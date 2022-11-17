@@ -1,20 +1,18 @@
 <template>
-  <v-card style="height: 100%">
+  <v-card style="height: 100%" >
     <v-card-title class="align-start">
-      <span class="font-weight-semibold">Total Items Analytics</span>
-
-      <v-spacer></v-spacer>
-
-      <v-btn icon small class="mt-n2 me-n3">
+      <span class="font-weight-semibold text-subtitle-1 text-md-h6">Total Items Per Inventory</span>
+      <!-- <v-btn icon small class="mt-n2 me-n3">
         <v-icon size="22">
           {{ icons.mdiDotsVertical }}
         </v-icon>
-      </v-btn>
+      </v-btn> -->
     </v-card-title>
 
-    <v-card-text>
+    <div class="d-flex justify-center my-2" >
       <!-- Chart -->
       <vue-apex-charts
+        class="w-100"
         ref="myChart"
         type="pie"
         :options="chartOptions"
@@ -29,7 +27,7 @@
           >Your sales perfomance in 45% 🤩 better compare to last month</span
         >
       </div> -->
-    </v-card-text>
+    </div>
   </v-card>
 </template>
 
@@ -78,6 +76,7 @@ export default {
       series: [44, 55, 13, 43, 22],
       chartOptions: {
         chart: {
+          width: 400,
           offsetX: -15,
           type: "pie",
         },
@@ -90,7 +89,7 @@ export default {
             breakpoint: 480,
             options: {
               chart: {
-                width: 200,
+                width: 350,
               },
               legend: {
                 position: "bottom",

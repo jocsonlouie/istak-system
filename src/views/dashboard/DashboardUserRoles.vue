@@ -1,24 +1,26 @@
 <template>
   <v-card style="height: 100%">
     <v-card-title class="align-start">
-      <span class="font-weight-semibold">User Role Analytics</span>
-
+      <span class="font-weight-semibold text-subtitle-1 text-md-h6">Total Users Per Roles</span>
+<!-- 
       <v-spacer></v-spacer>
 
       <v-btn icon small class="mt-n2 me-n3">
         <v-icon size="22">
           {{ icons.mdiDotsVertical }}
         </v-icon>
-      </v-btn>
+      </v-btn> -->
     </v-card-title>
 
-    <v-card-text>
+    <div class="d-flex justify-center my-2" >
       <!-- Chart -->
       <vue-apex-charts
+        class="w-100"
         ref="myChart"
         type="donut"
         :options="chartOptions"
         :series="series"
+        :width="chartOptions.chart.width"
       ></vue-apex-charts>
 
       <!-- <div class="d-flex align-center">
@@ -29,7 +31,7 @@
           >Your sales perfomance in 45% 🤩 better compare to last month</span
         >
       </div> -->
-    </v-card-text>
+    </div>
   </v-card>
 </template>
 
@@ -82,6 +84,7 @@ export default {
           "Can't Access",
         ],
         chart: {
+          width: 320,
           type: "donut",
           offsetX: -15,
         },
@@ -98,7 +101,7 @@ export default {
             breakpoint: 480,
             options: {
               chart: {
-                width: 200,
+                width: 320,
               },
               legend: {
                 position: "bottom",

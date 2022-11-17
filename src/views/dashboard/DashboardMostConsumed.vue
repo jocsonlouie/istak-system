@@ -1,15 +1,15 @@
 <template>
   <v-card style="height: 100%">
     <v-card-title class="align-start">
-      <span class="font-weight-semibold">Consumed Analytics</span>
+      <span class="font-weight-semibold text-subtitle-1 text-md-h6">Top Inventory Items</span>
 
-      <v-spacer></v-spacer>
+      <!-- <v-spacer></v-spacer>
 
       <v-btn icon small class="mt-n2 me-n3">
         <v-icon size="22">
           {{ icons.mdiDotsVertical }}
         </v-icon>
-      </v-btn>
+      </v-btn> -->
     </v-card-title>
 
     <v-card-text>
@@ -81,6 +81,9 @@ export default {
       ],
       chartOptions: {
         chart: {
+          toolbar:{
+            show:false,
+          },
           height: 210,
           type: "line",
           offsetX: -15,
@@ -116,14 +119,13 @@ export default {
           ],
           tickAmount: 10,
           labels: {
-            show: false,
+            show: true,
             style: {
               fontSize: "10px",
             },
           },
         },
         title: {
-          text: "Forecast",
           align: "left",
           style: {
             fontSize: "10px",
