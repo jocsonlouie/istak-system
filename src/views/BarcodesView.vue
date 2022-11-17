@@ -744,10 +744,15 @@
 
         <!-- Delete logs-->
         <v-dialog v-model="deleteConfirmation" persistent max-width="500">
-          <v-card class="d-flex justify-center flex-column pa-md-10">
-            <p class="text-h10">
-              Are you sure you want to DELETE "{{ currentTransactionName }}"
-              Inventory
+          <v-card class="d-flex justify-center flex-column pa-md-10 pa-sm-8">
+            <v-chip
+                color="error"
+                class="d-flex justify-center  font-weight-bold text-h5 mb-5 pa-5"
+                >Delete Inventory
+              </v-chip>
+            <p class="d-flex justify-center text-h10 ">
+              Are you sure you want to DELETE {{ currentTransactionName }}
+              Transaction
             </p>
             <v-card-actions class="mx-auto">
               <v-spacer></v-spacer>
@@ -1561,7 +1566,7 @@ export default {
     deleteItem(item) {
       this.deleteConfirmation = true;
       this.currentTransactionId = item.id;
-      this.currentTransactionName = item.item;
+      this.currentTransactionName = dataItem.item;
     },
     async deleteLogs() {
       this.deleteConfirmation = false;

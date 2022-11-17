@@ -37,16 +37,16 @@
               </v-card>
             </template>
             <!-- Add inventory -->
-            <v-card class="d-flex justify-center flex-column pa-md-10">
+            <v-card class="d-flex justify-center flex-column pa-md-10 pa-sm-8">
               <v-chip
                 color="primary"
-                class="d-flex justify-center font-weight-bold text-h6 pa-5 mb-4"
+                class="d-flex justify-center font-weight-bold text-h6 mb-5 pa-5 mb-2"
                 >New Inventory
               </v-chip>
               <v-img
                 :src="itemImage"
                 height="150px"
-                class="rounded mb-4"
+                class="rounded mb-2"
               ></v-img>
               <v-form ref="form">
                 <div class="text-center">
@@ -79,7 +79,7 @@
                   :rules="fieldRules"
                   clearable
                   filled
-                  class="mb-4"
+                  class="mb-2"
                   v-model="inventory_name"
                 ></v-text-field>
               </v-form>
@@ -96,7 +96,7 @@
 
           <!-- Update Inventory -->
           <v-dialog v-model="updateDialog" persistent max-width="500">
-            <v-card class="d-flex justify-center flex-column pa-md-10">
+            <v-card class="d-flex justify-center flex-column pa-md-10 pa-sm-8">
               <v-chip
                 color="primary"
                 class="d-flex justify-center font-weight-bold text-h6 pa-5 mb-4"
