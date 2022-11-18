@@ -1,7 +1,9 @@
 <template>
   <v-card style="height: 100%">
     <v-card-title class="align-start">
-      <span class="font-weight-semibold text-subtitle-1 text-md-h6">Items in Low Stocks</span>
+      <span class="font-weight-semibold text-subtitle-1 text-md-h6"
+        >Items in Low Stocks</span
+      >
 
       <!-- <v-spacer></v-spacer>
 
@@ -51,7 +53,6 @@ import {
   collection,
   where,
   query,
-  getCountFromServer,
 } from "@firebase/firestore";
 
 const usersRef = collection(db, "users");
@@ -72,8 +73,8 @@ export default {
       ],
       chartOptions: {
         chart: {
-          toolbar:{
-            show:false,
+          toolbar: {
+            show: false,
           },
           type: "bar",
           offsetX: -15,

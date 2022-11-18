@@ -38,4 +38,17 @@ export default {
 .theme--dark.v-toolbar.v-sheet {
   background-color: #312d4c;
 }
+
+.photo-capture video {
+  border-radius: 10px !important;
+  overflow: hidden !important;
+}
+.photo-capture {
+  width: 100% !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+.photo-capture h1 {
+  display: none !important;
+}
 </style>

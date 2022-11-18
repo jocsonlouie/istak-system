@@ -1,7 +1,9 @@
 <template>
-  <v-card style="height: 100%" >
+  <v-card style="height: 100%">
     <v-card-title class="align-start">
-      <span class="font-weight-semibold text-subtitle-1 text-md-h6">Total Stocks Per Inventory</span>
+      <span class="font-weight-semibold text-subtitle-1 text-md-h6"
+        >Total Stocks Per Inventory</span
+      >
 
       <!-- <v-spacer></v-spacer>
 
@@ -12,18 +14,15 @@
       </v-btn> -->
     </v-card-title>
 
-    <div class="d-flex justify-center my-2 align-content-center h-100" >
+    <div class="d-flex justify-center my-2 align-content-center h-100">
       <!-- Chart -->
       <vue-apex-charts
-        ref="myChart"
         type="bar"
         :options="chartOptions"
         :series="series"
         class="w-100 bg-primary"
-        :key="tickingKey"
         height="300"
       ></vue-apex-charts>
-
     </div>
   </v-card>
 </template>
@@ -59,12 +58,11 @@ export default {
   data: function() {
     return {
       chart_data: [30, 40, 45],
-      tickingKey: 1,
       chart_header: ["Vaccines", "Lab Tests", "Topical"],
       chartOptions: {
         chart: {
-          toolbar:{
-            show:false,
+          toolbar: {
+            show: false,
           },
           id: "vuechart-example",
           offsetX: -15,
@@ -97,7 +95,6 @@ export default {
             right: 0,
           },
         },
-       
       },
 
       series: [
@@ -113,10 +110,6 @@ export default {
     this.initialize();
   },
   methods: {
-    tickingKeyEdit() {
-      setInterval(this.tickingKey++, 1000);
-      console.log(this.tickingKey);
-    },
     async initialize() {
       onSnapshot(customInventoryRef, (snapshot1) => {
         let itemsCInventory = [];
@@ -133,8 +126,8 @@ export default {
         this.customInventories = itemsCInventory;
 
         onSnapshot(mainInventoryRef, (snapshot2) => {
-          let header = [];
-          let data = [];
+          header = [];
+          data = [];
           let stocks = [];
           snapshot2.forEach((doc) => {
             itemsCInventory.forEach((item) => {

@@ -1,7 +1,14 @@
 <template>
-  <v-card>
+  <v-card style="height: 100%">
     <v-card-title class="align-start">
-      <span class="font-weight-semibold text-subtitle-1">Other Summaries</span>
+      <span class="font-weight-semibold text-subtitle-1 hidden-md-and-up "
+        >Other Summaries</span
+      >
+
+      <span class="font-weight-semibold text-subtitle-1 hidden-sm-and-down "
+        >Other <br />
+        Summaries</span
+      >
       <v-spacer></v-spacer>
       <!-- <v-btn icon small class="me-n3 mt-n2">
         <v-icon>
@@ -16,7 +23,7 @@
 
     <v-card-text>
       <v-row>
-        <v-col cols="6" md="6" class="d-flex align-center">
+        <v-col cols="6" xs="3" sm="12" md="12" class="d-flex align-center">
           <v-avatar size="44" color="primary" rounded class="elevation-1">
             <v-icon dark color="white" size="30">
               {{ icons.mdiAccount }}
@@ -31,10 +38,7 @@
             </h3>
           </div>
         </v-col>
-      </v-row>
-
-      <v-row>
-        <v-col cols="6" md="6" class="d-flex align-center">
+        <v-col cols="6" xs="3" sm="12" md="12" class="d-flex align-center">
           <v-avatar size="44" color="success" rounded class="elevation-1">
             <v-icon dark color="white" size="30">
               {{ icons.mdiAccountStar }}
@@ -49,10 +53,7 @@
             </h3>
           </div>
         </v-col>
-      </v-row>
-
-      <v-row>
-        <v-col cols="6" md="6" class="d-flex align-center">
+        <v-col cols="6" xs="3" sm="12" md="12" class="d-flex align-center">
           <v-avatar size="44" color="info" rounded class="elevation-1">
             <v-icon dark color="white" size="30">
               {{ icons.mdiBarcodeScan }}
@@ -67,10 +68,7 @@
             </h3>
           </div>
         </v-col>
-      </v-row>
-
-      <v-row>
-        <v-col cols="6" md="6" class="d-flex align-center">
+        <v-col cols="6" xs="3" sm="12" md="12" class="d-flex align-center">
           <v-avatar size="44" color="warning" rounded class="elevation-1">
             <v-icon dark color="white" size="30">
               {{ icons.mdiEmail }}
@@ -87,7 +85,11 @@
         </v-col>
       </v-row>
 
+      <v-row> </v-row>
 
+      <v-row> </v-row>
+
+      <v-row> </v-row>
     </v-card-text>
   </v-card>
 </template>
@@ -119,7 +121,7 @@ export default {
         mdiAccount,
         mdiAccountStar,
         mdiEmail,
-        mdiBarcodeScan
+        mdiBarcodeScan,
       },
     };
   },
@@ -129,6 +131,7 @@ export default {
   },
 
   data: () => ({
+    isMobile: false,
     totalUsers: 0,
     totalAdmins: 0,
     totalScans: 0,

@@ -37,7 +37,7 @@
       <v-list>
         <v-list-item
           v-for="notification in notifications"
-          :key="notification.id"
+          :key="notification.id + notification.barcode"
           class="ma-0"
           min-height="0"
         >
@@ -181,8 +181,13 @@ import {
   doc,
   setDoc,
   updateDoc,
+  onSnapshot,
+  Timestamp,
 } from "@firebase/firestore";
 import db from "@/fb";
+import moment from "moment";
+
+const mainInventoryRef = collection(db, "inventory");
 
 export default {
   components: {
@@ -226,23 +231,46 @@ export default {
 
   methods: {
     async initialize() {
-      const notificationRef = collection(db, "inventory");
-      const q = query(
-        notificationRef,
-        where("state", "==", "open"),
-        where("available", "<=", 50)
-      );
-      const notifSnapshot = await getDocs(q);
-      if (notifSnapshot.empty) {
-        this.isEmptyNotif = true;
-      } else {
-        notifSnapshot.forEach((doc) => {
-          this.notifications.push({
-            ...doc.data(),
-            id: doc.id,
-          });
+      // const notificationRef = collection(db, "inventory");
+      // const q = query(
+      //   notificationRef,
+      //   where("state", "==", "open"),
+      //   where("available", "<=", 50)
+      // );
+      // const notifSnapshot = await getDocs(q);
+      // if (notifSnapshot.empty) {
+      //   this.isEmptyNotif = true;
+      // } else {
+      //   notifSnapshot.forEach((doc) => {
+      //     this.notifications.push({
+      //       ...doc.data(),
+      //       id: doc.id,
+      //     });
+      //   });
+      // }
+
+      const q = query(mainInventoryRef, where("state", "==", "open"));
+      onSnapshot(q, (snapshot) => {
+        this.notifications = [];
+        this.isEmptyNotif = false;
+        snapshot.forEach((doc) => {
+          if (
+            parseInt(doc.data().totalstocks) <=
+              parseInt(doc.data().reorderlevel) &&
+            moment(doc.data().stateDate.toDate()).format("MMM Do, ddd") !=
+              moment(Timestamp.now().toDate()).format("MMM Do, ddd")
+          ) {
+            this.notifications.push({
+              ...doc.data(),
+              id: doc.id,
+            });
+          }
         });
-      }
+
+        if (this.notifications.length === 0) {
+          this.isEmptyNotif = true;
+        }
+      });
     },
 
     async dismissAlert(id) {
@@ -251,6 +279,7 @@ export default {
         doc(db, "inventory", id),
         {
           state: "dismissed",
+          stateDate: Timestamp.now(),
         }
         // { merge: true }
       );

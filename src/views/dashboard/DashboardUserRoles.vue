@@ -1,8 +1,10 @@
 <template>
   <v-card style="height: 100%">
     <v-card-title class="align-start">
-      <span class="font-weight-semibold text-subtitle-1 text-md-h6">Total Users Per Roles</span>
-<!-- 
+      <span class="font-weight-semibold text-subtitle-1 text-md-h6"
+        >Total Users Per Roles</span
+      >
+      <!-- 
       <v-spacer></v-spacer>
 
       <v-btn icon small class="mt-n2 me-n3">
@@ -12,7 +14,7 @@
       </v-btn> -->
     </v-card-title>
 
-    <div class="d-flex justify-center my-2" >
+    <div class="d-flex justify-center my-2">
       <!-- Chart -->
       <vue-apex-charts
         class="w-100"
@@ -77,12 +79,21 @@ export default {
         "Can't Access",
       ],
       chartOptions: {
+        dataLabels: {
+          enabled: true,
+          style: {
+            fontSize: "10px",
+            fontFamily: "Helvetica, Arial, sans-serif",
+            fontWeight: "bold",
+          },
+        },
         labels: [
           "Inventory Admin",
           "Inventory Staff",
           "Non-Inventory Staff",
           "Can't Access",
         ],
+
         chart: {
           width: 320,
           type: "donut",
@@ -91,10 +102,16 @@ export default {
         plotOptions: {
           donut: {
             // size: "120%",
+            label: {
+              name: {
+                fontSize: "2px",
+              },
+            },
           },
         },
         legend: {
           position: "bottom",
+          fontSize: "2px",
         },
         responsive: [
           {
@@ -122,38 +139,77 @@ export default {
     async initialize() {
       let users = [];
 
-      const querySnapshot = await getDocs(collection(db, "users"));
-      querySnapshot.forEach((doc) => {
-        // doc.data() is never undefined for query doc snapshots
+      // const querySnapshot = await getDocs(collection(db, "users"));
 
-        users.push({
-          name: doc.data().name,
-          id: doc.id,
+      onSnapshot(usersRef, (snapshot) => {
+        users = [];
+        this.countAdmin = 0;
+        this.countStaff = 0;
+        this.countNonStaff = 0;
+        this.countBlock = 0;
+
+        snapshot.forEach((doc) => {
+          users.push({
+            name: doc.data().name,
+            id: doc.id,
+          });
+
+          if (doc.data().role == "Inventory Admin") {
+            this.countAdmin++;
+          }
+
+          if (doc.data().role == "Inventory Staff") {
+            this.countStaff++;
+          }
+
+          if (doc.data().role == "Non-Inventory Staff") {
+            this.countNonStaff++;
+          }
+
+          if (doc.data().role == "Can't Access") {
+            this.countBlock++;
+          }
         });
 
-        if (doc.data().role == "Inventory Admin") {
-          this.countAdmin++;
-        }
-
-        if (doc.data().role == "Inventory Staff") {
-          this.countStaff++;
-        }
-
-        if (doc.data().role == "Non-Inventory Staff") {
-          this.countNonStaff++;
-        }
-
-        if (doc.data().role == "Can't Access") {
-          this.countBlock++;
-        }
+        this.series = [
+          this.countAdmin,
+          this.countStaff,
+          this.countNonStaff,
+          this.countBlock,
+        ];
       });
 
-      this.series = [
-        this.countAdmin,
-        this.countStaff,
-        this.countNonStaff,
-        this.countBlock,
-      ];
+      // querySnapshot.forEach((doc) => {
+      //   // doc.data() is never undefined for query doc snapshots
+
+      //   users.push({
+      //     name: doc.data().name,
+      //     id: doc.id,
+      //   });
+
+      //   if (doc.data().role == "Inventory Admin") {
+      //     this.countAdmin++;
+      //   }
+
+      //   if (doc.data().role == "Inventory Staff") {
+      //     this.countStaff++;
+      //   }
+
+      //   if (doc.data().role == "Non-Inventory Staff") {
+      //     this.countNonStaff++;
+      //   }
+
+      //   if (doc.data().role == "Can't Access") {
+      //     this.countBlock++;
+      //   }
+      // });
+
+      // this.series = [
+      //   this.countAdmin,
+      //   this.countStaff,
+      //   this.countNonStaff,
+      //   this.countBlock,
+      // ];
     },
   },
   setup() {
@@ -167,3 +223,9 @@ export default {
   },
 };
 </script>
+
+<style>
+.apexcharts-canvas .apexcharts-legend-series .apexcharts-legend-text {
+  font-size: 12px !important;
+}
+</style>

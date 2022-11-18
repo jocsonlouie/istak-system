@@ -43,22 +43,20 @@
       <dashboard-weekly-overview></dashboard-weekly-overview>
     </v-col>
 
-    <v-col cols="12" sm="6" md="3">
-      <dashboard-user-roles></dashboard-user-roles>
+    <v-col cols="12" sm="6" md="6" xl="3">
+      <dashboard-expiry></dashboard-expiry>
     </v-col>
 
-    <v-col cols="12" sm="6" md="3">
+    <v-col cols="12" sm="6" md="6" xl="3">
       <dashboard-most-consumed></dashboard-most-consumed>
     </v-col>
 
-    
-
-    <v-col cols="12" sm="6" md="3">
+    <v-col cols="12" sm="6" md="6" xl="3">
       <dashboard-low-stocks></dashboard-low-stocks>
     </v-col>
 
-    <v-col cols="12" sm="6" md="3">
-      <dashboard-expiry></dashboard-expiry>
+    <v-col cols="12" sm="6" md="6" xl="3">
+      <dashboard-user-roles></dashboard-user-roles>
     </v-col>
 
     <!-- <v-col cols="12" md="4" sm="6">
@@ -145,17 +143,25 @@ import DashboardExpiry from "./DashboardExpiry.vue";
 
 import db from "@/fb";
 import {
+  addDoc,
   getDocs,
+  doc as docFB,
+  deleteDoc,
   onSnapshot,
+  updateDoc,
+  setDoc,
   collection,
   where,
   query,
+  Timestamp,
 } from "@firebase/firestore";
 
 import schedule from "node-schedule";
+import moment from "moment";
 
 const mainInventoryColRef = collection(db, "inventory");
 const barcodeRef = collection(db, "barcode-transactions");
+const inventoriesFilterRef = collection(db, "inventory");
 
 export default {
   components: {
@@ -194,27 +200,62 @@ export default {
   },
 
   async created() {
-    schedule.scheduleJob("30 8 * * *", async () => {
-      const inventoriesFilterRef = collection(db, "inventory");
-
-      const querySnapshot = await getDocs(inventoriesFilterRef);
-      let items = [];
-      if (querySnapshot.empty) {
-        this.items = items;
-        this.loadingTable = false;
-      } else {
-        querySnapshot.forEach(async (doc) => {
+    // schedule.scheduleJob("30 8 * * *", async () => {
+    const querySnapshot = await getDocs(inventoriesFilterRef);
+    let items = [];
+    if (querySnapshot.empty) {
+      this.items = items;
+      this.loadingTable = false;
+    } else {
+      querySnapshot.forEach(async (doc) => {
+        if (
+          moment(doc.data().stateDate.toDate()).format("MMM Do, ddd") !=
+          moment(Timestamp.now().toDate()).format("MMM Do, ddd")
+        ) {
           await setDoc(
             docFB(db, "inventory", doc.id),
             {
-              level: doc.data().available <= 10 ? "error" : "info",
+              level:
+                parseInt(doc.data().totalstocks) <=
+                parseInt(doc.data().reorderlevel)
+                  ? "error"
+                  : "info",
               state: "open",
             },
             { merge: true }
           );
-        });
-      }
-    });
+        }
+      });
+    }
+    // });
+
+    // onSnapshot(inventoriesFilterRef, (snapshot) => {
+    //   if (snapshot.empty) {
+    //     this.items = items;
+    //     this.loadingTable = false;
+    //   } else {
+    //     snapshot.forEach(async (doc) => {
+    //       if (
+    //         moment(doc.data().stateDate.toDate()).format("MMM Do, ddd") ==
+    //         moment(Timestamp.now().toDate()).format("MMM Do, ddd")
+    //       ) {
+    //         await setDoc(
+    //           docFB(db, "inventory", doc.id),
+    //           {
+    //             level:
+    //               parseInt(doc.data().totalstocks) <=
+    //               parseInt(doc.data().reorderlevel)
+    //                 ? "error"
+    //                 : "info",
+    //             state: "open",
+    //             stateDate: Timestamp.now(),
+    //           },
+    //           { merge: true }
+    //         );
+    //       }
+    //     });
+    //   }
+    // });
 
     this.initialized();
 
