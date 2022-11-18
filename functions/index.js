@@ -3,7 +3,8 @@ const admin = require("firebase-admin");
 const accountSid = functions.config().twiliokeys.sid;
 const authToken = functions.config().twiliokeys.token;
 const client = require("twilio")(accountSid, authToken);
-const emailjs = require("@emailjs/browser");
+const sgMail = require("@sendgrid/mail");
+sgMail.setApiKey(functions.config().sendgridapi.key);
 
 admin.initializeApp({
     credential: admin.credential.applicationDefault()
@@ -56,20 +57,23 @@ exports.createUser = functions.https.onCall(async (data, context) => {
         });
 });
 
-exports.scheduledFunctionCrontab = functions.pubsub.schedule("30 0 * * *")
+exports.scheduledFunctionCrontab = functions.pubsub.schedule("0 7 * * *")
     .timeZone("Asia/Manila")
     .onRun((context) => {
         let arrayR = [];
-        var templateParams = {
-            toEmail: "info@assumptaclinic.com",
-            fromEmail: "assumptadogandcatclinic@gmail.com",
-            message: "Reminder: Low stock and item expiry notification. From ISTAK IMS"
+        const msg = {
+            to: "assumptadogandcatclinic@gmail.com",
+            from: "info@assumptaclinic.com",
+            subject: "Stock and Low Expiry Notification",
+            text: "Reminder: Low stock and item expiry notification.",
+            html: "Greetings!<br><br> <strong> Reminder: Low stock and item expiry notification.</strong> <br><br> From ISTAK IMS",
         };
         docRef.get()
-            .then(snapshot => {
-                arrayR = snapshot.docs.map(doc => {
+            .then((snapshot) => {
+                arrayR = snapshot.docs.map((doc) => {
                     return doc.data();
                 });
+
                 if (arrayR.length !== 0) {
                     client.messages
                         .create({
@@ -79,28 +83,17 @@ exports.scheduledFunctionCrontab = functions.pubsub.schedule("30 0 * * *")
                         })
                         .then((message) => console.log(message.sid))
                         .done();
-
-                    emailjs
-                        .sendForm(
-                            "service_cky0y6t",
-                            "template_2zs8qew",
-                            templateParams,
-                            "9aetr9pH3Vj0_P8yK"
-                        )
-                        .then(
-                            (result) => {
-                                console.log("SUCCESS!", result.text);
-                            },
-                            (error) => {
-                                console.log("FAILED...", error.text);
-                            }
-                        );
+                    sgMail
+                        .send(msg)
+                        .then(() => {
+                            console.log("Email sent");
+                        })
+                        .catch((error) => {
+                            console.error(error);
+                        });
                 }
             }).catch(function (error) {
                 console.log("got an error", error);
             });
-
         return null;
-
     });
-

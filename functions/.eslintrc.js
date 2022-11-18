@@ -22,6 +22,12 @@ module.exports = {
     "indent": "off",
     "comma-dangle": "off",
     "object-curly-spacing": ["error", "always"],
-    "max-len": "off"
+    "max-len": "off",
+    "space-before-function-paren": ["error", {
+      anonymous: "always",
+      named: "never",
+      asyncArrow: "always"
+    }],
+    "no-unused-vars": "off"
   },
 };
