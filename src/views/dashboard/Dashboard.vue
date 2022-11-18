@@ -229,6 +229,9 @@ export default {
     }
     // });
 
+    schedule.scheduleJob("30 10 * * *", async () => {
+      console.log("It's 10:30!");
+    });
     // onSnapshot(inventoriesFilterRef, (snapshot) => {
     //   if (snapshot.empty) {
     //     this.items = items;
