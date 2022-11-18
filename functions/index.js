@@ -3,7 +3,13 @@ const admin = require("firebase-admin");
 const accountSid = functions.config().twiliokeys.sid;
 const authToken = functions.config().twiliokeys.token;
 const client = require("twilio")(accountSid, authToken);
-admin.initializeApp();
+const emailjs = require("@emailjs/browser");
+
+admin.initializeApp({
+    credential: admin.credential.applicationDefault()
+});
+
+const docRef = admin.firestore().collection("inventory");
 
 exports.newUserSignUp = functions.auth.user().onCreate((user) => {
     return admin.firestore().collection("users").doc(user.uid).set({
@@ -50,17 +56,51 @@ exports.createUser = functions.https.onCall(async (data, context) => {
         });
 });
 
-exports.scheduledFunctionCrontab = functions.pubsub.schedule("10 23 * * *")
+exports.scheduledFunctionCrontab = functions.pubsub.schedule("30 0 * * *")
     .timeZone("Asia/Manila")
     .onRun((context) => {
-        client.messages
-            .create({
-                body: "Reminder: Low stock and item expiry notification. From ISTAK IMS",
-                messagingServiceSid: functions.config().twiliokeys.msgsid,
-                to: "+639274665823"
-            })
-            .then((message) => console.log(message.sid))
-            .done();
+        let arrayR = [];
+        var templateParams = {
+            toEmail: "info@assumptaclinic.com",
+            fromEmail: "assumptadogandcatclinic@gmail.com",
+            message: "Reminder: Low stock and item expiry notification. From ISTAK IMS"
+        };
+        docRef.get()
+            .then(snapshot => {
+                arrayR = snapshot.docs.map(doc => {
+                    return doc.data();
+                });
+                if (arrayR.length !== 0) {
+                    client.messages
+                        .create({
+                            body: "Reminder: Low stock and item expiry notification. From ISTAK IMS",
+                            messagingServiceSid: functions.config().twiliokeys.msgsid,
+                            to: "+639274665823"
+                        })
+                        .then((message) => console.log(message.sid))
+                        .done();
+
+                    emailjs
+                        .sendForm(
+                            "service_cky0y6t",
+                            "template_2zs8qew",
+                            templateParams,
+                            "9aetr9pH3Vj0_P8yK"
+                        )
+                        .then(
+                            (result) => {
+                                console.log("SUCCESS!", result.text);
+                            },
+                            (error) => {
+                                console.log("FAILED...", error.text);
+                            }
+                        );
+                }
+            }).catch(function (error) {
+                console.log("got an error", error);
+            });
+
         return null;
+
     });
 

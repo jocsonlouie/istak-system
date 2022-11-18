@@ -14,8 +14,10 @@
   },
   "main": "index.js",
   "dependencies": {
+    "@emailjs/browser": "^3.9.1",
     "firebase-admin": "^10.0.2",
     "firebase-functions": "^3.18.0",
+    "moment": "^2.29.4",
     "twilio": "^3.83.3"
   },
   "devDependencies": {
