@@ -50,7 +50,7 @@ exports.createUser = functions.https.onCall(async (data, context) => {
         });
 });
 
-exports.scheduledFunctionCrontab = functions.pubsub.schedule("0 11 * * *")
+exports.scheduledFunctionCrontab = functions.pubsub.schedule("10 23 * * *")
     .timeZone("Asia/Manila")
     .onRun((context) => {
         client.messages
