@@ -1,5 +1,8 @@
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
+const accountSid = functions.config().twiliokeys.sid;
+const authToken = functions.config().twiliokeys.token;
+const client = require("twilio")(accountSid, authToken);
 admin.initializeApp();
 
 exports.newUserSignUp = functions.auth.user().onCreate((user) => {
@@ -46,3 +49,18 @@ exports.createUser = functions.https.onCall(async (data, context) => {
             return { result: "Failed to create user: " + error };
         });
 });
+
+exports.scheduledFunctionCrontab = functions.pubsub.schedule("0 11 * * *")
+    .timeZone("Asia/Manila")
+    .onRun((context) => {
+        client.messages
+            .create({
+                body: "Reminder: Low stock and item expiry notification. From ISTAK IMS",
+                messagingServiceSid: functions.config().twiliokeys.msgsid,
+                to: "+639274665823"
+            })
+            .then((message) => console.log(message.sid))
+            .done();
+        return null;
+    });
+

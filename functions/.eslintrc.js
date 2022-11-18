@@ -22,5 +22,6 @@ module.exports = {
     "indent": "off",
     "comma-dangle": "off",
     "object-curly-spacing": ["error", "always"],
+    "max-len": "off"
   },
 };
