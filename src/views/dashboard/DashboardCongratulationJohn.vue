@@ -17,7 +17,7 @@
             <v-btn small color="primary">
               View Inventory
             </v-btn> -->
-            <v-chip class="mt-6" color="primary">
+            <v-chip class="mt-9" color="primary">
               Last Login:
               {{ last_login }}
             </v-chip>

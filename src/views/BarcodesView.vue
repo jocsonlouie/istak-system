@@ -898,16 +898,24 @@
           >
             <v-icon>{{ editIcon }}</v-icon>
           </v-btn> -->
-          <v-btn
-            color="error"
-            elevation="2"
-            class="mr-2"
-            fab
-            x-small
-            @click="deleteItem(item)"
-          >
-            <v-icon>{{ deleteIcon }}</v-icon>
-          </v-btn>
+
+          <v-tooltip top>
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn
+                color="error"
+                elevation="2"
+                class="mr-2"
+                fab
+                x-small
+                v-bind="attrs"
+                v-on="on"
+                @click="deleteItem(item)"
+              >
+                <v-icon>{{ deleteIcon }}</v-icon>
+              </v-btn>
+            </template>
+            <span>Delete Transaction</span>
+          </v-tooltip>
         </template>
       </v-data-table>
     </div>

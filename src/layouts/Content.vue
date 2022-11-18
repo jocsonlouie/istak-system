@@ -48,10 +48,25 @@
             :type="notification.level"
             prominent
             dismissible
+            v-if="!notification.isExpiry"
             @input="dismissAlert(notification.id)"
           >
             The item "{{ notification.itemname }}" has only
-            <strong>{{ notification.available }} stock </strong> left
+            <strong>{{ notification.available }} stock </strong> left.
+          </v-alert>
+
+          <v-alert
+            border="left"
+            class="text-sm ma-0 mb-2"
+            elevation="2"
+            :type="notification.level"
+            prominent
+            dismissible
+            v-if="notification.isExpiry"
+            @input="dismissAlert(notification.id)"
+          >
+            The item "{{ notification.itemname }}" has only
+            <strong>{{ notification.expiry }} days </strong> left.
           </v-alert>
         </v-list-item>
 
@@ -254,6 +269,13 @@ export default {
         this.notifications = [];
         this.isEmptyNotif = false;
         snapshot.forEach((doc) => {
+          let dateExpiry = moment(doc.data().expiry);
+          let todaysDate = moment();
+
+          let diff =
+            dateExpiry.diff(todaysDate, "days") === 0
+              ? dateExpiry.diff(todaysDate, "days")
+              : dateExpiry.diff(todaysDate, "days") + 1;
           if (
             parseInt(doc.data().totalstocks) <=
               parseInt(doc.data().reorderlevel) &&
@@ -262,6 +284,13 @@ export default {
           ) {
             this.notifications.push({
               ...doc.data(),
+              id: doc.id,
+            });
+          } else if (diff <= 10) {
+            this.notifications.push({
+              ...doc.data(),
+              isExpiry: true,
+              expiry: diff,
               id: doc.id,
             });
           }

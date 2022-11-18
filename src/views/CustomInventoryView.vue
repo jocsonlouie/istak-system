@@ -271,7 +271,7 @@
           md="3"
           class="pa-1"
           v-for="inventory in custom_inventories"
-          :key="inventory.name"
+          :key="inventory.id"
         >
           <!--  @click="gotoInventory" -->
           <v-card @click="gotoInventory(inventory.id)">
@@ -337,9 +337,9 @@
               <v-spacer></v-spacer>
             </v-card-title>
             <v-card-subtitle
-              >{{ inventory.totalitems == null ? "0" : inventory.totalitems }}
+              >{{ inventory.count == null ? "0" : inventory.count }}
               items,
-              {{ inventory.totalstocks == null ? "0" : inventory.totalstocks }}
+              {{ inventory.stock == null ? "0" : inventory.stock }}
               stocks</v-card-subtitle
             >
             <!-- <v-card-actions>
@@ -556,58 +556,85 @@ export default {
     },
 
     async initialize() {
-      onSnapshot(customInventoryColRef, (snapshot) => {
-        let items = [];
-        let containItems = [];
-        snapshot.forEach(async (doc) => {
+      let itemsCInventory = [];
+      let itemsInventory = [];
+      let mainInventory = [];
+      let items = [];
+      let stocks = [];
+
+      onSnapshot(customInventoryColRef, (snapshot1) => {
+        itemsInventory = [];
+        mainInventory = [];
+        itemsCInventory = [];
+
+        snapshot1.forEach(async (doc) => {
           items.push({
             ...doc.data(),
             id: doc.id,
           });
         });
-        items.forEach(async (item) => {
-          const q = query(
-            mainInventoryColRef,
-            where("inventory_id", "==", item.id)
-          );
-          let count = [];
-          const querySnapshot = await getDocs(q);
-          querySnapshot.forEach((docu) => {
-            // doc.data() is never undefined for query doc snapshots
-            count.push({
-              id: docu.id,
-            });
+
+        snapshot1.forEach((doc) => {
+          itemsCInventory.push({
+            name: doc.data().name,
+            id: doc.id,
           });
-          containItems.push({
-            id: item.id,
-            count: count.length,
+        });
+        this.customInventories = itemsCInventory;
+      });
+
+      onSnapshot(mainInventoryColRef, (snapshot2) => {
+        stocks = [];
+        snapshot2.forEach((doc) => {
+          mainInventory.push({
+            name: doc.data().itemname,
+            id: doc.data().inventory_id,
+          });
+          itemsCInventory.forEach((item) => {
+            if (doc.data().inventory_id === item.id) {
+              stocks.push({
+                name: item.name,
+                stock: doc.data().totalstocks,
+                id: item.id,
+              });
+            }
+          });
+
+          itemsInventory.push({
+            name: doc.data().itemname,
+            id: doc.data().inventory_id,
           });
         });
 
-        console.log(containItems);
-        // console.log(items);
-        this.count_inventory = containItems;
+        let res = stocks.reduce((ac, a) => {
+          let ind = ac.findIndex((x) => x.id === a.id);
+          ind === -1 ? ac.push(a) : (ac[ind].stock += a.stock);
+          return ac;
+        }, []);
 
-        // const result = items.map((item) => {
-        //   const containItem = this.count_inventory.find(
-        //     (contain) => contain.id === item.id
-        //   );
+        const result = items.map((v) => ({
+          ...v,
+          ...res.find((sp) => sp.id === v.id),
+        }));
 
-        //   item.count = containItem ? containItem.count : null;
+        const itemResult = Object.entries(
+          mainInventory.reduce((acc, { id }) => {
+            acc[id] = (acc[id] || 0) + 1;
 
-        //   return item;
-        // });
+            return acc;
+          }, {})
+        ).map(([k, v]) => ({ id: k, count: v }));
 
-        // console.log(result);
+        mainInventory = [];
 
-        this.custom_inventories = items;
+        const mergeAll = result.map((v) => ({
+          ...v,
+          ...itemResult.find((sp) => sp.id === v.id),
+        }));
+
+        this.custom_inventories = mergeAll;
         //TOTAL INVENTORY
         this.totalinvt = items.length;
-
-        let data = this.custom_inventories.filter(
-          (item) => item.id == "6FyfFTaujC14pFaGF4vz"
-        );
-        console.log(data);
       });
 
       onSnapshot(mainInventoryColRef, (snapshot) => {

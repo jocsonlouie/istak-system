@@ -736,40 +736,65 @@
       <!-- Table Actions Buttons -->
       <template v-slot:item.actions="{ item }">
         <div class="d-flex flex-row align-center">
-          <v-btn
-            color="primary"
-            elevation="2"
-            class="mr-2"
-            fab
-            x-small
-            outlined
-            @click="editItem(item)"
-          >
-            <v-icon>{{ editIcon }}</v-icon>
-          </v-btn>
+          <v-tooltip top>
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn
+                color="primary"
+                elevation="2"
+                class="mr-2"
+                fab
+                x-small
+                v-bind="attrs"
+                v-on="on"
+                outlined
+                @click="editItem(item)"
+              >
+                <v-icon>{{ editIcon }}</v-icon>
+              </v-btn>
+            </template>
+            <span>Edit Item</span>
+          </v-tooltip>
+
           <!-- <v-btn color="primary" elevation="2" class="mr-2" fab x-small>
             <v-icon>{{ consumeIcon }}</v-icon>
           </v-btn> -->
-          <v-btn
-            color="primary"
-            elevation="2"
-            class="mr-2"
-            fab
-            x-small
-            @click="addStocks(item)"
-          >
-            <v-icon>{{ addIcon }}</v-icon>
-          </v-btn>
-          <v-btn
-            color="secondary"
-            elevation="2"
-            class=""
-            fab
-            x-small
-            @click="consumeStocks(item)"
-          >
-            <v-icon>{{ consumeIcon }}</v-icon>
-          </v-btn>
+
+          <v-tooltip top>
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn
+                color="primary"
+                elevation="2"
+                class="mr-2"
+                fab
+                x-small
+                v-bind="attrs"
+                v-on="on"
+                @click="addStocks(item)"
+              >
+                <v-icon>{{ addIcon }}</v-icon>
+              </v-btn>
+            </template>
+            <span>Add Stocks</span>
+          </v-tooltip>
+
+          <v-tooltip top>
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn
+                color="secondary"
+                elevation="2"
+                class=""
+                fab
+                x-small
+                v-bind="attrs"
+                v-on="on"
+                @click="consumeStocks(item)"
+              >
+                <v-icon>{{ consumeIcon }}</v-icon>
+              </v-btn>
+            </template>
+            <span>Consume Stocks</span>
+          </v-tooltip>
+
           <!-- <v-btn color="secondary" elevation="0" class="" x-small outlined>
             <v-icon class="mx-n16">{{ moreIcon }}</v-icon>
             

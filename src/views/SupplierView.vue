@@ -223,7 +223,7 @@
           </v-dialog>
 
           <!-- Receipt Item Modal -->
-          <v-dialog v-model="receiptDialog" max-width="500px">
+          <v-dialog v-model="receiptDialog" max-width="500px" persistent>
             <v-card class="pa-5 d-flex flex-column justify-center">
               <v-chip
                 color="primary"
@@ -241,18 +241,34 @@
                   v-for="(item, i) in receiptData"
                   :key="i"
                   :src="item.src"
+                  :contain="item.timestamp ? true : false"
+                  class="flex_parent"
                 >
-                  <v-chip class="ma-4">
-                    {{ item.timestamp }}
-                  </v-chip>
+                  <div class="custom_flex">
+                    <v-btn
+                      @click="deleteReceipt(item.image_id)"
+                      fab
+                      small
+                      color="error"
+                      class="ml-2 mb-2"
+                    >
+                      <v-icon dark>
+                        {{ deleteIcon }}
+                      </v-icon>
+                    </v-btn>
+                    <v-chip
+                      class="mr-2 mb-2"
+                      :dark="item.timestamp ? false : true"
+                    >
+                      {{ item.timestamp ? item.timestamp : "No Receipt Found" }}
+                    </v-chip>
+                  </div>
                 </v-carousel-item>
               </v-carousel>
 
               <v-card-actions class="mb-n5 mt-4">
                 <v-spacer></v-spacer>
-                <v-btn color="secondary" @click="receiptDialog = false"
-                  >Close</v-btn
-                >
+                <v-btn color="secondary" @click="reload">Close</v-btn>
                 <v-btn color="primary" @click="capturePhoto = true"
                   >Capture new receipt</v-btn
                 >
@@ -370,28 +386,43 @@
       <!-- Table Actions Buttons -->
       <template v-slot:item.actions="{ item }">
         <div class="d-flex flex-row align-center">
-          <v-btn
-            color="primary"
-            elevation="2"
-            class="mr-2"
-            fab
-            x-small
-            outlined
-            @click="editItem(item)"
-          >
-            <v-icon>{{ editIcon }}</v-icon>
-          </v-btn>
-          <v-btn
-            color="primary"
-            elevation="2"
-            class="mr-2"
-            fab
-            x-small
-            outlined
-            @click="openReceipt(item.id)"
-          >
-            <v-icon>{{ receiptIcon }}</v-icon>
-          </v-btn>
+          <v-tooltip top>
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn
+                color="primary"
+                elevation="2"
+                class="mr-2"
+                fab
+                x-small
+                outlined
+                v-bind="attrs"
+                v-on="on"
+                @click="editItem(item)"
+              >
+                <v-icon>{{ editIcon }}</v-icon>
+              </v-btn>
+            </template>
+            <span>Edit Supplier</span>
+          </v-tooltip>
+
+          <v-tooltip top>
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn
+                color="primary"
+                elevation="2"
+                class="mr-2"
+                fab
+                x-small
+                outlined
+                v-bind="attrs"
+                v-on="on"
+                @click="openReceipt(item.id)"
+              >
+                <v-icon>{{ receiptIcon }}</v-icon>
+              </v-btn>
+            </template>
+            <span>Receipts</span>
+          </v-tooltip>
           <v-btn color="primary" outlined class="" @click="emailItem(item)">
             SEND EMAIL
           </v-btn>
@@ -425,6 +456,7 @@ import {
   mdiFilePdfBox,
   mdiDotsVertical,
   mdiReceipt,
+  mdiTrashCan,
 } from "@mdi/js";
 
 // crud imports
@@ -482,7 +514,7 @@ export default {
   data: () => ({
     imageBase64: null,
     itemImage:
-      "https://assumptaclinic.com/wp-content/uploads/2022/10/default-assumpta.jpg",
+      "https://firebasestorage.googleapis.com/v0/b/istak-2208e.appspot.com/o/supplier-receipts%2Fplaceholder.jpg?alt=media&token=5d4f0246-1a76-4020-8ba0-d09750875ef4",
     loadingTable: true,
     // icon data
     editIcon: mdiPencil,
@@ -499,7 +531,7 @@ export default {
     receiptData: [
       {
         src:
-          "https://assumptaclinic.com/wp-content/uploads/2022/10/default-assumpta.jpg",
+          "https://firebasestorage.googleapis.com/v0/b/istak-2208e.appspot.com/o/supplier-receipts%2Fplaceholder.jpg?alt=media&token=5d4f0246-1a76-4020-8ba0-d09750875ef4",
       },
     ],
     currentId: "",
@@ -751,9 +783,13 @@ export default {
       return new File([u8arr], filename, { type: mime });
     },
 
+    reload() {
+      this.currentId = "";
+      this.receiptDialog = false;
+    },
+
     done(picture) {
       this.capturePhoto = false;
-      console.log(this.currentId);
       var currentdate = new Date();
       let file = this.dataURLtoFile(picture, "receipt" + currentdate);
       const storage = getStorage();
@@ -802,6 +838,13 @@ export default {
       );
     },
 
+    async deleteReceipt(id) {
+      console.log("helo " + id);
+      await deleteDoc(doc(supplierReceiptRef, id));
+      this.itemStatus = "Deleted";
+      this.snackbar = true;
+    },
+
     openReceipt(id) {
       this.receiptDialog = true;
       this.currentId = id;
@@ -812,6 +855,7 @@ export default {
         snapshot.forEach((doc) => {
           if (doc.data().id === id) {
             images.push({
+              image_id: doc.id,
               src: "" + doc.data().image,
               timestamp: moment(doc.data().timestamp.toDate()).format(
                 "MMM DD, YYYY (ddd)"
@@ -821,6 +865,14 @@ export default {
         });
         if (images.length != 0) {
           this.receiptData = images;
+          images = [];
+        } else {
+          this.receiptData = [
+            {
+              src:
+                "https://firebasestorage.googleapis.com/v0/b/istak-2208e.appspot.com/o/supplier-receipts%2Fplaceholder.jpg?alt=media&token=5d4f0246-1a76-4020-8ba0-d09750875ef4",
+            },
+          ];
         }
       });
     },
@@ -1048,3 +1100,24 @@ export default {
   },
 };
 </script>
+
+<style>
+.flex_parent .v-responsive__content {
+  display: flex;
+
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-content: flex-end;
+}
+.custom_flex {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-content: center;
+}
+</style>
