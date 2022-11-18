@@ -229,7 +229,7 @@ export default {
     }
     // });
 
-    schedule.scheduleJob("30 10 * * *", async () => {
+    schedule.scheduleJob("05 10 * * *", async () => {
       console.log("It's 10:30!");
     });
     // onSnapshot(inventoriesFilterRef, (snapshot) => {
