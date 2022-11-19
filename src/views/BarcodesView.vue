@@ -1,11 +1,11 @@
 <template>
   <div class=" screensz">
     <!-- snackbar -->
-    <v-snackbar v-model="snackbar" :timeout="timeout" top>
+    <v-snackbar v-model="snackbar" :timeout="timeout" top color="primary" outlined rounded="pill">
       {{ text }}
 
       <template v-slot:action="{ attrs }">
-        <v-btn color="blue" text v-bind="attrs" @click="snackbar = false">
+        <v-btn color="primary" text v-bind="attrs" @click="snackbar = false">
           Close
         </v-btn>
       </template>
@@ -744,7 +744,7 @@
 
         <!-- Delete logs-->
         <v-dialog v-model="deleteConfirmation" persistent max-width="500">
-          <v-card class="d-flex justify-center flex-column pa-md-8 pa-sm-8">
+          <v-card class="pa-5 d-flex justify-center flex-column">
             <v-chip
               color="error"
               class="d-flex justify-center  font-weight-bold text-h5 mb-5 pa-5"

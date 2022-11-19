@@ -198,7 +198,7 @@
             <v-card class="pa-5 d-flex flex-column justify-center">
               <v-chip color="error" class="d-flex justify-center font-weight-bold text-h6 pa-5">Delete User
               </v-chip>
-              <v-card-title class="-d-flex justify-center subtitle-1">Are you sure you want to delete this User?
+              <v-card-title class="d-flex justify-center text-h5 text-center">Are you sure you want to delete this User?
               </v-card-title>
               <p class="text-center font-weight-bold text-h5">
                 {{ dataItem.itemname }}

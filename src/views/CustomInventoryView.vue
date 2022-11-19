@@ -37,7 +37,7 @@
               </v-card>
             </template>
             <!-- Add inventory -->
-            <v-card class="d-flex justify-center flex-column pa-md-10">
+            <v-card class="pa-5 d-flex justify-center flex-column">
               <v-chip
                 color="primary"
                 class="d-flex justify-center font-weight-bold text-h6 pa-5 mb-4"
@@ -96,7 +96,7 @@
 
           <!-- Update Inventory -->
           <v-dialog v-model="updateDialog" persistent max-width="500">
-            <v-card class="d-flex justify-center flex-column pa-md-10">
+            <v-card class="pa-5 d-flex justify-center flex-column">
               <v-chip
                 color="primary"
                 class="d-flex justify-center font-weight-bold text-h6 pa-5 mb-4"
