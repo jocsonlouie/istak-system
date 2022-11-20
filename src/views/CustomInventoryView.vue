@@ -274,7 +274,7 @@
           :key="inventory.id"
         >
           <!--  @click="gotoInventory" -->
-          <v-card @click="gotoInventory(inventory.id)">
+          <v-card @click="gotoInventory(inventory.id, inventory.name)">
             <v-img :src="inventory.image" height="150" />
             <v-menu bottom left>
               <template
@@ -548,8 +548,8 @@ export default {
   },
 
   methods: {
-    gotoInventory(id) {
-      this.$router.push("/inventory-list?filter=" + id);
+    gotoInventory(id, name) {
+      this.$router.push("/inventory-list?filter=" + id + "&" + "name=" + name);
     },
     gotoAllInventory() {
       this.$router.push("/inventory-list");

@@ -20,6 +20,17 @@
       </template>
     </v-snackbar>
 
+    <!-- snackbar -->
+    <v-snackbar v-model="snackbarSB" :timeout="timeout" top>
+      {{ textSB }}
+
+      <template v-slot:action="{ attrs }">
+        <v-btn color="blue" text v-bind="attrs" @click="snackbarSB = false">
+          Close
+        </v-btn>
+      </template>
+    </v-snackbar>
+
     <!-- Data Table -->
     <v-data-table
       :headers="headers"
@@ -33,6 +44,25 @@
       <template v-slot:top>
         <v-toolbar flat>
           <!-- Table Top Functions -->
+
+          <v-tooltip top>
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn
+                color="primary"
+                elevation="2"
+                fab
+                x-small
+                v-bind="attrs"
+                v-on="on"
+                to="/custom-inventory"
+              >
+                <v-icon>{{ arrowLeft }}</v-icon>
+              </v-btn>
+            </template>
+            <span>Go back</span>
+          </v-tooltip>
+
+          <v-card-title class="ml-0"> {{ currentLocation }}</v-card-title>
           <v-icon class="mr-2">{{ searchIcon }}</v-icon>
           <v-text-field
             v-model="search"
@@ -322,12 +352,12 @@
                               ref="refInputEl"
                               @change="uploadItemImage"
                               type="file"
-                              accept=".jpeg,.png,.jpg,GIF"
+                              accept=".jpeg,.png,.jpg"
                               :hidden="true"
                             />
 
                             <p class="text-caption text-center mt-2">
-                              Allowed JPG, GIF or PNG. Max size of 1MB
+                              Allowed JPG or PNG. Max size of 1MB
                             </p>
                           </div>
                         </v-card-text>
@@ -832,6 +862,7 @@ import {
   mdiAutorenew,
   mdiCalendarMonth,
   mdiCurrencyPhp,
+  mdiArrowLeft,
 } from "@mdi/js";
 
 // crud imports
@@ -891,6 +922,7 @@ export default {
     imageBase64: null,
 
     inventoryItems: [],
+    currentLocation: "Inventory List",
 
     loadingTable: true,
     // icon data
@@ -908,6 +940,7 @@ export default {
     dateIcon: mdiCalendarMonth,
     phpIcon: mdiCurrencyPhp,
     barcodeIcon: mdiBarcodeScan,
+    arrowLeft: mdiArrowLeft,
 
     // modal data
     dialog: false,
@@ -1067,6 +1100,8 @@ export default {
     //snackbar
     snackbar: false,
     timeout: 3000,
+    snackbarSB: false,
+    textSB: "",
     itemStatus: "",
 
     //pdf contents
@@ -1238,50 +1273,54 @@ export default {
 
   methods: {
     async initialize() {
+      let itemsContainer = [];
       const customInventoryFilterRef = collection(db, "custom-inventory");
-      const inventorySnapshot = await getDocs(customInventoryFilterRef);
-      inventorySnapshot.forEach((doc) => {
-        this.inventoryItems.push({
-          label: doc.data().name,
-          value: doc.id,
-        });
-      });
 
-      if (this.$route.query.filter != null) {
-        const inventoriesFilterRef = collection(db, "inventory");
-        const q = query(
-          inventoriesFilterRef,
-          where("inventory_id", "==", this.$route.query.filter)
-        );
-        const querySnapshot = await getDocs(q);
-        let items = [];
-        if (querySnapshot.empty) {
-          this.items = items;
-          this.loadingTable = false;
-        } else {
-          querySnapshot.forEach((doc) => {
-            // doc.data() is never undefined for query doc snapshots
-            items.push({
-              ...doc.data(),
-              id: doc.id,
+      onSnapshot(customInventoryFilterRef, async (snapshot) => {
+        snapshot.forEach((doc) => {
+          this.inventoryItems.push({
+            label: doc.data().name,
+            value: doc.id,
+          });
+        });
+        if (this.$route.query.filter != null) {
+          this.currentLocation = this.$route.query.name;
+          const inventoriesFilterRef = collection(db, "inventory");
+          const q = query(
+            inventoriesFilterRef,
+            where("inventory_id", "==", this.$route.query.filter)
+          );
+
+          onSnapshot(q, (snapshot2) => {
+            itemsContainer = [];
+            snapshot2.forEach((doc) => {
+              if (snapshot2.empty) {
+                this.items = items;
+                this.loadingTable = false;
+              } else {
+                itemsContainer.push({
+                  ...doc.data(),
+                  id: doc.id,
+                });
+                this.items = itemsContainer;
+                this.loadingTable = false;
+              }
             });
-            this.items = items;
+          });
+        } else {
+          onSnapshot(inventoryColRef, (snapshot) => {
+            itemsContainer = [];
+            snapshot.forEach((doc) => {
+              itemsContainer.push({
+                ...doc.data(),
+                id: doc.id,
+              });
+            });
+            this.items = itemsContainer;
             this.loadingTable = false;
           });
         }
-      } else {
-        onSnapshot(inventoryColRef, (snapshot) => {
-          let items = [];
-          snapshot.forEach((doc) => {
-            items.push({
-              ...doc.data(),
-              id: doc.id,
-            });
-          });
-          this.items = items;
-          this.loadingTable = false;
-        });
-      }
+      });
     },
 
     dataURLtoFile(dataurl, filename) {
@@ -1301,46 +1340,53 @@ export default {
     done(picture) {
       this.closeCapturePhoto();
       var currentdate = new Date();
+
       let file = this.dataURLtoFile(picture, "inventory" + currentdate);
-      const storage = getStorage();
-      const storageRef = ref_storage(storage, "inventories/" + file.name);
 
-      const uploadTask = uploadBytesResumable(storageRef, file, "data_url");
+      if (file.size > 1097152) {
+        this.text = "File size must be under 1MB";
+        this.snackbar = true;
+      } else {
+        const storage = getStorage();
+        const storageRef = ref_storage(storage, "inventories/" + file.name);
 
-      uploadTask.on(
-        "state_changed",
-        (snapshot) => {
-          const progress =
-            (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          this.uploadBtnText = "Uploading: " + progress.toFixed(0) + "%";
-          this.uploadBtnTextMobile = mdiProgressDownload;
-          //this.uploadBtnTextMobile = "Uploading: " + progress.toFixed(0) + '%';
+        const uploadTask = uploadBytesResumable(storageRef, file, "data_url");
 
-          switch (snapshot.state) {
-            case "paused":
-              console.log("Upload is paused");
-              break;
-            case "running":
-              console.log("Upload is running");
-              break;
+        uploadTask.on(
+          "state_changed",
+          (snapshot) => {
+            const progress =
+              (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            this.uploadBtnText = "Uploading: " + progress.toFixed(0) + "%";
+            this.uploadBtnTextMobile = mdiProgressDownload;
+            //this.uploadBtnTextMobile = "Uploading: " + progress.toFixed(0) + '%';
+
+            switch (snapshot.state) {
+              case "paused":
+                console.log("Upload is paused");
+                break;
+              case "running":
+                console.log("Upload is running");
+                break;
+            }
+          },
+          (error) => {
+            // Handle unsuccessful uploads
+          },
+          () => {
+            // Handle successful uploads on complete
+            // For instance, get the download URL: https://firebasestorage.googleapis.com/...
+            this.uploadBtnText = "Uploaded Successfully";
+
+            this.uploadBtnTextMobile = mdiCheckCircle;
+            //this.uploadBtnTextMobile = 'Photo Uploaded';
+            getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+              console.log("File available at", downloadURL);
+              itemImage.value = downloadURL;
+            });
           }
-        },
-        (error) => {
-          // Handle unsuccessful uploads
-        },
-        () => {
-          // Handle successful uploads on complete
-          // For instance, get the download URL: https://firebasestorage.googleapis.com/...
-          this.uploadBtnText = "Uploaded Successfully";
-
-          this.uploadBtnTextMobile = mdiCheckCircle;
-          //this.uploadBtnTextMobile = 'Photo Uploaded';
-          getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-            console.log("File available at", downloadURL);
-            itemImage.value = downloadURL;
-          });
-        }
-      );
+        );
+      }
     },
 
     //add stocks
@@ -1800,45 +1846,50 @@ export default {
     //upload avatar
     uploadItemImage(e) {
       let file = e.target.files[0];
-      const storage = getStorage();
-      const storageRef = ref_storage(storage, "inventories/" + file.name);
+      if (file.size > 1097152) {
+        this.textSB = "File size must be under 1MB";
+        this.snackbarSB = true;
+      } else {
+        const storage = getStorage();
+        const storageRef = ref_storage(storage, "inventories/" + file.name);
 
-      const uploadTask = uploadBytesResumable(storageRef, file);
+        const uploadTask = uploadBytesResumable(storageRef, file);
 
-      uploadTask.on(
-        "state_changed",
-        (snapshot) => {
-          const progress =
-            (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          this.uploadBtnText = "Uploading: " + progress.toFixed(0) + "%";
-          this.uploadBtnTextMobile = mdiProgressDownload;
-          //this.uploadBtnTextMobile = "Uploading: " + progress.toFixed(0) + '%';
+        uploadTask.on(
+          "state_changed",
+          (snapshot) => {
+            const progress =
+              (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            this.uploadBtnText = "Uploading: " + progress.toFixed(0) + "%";
+            this.uploadBtnTextMobile = mdiProgressDownload;
+            //this.uploadBtnTextMobile = "Uploading: " + progress.toFixed(0) + '%';
 
-          switch (snapshot.state) {
-            case "paused":
-              console.log("Upload is paused");
-              break;
-            case "running":
-              console.log("Upload is running");
-              break;
+            switch (snapshot.state) {
+              case "paused":
+                console.log("Upload is paused");
+                break;
+              case "running":
+                console.log("Upload is running");
+                break;
+            }
+          },
+          (error) => {
+            // Handle unsuccessful uploads
+          },
+          () => {
+            // Handle successful uploads on complete
+            // For instance, get the download URL: https://firebasestorage.googleapis.com/...
+            this.uploadBtnText = "Uploaded Successfully";
+
+            this.uploadBtnTextMobile = mdiCheckCircle;
+            //this.uploadBtnTextMobile = 'Photo Uploaded';
+            getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+              console.log("File available at", downloadURL);
+              itemImage.value = downloadURL;
+            });
           }
-        },
-        (error) => {
-          // Handle unsuccessful uploads
-        },
-        () => {
-          // Handle successful uploads on complete
-          // For instance, get the download URL: https://firebasestorage.googleapis.com/...
-          this.uploadBtnText = "Uploaded Successfully";
-
-          this.uploadBtnTextMobile = mdiCheckCircle;
-          //this.uploadBtnTextMobile = 'Photo Uploaded';
-          getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-            console.log("File available at", downloadURL);
-            itemImage.value = downloadURL;
-          });
-        }
-      );
+        );
+      }
     },
   },
 };
