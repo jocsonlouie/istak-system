@@ -96,12 +96,48 @@
             rounded
             dense
             outlined
+            v-model="search"
+            v-on:keyup.enter="onEnter"
             :prepend-inner-icon="icons.mdiMagnify"
-            class="app-bar-search flex-grow-0"
+            class="app-bar-search flex-grow-0 hidden-xs-only"
             hide-details
           ></v-text-field>
 
+          <!-- <v-autocomplete
+            v-model="search"
+            :items="searchItems"
+            :loading="isLoading"
+            dense
+            rounded
+            hide-details
+            filled
+            v-on:keyup.enter="onEnter"
+            outlined
+            :prepend-inner-icon="icons.mdiMagnify"
+          ></v-autocomplete> -->
+
           <v-spacer></v-spacer>
+
+          <v-btn class="primary mx-4 hidden-xs-only" to="/barcode-management z">
+            Barcode Scan
+            <v-icon right dark>
+              {{ barcodeIcon }}
+            </v-icon>
+          </v-btn>
+
+          <v-btn
+            class="primary mx-4 hidden-sm-and-up"
+            to="/barcode-management"
+            color="white"
+            elevation="2"
+            fab
+            small
+            outlined
+          >
+            <v-icon>
+              {{ barcodeIcon }}
+            </v-icon>
+          </v-btn>
 
           <theme-switcher></theme-switcher>
 
@@ -184,6 +220,7 @@ import {
   mdiGithub,
   mdiAlertCircle,
   mdiAlertOctagon,
+  mdiBarcodeScan,
 } from "@mdi/js";
 import VerticalNavMenu from "./components/vertical-nav-menu/VerticalNavMenu.vue";
 import ThemeSwitcher from "./components/ThemeSwitcher.vue";
@@ -201,6 +238,7 @@ import {
 } from "@firebase/firestore";
 import db from "@/fb";
 import moment from "moment";
+import { _ } from "@/utils";
 
 const mainInventoryRef = collection(db, "inventory");
 
@@ -216,6 +254,11 @@ export default {
       drawer: null,
       isEmptyNotif: false,
       notifications: [],
+      barcodeIcon: mdiBarcodeScan,
+      isLoading: false,
+      searching: null,
+      search: null,
+      searchItems: ["Press enter to search item"],
       items: [
         { title: "Home", icon: "mdi-view-dashboard" },
         { title: "About", icon: "mdi-forum" },
@@ -245,6 +288,21 @@ export default {
   },
 
   methods: {
+    onEnter: async function() {
+      console.log(this.search);
+      const q = query(
+        collection(db, "inventory"),
+        where("itemname", ">=", this.search),
+        where("itemname", "<=", this.search + "\uf8ff")
+      );
+      const querySnapshot = await getDocs(q);
+      querySnapshot.forEach((doc) => {
+        // doc.data() is never undefined for query doc snapshots
+        console.log(doc.id, " => ", doc.data());
+      });
+
+      console.log("Serached");
+    },
     async initialize() {
       // const notificationRef = collection(db, "inventory");
       // const q = query(

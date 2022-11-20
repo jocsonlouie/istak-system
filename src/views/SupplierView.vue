@@ -792,50 +792,60 @@ export default {
       this.capturePhoto = false;
       var currentdate = new Date();
       let file = this.dataURLtoFile(picture, "receipt" + currentdate);
-      const storage = getStorage();
-      const storageRef = ref_storage(storage, "supplier-receipts/" + file.name);
+      if (file.size > 1097152) {
+        this.text = "File size must be under 1MB";
+        this.snackbar = true;
+      } else {
+        const storage = getStorage();
+        const storageRef = ref_storage(
+          storage,
+          "supplier-receipts/" + file.name
+        );
 
-      const uploadTask = uploadBytesResumable(storageRef, file, "data_url");
+        const uploadTask = uploadBytesResumable(storageRef, file, "data_url");
 
-      uploadTask.on(
-        "state_changed",
-        (snapshot) => {
-          const progress =
-            (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          // this.uploadBtnText = "Uploading: " + progress.toFixed(0) + "%";
-          // this.uploadBtnTextMobile = mdiProgressDownload;
-          //this.uploadBtnTextMobile = "Uploading: " + progress.toFixed(0) + '%';
+        uploadTask.on(
+          "state_changed",
+          (snapshot) => {
+            const progress =
+              (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            // this.uploadBtnText = "Uploading: " + progress.toFixed(0) + "%";
+            // this.uploadBtnTextMobile = mdiProgressDownload;
+            //this.uploadBtnTextMobile = "Uploading: " + progress.toFixed(0) + '%';
 
-          switch (snapshot.state) {
-            case "paused":
-              console.log("Upload is paused");
-              break;
-            case "running":
-              console.log("Upload is running");
-              break;
+            switch (snapshot.state) {
+              case "paused":
+                console.log("Upload is paused");
+                break;
+              case "running":
+                console.log("Upload is running");
+                break;
+            }
+          },
+          (error) => {
+            // Handle unsuccessful uploads
+          },
+          () => {
+            // Handle successful uploads on complete
+            // For instance, get the download URL: https://firebasestorage.googleapis.com/...
+            // this.uploadBtnText = "Uploaded Successfully";
+
+            // this.uploadBtnTextMobile = mdiCheckCircle;
+            //this.uploadBtnTextMobile = 'Photo Uploaded';
+            getDownloadURL(uploadTask.snapshot.ref).then(
+              async (downloadURL) => {
+                console.log("File available at", downloadURL);
+                this.itemImage = downloadURL;
+                await addDoc(collection(db, "supplier-receipts"), {
+                  id: this.currentId,
+                  image: "" + downloadURL,
+                  timestamp: Timestamp.now(),
+                });
+              }
+            );
           }
-        },
-        (error) => {
-          // Handle unsuccessful uploads
-        },
-        () => {
-          // Handle successful uploads on complete
-          // For instance, get the download URL: https://firebasestorage.googleapis.com/...
-          // this.uploadBtnText = "Uploaded Successfully";
-
-          // this.uploadBtnTextMobile = mdiCheckCircle;
-          //this.uploadBtnTextMobile = 'Photo Uploaded';
-          getDownloadURL(uploadTask.snapshot.ref).then(async (downloadURL) => {
-            console.log("File available at", downloadURL);
-            this.itemImage = downloadURL;
-            await addDoc(collection(db, "supplier-receipts"), {
-              id: this.currentId,
-              image: "" + downloadURL,
-              timestamp: Timestamp.now(),
-            });
-          });
-        }
-      );
+        );
+      }
     },
 
     async deleteReceipt(id) {
