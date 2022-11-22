@@ -118,7 +118,11 @@
 
           <v-spacer></v-spacer>
 
-          <v-btn class="primary mx-4 hidden-xs-only" to="/barcode-management z">
+          <v-btn
+            class="primary mx-4 hidden-xs-only"
+            to="/barcode-management"
+            v-if="this.$route.name !== 'barcode-management'"
+          >
             Barcode Scan
             <v-icon right dark>
               {{ barcodeIcon }}
@@ -133,6 +137,7 @@
             fab
             small
             outlined
+            v-if="this.$route.name !== 'barcode-management'"
           >
             <v-icon>
               {{ barcodeIcon }}
@@ -300,8 +305,6 @@ export default {
         // doc.data() is never undefined for query doc snapshots
         console.log(doc.id, " => ", doc.data());
       });
-
-      console.log("Serached");
     },
     async initialize() {
       // const notificationRef = collection(db, "inventory");

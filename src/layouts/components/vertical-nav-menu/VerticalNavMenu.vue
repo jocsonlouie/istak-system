@@ -122,7 +122,7 @@ export default {
   },
   setup() {
     onMounted(() => {
-       auth = getAuth();
+      auth = getAuth();
       onAuthStateChanged(auth, async (user) => {
         if (user) {
           const q = query(collection(db, "users"));
@@ -130,16 +130,15 @@ export default {
           querySnapshot.forEach((doc) => {
             if (user.uid === doc.id) {
               //console.log(doc.data().role)
-              if(doc.data().role == 'Inventory Admin'){
+              if (doc.data().role == "Inventory Admin") {
                 isAdmin.value = true;
-              }else{
+              } else {
                 isAdmin.value = false;
               }
             }
           });
         }
       });
-
     });
     return {
       icons: {
@@ -157,7 +156,7 @@ export default {
         mdiTruckFast,
         mdiAccountLock,
       },
-      isAdmin
+      isAdmin,
     };
   },
 };

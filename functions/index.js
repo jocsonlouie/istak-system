@@ -17,6 +17,7 @@ exports.newUserSignUp = functions.auth.user().onCreate((user) => {
         email: user.email,
         name: user.displayName !== null ? user.displayName : "Clinic",
         avatar: user.photoURL !== null ? user.photoURL : "https://assumptaclinic.com/wp-content/uploads/2022/10/profile-icon-default.jpeg",
+        phoneNumber: user.phoneNumber,
         role: "Can't Access"
     });
 });
@@ -37,13 +38,10 @@ exports.deleteUser = functions.https.onCall(async (data, context) => {
 
 exports.createUser = functions.https.onCall(async (data, context) => {
     const body = data;
-    const email = body.email;
-    const password = body.password;
+    const phoneNumber = body.phoneNumber;
     const displayName = body.displayName;
     admin.auth().createUser({
-        email: email,
-        emailVerified: true,
-        password: password,
+        phoneNumber: phoneNumber,
         displayName: displayName,
         disabled: false,
     })
