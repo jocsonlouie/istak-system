@@ -92,7 +92,7 @@
                     @click="resendEmailConfirmation"
                     class="text-decoration-none warning--text"
                   >
-                    <span class="text-sm">Resend Confirmation</span>
+                    <span class="text-sm">Connect this account to Google</span>
                   </a>
                 </div>
               </div>
@@ -171,6 +171,8 @@ import {
   getAuth,
   onAuthStateChanged,
   sendEmailVerification,
+  GoogleAuthProvider,
+  linkWithPopup,
 } from "@firebase/auth";
 import {
   mdiAlertOutline,
@@ -349,7 +351,8 @@ export default {
       querySnapshot.forEach((data) => {
         if (currentUserID.value === data.id) {
           setDoc(special, docData).then(() => {
-            console.log("Done!");
+            this.text = "Changes saved successfully. ";
+            this.snackbar = true;
             this.dialog = false;
           });
         }
@@ -357,11 +360,27 @@ export default {
     },
 
     resendEmailConfirmation() {
+      const googleProvider = new GoogleAuthProvider();
       let auth = getAuth();
-      sendEmailVerification(auth.currentUser).then(() => {
-        this.text = "Email verification sent!";
-        this.snackbar = true;
-      });
+      linkWithPopup(auth.currentUser, googleProvider)
+        .then((result) => {
+          // Accounts successfully linked.
+          const credential = GoogleAuthProvider.credentialFromResult(result);
+          const user = result.user;
+          // ...
+          this.text = "Account successfully linked. ";
+          this.snackbar = true;
+        })
+        .catch((error) => {
+          // Handle Errors here.
+          // ...
+          this.text = "There is something wrong: " + error;
+          this.snackbar = true;
+        });
+      // sendEmailVerification(auth.currentUser).then(() => {
+      //   this.text = "Email verification sent!";
+      //   this.snackbar = true;
+      // });
     },
   },
 };

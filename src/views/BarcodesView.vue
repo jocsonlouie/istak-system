@@ -1,7 +1,14 @@
 <template>
   <div class=" screensz">
     <!-- snackbar -->
-    <v-snackbar v-model="snackbar" :timeout="timeout" top color="primary" outlined rounded="pill">
+    <v-snackbar
+      v-model="snackbar"
+      :timeout="timeout"
+      top
+      color="primary"
+      outlined
+      rounded="pill"
+    >
       {{ text }}
 
       <template v-slot:action="{ attrs }">
@@ -1313,7 +1320,7 @@ export default {
           items.push({
             action: doc.data().action,
             id: doc.id,
-            date: moment(doc.data().timestamp.toDate()).format("MMM D, YYYY"),
+            date: moment(doc.data().timestamp.toDate()).format("MMM D"),
           });
 
           if (
@@ -1321,35 +1328,35 @@ export default {
             doc.data().action.includes("Consumed")
           ) {
             consumeItems.push({
-              date: moment(doc.data().timestamp.toDate()).format("MMM D, YYYY"),
+              date: moment(doc.data().timestamp.toDate()).format("MMM D"),
               name: "Consume",
             });
           }
 
           if (doc.data().action.includes("Deleted")) {
             deleteItems.push({
-              date: moment(doc.data().timestamp.toDate()).format("MMM D, YYYY"),
+              date: moment(doc.data().timestamp.toDate()).format("MMM D"),
               name: "Delete",
             });
           }
 
           if (doc.data().action.includes("Viewed")) {
             viewItems.push({
-              date: moment(doc.data().timestamp.toDate()).format("MMM D, YYYY"),
+              date: moment(doc.data().timestamp.toDate()).format("MMM D"),
               name: "View",
             });
           }
 
           if (doc.data().action.includes("Added")) {
             addItems.push({
-              date: moment(doc.data().timestamp.toDate()).format("MMM D, YYYY"),
+              date: moment(doc.data().timestamp.toDate()).format("MMM D"),
               name: "Add",
             });
           }
 
           if (doc.data().action.includes("edited")) {
             updateItems.push({
-              date: moment(doc.data().timestamp.toDate()).format("MMM D, YYYY"),
+              date: moment(doc.data().timestamp.toDate()).format("MMM D"),
               name: "Update",
             });
           }
