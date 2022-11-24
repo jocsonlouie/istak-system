@@ -368,15 +368,33 @@ export default {
           const credential = GoogleAuthProvider.credentialFromResult(result);
           const user = result.user;
           // ...
+
+          user.providerData.forEach(async (item) => {
+            if (item.providerId == "google.com") {
+              await setDoc(
+                doc(db, "users", auth.currentUser.uid),
+                {
+                  name: item.displayName,
+                  avatar: item.photoURL,
+                  email: item.email,
+                },
+                { merge: true }
+              );
+            }
+          });
+
           this.text = "Account successfully linked. ";
           this.snackbar = true;
         })
-        .catch((error) => {
-          // Handle Errors here.
-          // ...
-          this.text = "There is something wrong: " + error;
-          this.snackbar = true;
-        });
+        .catch(
+          (error) => {
+            // Handle Errors here.
+            // ...
+            this.text = "There is something wrong: " + error;
+            this.snackbar = true;
+          },
+          { merge: true }
+        );
       // sendEmailVerification(auth.currentUser).then(() => {
       //   this.text = "Email verification sent!";
       //   this.snackbar = true;

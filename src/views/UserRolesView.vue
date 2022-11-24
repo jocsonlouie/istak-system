@@ -694,7 +694,6 @@ export default {
           });
         });
         this.items = items;
-        console.log(items);
         this.loadingTable = false;
         this.totalusers = items.length;
       });
@@ -932,7 +931,6 @@ export default {
     },
 
     async onDecode(result) {
-      console.log(result);
       const q = query(
         collection(db, "inventory"),
         where("barcode", "==", result)
