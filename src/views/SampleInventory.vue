@@ -1062,6 +1062,7 @@ const YesNonStaff = ref(false);
 let auth;
 
 
+
 //pdf
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
@@ -1120,38 +1121,11 @@ export default {
     scanInventory: "",
     scanAvailable: "",
     scanUnit: "",
-    //scanTotalCost: "",
     scanDisplay: "",
     scanTotal: "",
     scanExpiry: "",
     scanSupplier: "",
     scanStatus: false,
-
-    // scanItemName: "Sample Name",
-    // scanBarcode: "12312312312",
-    // scanStorebox: "686",
-    // scanTotalStocks: "454",
-    // scanDisplayStocks: "565",
-    // scanStatus: false,
-    
-    // image: itemImage.value,
-    //   itemname: "",
-    //   barcode: "",
-    //   retail: "",
-    //   stockunit: "",
-    //   reorderlevel: "",
-    //   manufacturer: "",
-    //   inventory_id: "",
-
-    //   available: 0,
-    //   unitcost: 0,
-    //   display: 0,
-    //   totalstocks: 0,
-    //   totalcost: 0,
-    //   expiry: "",
-    //   supplier: "",
-    //   state: "open",
-    //   level: "info",
 
     //search and select data
     search: "",
@@ -1283,6 +1257,9 @@ export default {
     totalDisplay: 0,
     consumeAvailable: 0,
     consumeDisplay: 0,
+
+    //email table
+    emailTable : []
   }),
 
   props: {
@@ -1430,6 +1407,7 @@ export default {
   methods: {
     async initialize() {
       let itemsContainer = [];
+      let emailContainer = [];
       const customInventoryFilterRef = collection(db, "custom-inventory");
 
 
@@ -1474,6 +1452,25 @@ export default {
               }
             });
           });
+
+           onSnapshot(q, (snapshot) => {
+            emailContainer = [];
+            snapshot.forEach((doc) => {
+              emailContainer.push({
+                id: doc.data().id,
+                barcode: doc.data().barcode,
+                itemname: doc.data().itemname,
+                retail: "P" + doc.data().retail + "/" + doc.data().stockunit,
+                available: doc.data().available, 
+                display:doc.data().display, 
+                totalstocks :doc.data().totalstocks, 
+                expiry: doc.data().expiry
+              });
+            });
+            this.emailTable = emailContainer;
+            this.loadingTable = false;
+          
+          });
         } else {
           onSnapshot(inventoryColRef, (snapshot) => {
             itemsContainer = [];
@@ -1486,8 +1483,27 @@ export default {
             this.items = itemsContainer;
             this.loadingTable = false;
           });
+
+          onSnapshot(inventoryColRef, (snapshot) => {
+            emailContainer = [];
+            snapshot.forEach((doc) => {
+              emailContainer.push({
+                id: doc.data().id,
+                barcode: doc.data().barcode,
+                itemname: doc.data().itemname,
+                retail: "P" + doc.data().retail + "/" + doc.data().stockunit,
+                available: doc.data().available, 
+                display:doc.data().display, 
+                totalstocks :doc.data().totalstocks, 
+                expiry: doc.data().expiry
+              });
+            });
+            this.emailTable = emailContainer;
+            this.loadingTable = false;
+          
+          });
         }
-      });
+      });   
     },
 
     dataURLtoFile(dataurl, filename) {
@@ -1816,7 +1832,7 @@ export default {
             image: itemImage.value,
             itemname: this.dataItem.itemname,
             barcode: this.dataItem.barcode,
-            retail: this.dataItem.retail,
+            retail: "Php" + this.dataItem.retail,
             stockunit: this.dataItem.stockunit,
             reorderlevel: this.dataItem.reorderlevel,
             manufacturer: this.dataItem.manufacturer,
@@ -1931,6 +1947,10 @@ export default {
           title: "Total Stocks",
           dataKey: "totalstocks",
         },
+        {
+          title: "Expiry Date",
+          dataKey: "expiry",
+        },
       ];
 
       const pdf = new jsPDF({
@@ -1950,10 +1970,15 @@ export default {
       //pdf.setFontSize(16).text(this.report, 2.5, 2.15);
       pdf.setFontSize(16).text(this.currentLocation + " Report", 3.1, 2.15);
       pdf.setLineWidth(0.01).line(0.56, 2.35, 7.7, 2.35);
+      pdf.setLineWidth(0.01).line(0.56, 11, 7.7, 11);
+      const datez = new Date().toISOString().slice(0, 10);
+      pdf.setFontSize(8).text("Generated from ISTAK on " + datez, 5.8, 11.2);
+
 
       autoTable(pdf, {
         columns,
-        body: this.items,
+        // body: this.items,
+        body: this.emailTable,
         startY: 2.5,
         // theme: 'grid',
         styles: {
@@ -1965,6 +1990,8 @@ export default {
         margin: { top: 10 },
       });
 
+     
+      
       pdf.save("InventoryList.pdf");
     },
 
