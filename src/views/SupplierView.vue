@@ -11,7 +11,7 @@
     >
       <v-icon color="primary">{{ successIcon }}</v-icon>
 
-      Item {{ itemStatus }} Successfully!
+      Supplier {{ itemStatus }} Successfully!
       <template v-slot:action="{ attrs2 }">
         <v-spacer></v-spacer>
         <v-btn color="primary" text v-bind="attrs2" @click="snackbar = false">
@@ -38,6 +38,25 @@
               <v-col cols="12" xs="4" sm="9" md="9" class="align-self-center">
                 <p class="text-caption mb-n1 mt-4">Total Suppliers</p>
                 <p class="text-subtitle-1">{{ totalsupplier }} suppliers</p>
+              </v-col>
+            </v-row>
+          </v-card>
+        </v-col>
+        <v-col cols="12" sm="4" md="3" class="pa-1 ">
+          <v-card class="d-flex justify-center mb-2" height="95">
+            <v-row no-gutters class="pa-2 text-center text-sm-start">
+              <v-col
+                cols="12"
+                xs="1"
+                sm="3"
+                md="3"
+                class="d-flex justify-center flex-column"
+              >
+                <v-icon class="" color="primary">{{ receiptIcon }}</v-icon>
+              </v-col>
+              <v-col cols="12" xs="4" sm="9" md="9" class="align-self-center">
+                <p class="text-caption mb-n1 mt-4">Total Receipts</p>
+                <p class="text-subtitle-1">{{ totalreceipts }} receipts</p>
               </v-col>
             </v-row>
           </v-card>
@@ -129,7 +148,8 @@
                         </v-text-field>
                         <v-text-field
                           v-model="dataItem.email"
-                          :rules="itemNameRules"
+                          :rules="emailRules"
+                          type="email"
                           label="Email"
                           clearable
                           outlined
@@ -139,7 +159,9 @@
                       <v-col cols="12" sm="12" class="ma-2 align-self-center">
                         <v-text-field
                           v-model="dataItem.contactno"
-                          :rules="itemNameRules"
+                          :rules="inputRules"
+                          counter="11"
+                          type="number"
                           label="Contact Number"
                           clearable
                           outlined
@@ -205,7 +227,7 @@
               <v-chip
                 color="error"
                 class="d-flex justify-center font-weight-bold text-h6 pa-5"
-                >Delete Item
+                >Delete Supplier
               </v-chip>
               <v-card-title class="-d-flex justify-center"
                 >Are you sure you want to delete this item?</v-card-title
@@ -215,7 +237,7 @@
               </p>
               <v-card-actions class="mb-n5">
                 <v-spacer></v-spacer>
-                <v-btn color="secondary" @click="closeDelete">Cancel</v-btn>
+                <v-btn color="secondary" @click="dialogDelete = false">Cancel</v-btn>
                 <v-btn color="primary" @click="deleteItemConfirm">YES</v-btn>
                 <v-spacer></v-spacer>
               </v-card-actions>
@@ -487,6 +509,7 @@ import { getAuth, onAuthStateChanged } from "@firebase/auth";
 import { ref, onMounted } from "@vue/composition-api";
 const inventoryColRef = collection(db, "supplier");
 const emailColRef = collection(db, "emails");
+const receiptColRef = collection(db, "supplier-receipts");
 
 //email
 import emailjs from "@emailjs/browser";
@@ -604,11 +627,14 @@ export default {
     valid: true,
     itemNameRules: [(v) => !!v || "This field is required"],
 
-    //contactrules
+    //contactnum
     inputRules: [
-      (v) => v.length >= 11 || "Minimum length is 11 numbers",
       (v) => !!v || "This field is required",
+      (v) => (v && v.length <= 11) || "Maximum length is 11 numbers",
     ],
+
+    //emailrule
+    emailRules: [ v => /.+@.+/.test(v) || 'Invalid Email address' ],
 
     //namerules
     nameRules: [(v) => v.length >= 3 || "Minimum length is 3 characters"],
@@ -647,6 +673,7 @@ export default {
     //analytics
     totalsupplier: 0,
     totalemail: 0,
+    totalreceipts: 0,
   }),
 
   setup() {
@@ -766,6 +793,20 @@ export default {
         this.loadingTable = false;
         //TOTAL EMAIL
         this.totalemail = items2.length;
+      });
+
+      onSnapshot(receiptColRef, (snapshot) => {
+        let items3 = [];
+        snapshot.forEach((doc) => {
+          items3.push({
+            ...doc.data(),
+            id: doc.id,
+          });
+        });
+        this.items3 = items3;
+        this.loadingTable = false;
+        //TOTAL RECEIPTS
+        this.totalreceipts = items3.length;
       });
     },
 
@@ -953,11 +994,11 @@ export default {
     // close function for delete
     closeDelete() {
       this.dialogDelete = false;
-      this.resetForm();
-      this.$nextTick(() => {
-        this.currentItem = Object.assign({}, this.defaultItem);
-        this.itemIndex = -1;
-      });
+      // this.resetForm();
+      // this.$nextTick(() => {
+      //   this.currentItem = Object.assign({}, this.defaultItem);
+      //   this.itemIndex = -1;
+      // });
     },
 
     // function for edit and add
