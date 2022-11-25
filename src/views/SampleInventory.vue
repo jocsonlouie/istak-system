@@ -35,6 +35,9 @@
     <v-data-table
       :headers="headers"
       :items="items"
+      :single-expand="singleExpand"
+      :expanded.sync="expanded"
+      show-expand
       sort-by="name"
       class="elevation-1 pt-3"
       :search="search"
@@ -44,7 +47,11 @@
       <template v-slot:top>
         <v-toolbar flat>
           <!-- Table Top Functions -->
-
+          <!-- <v-switch
+          v-model="singleExpand"
+          label="Single expand"
+          class="mt-2"
+        ></v-switch> -->
           <v-tooltip top>
             <template v-slot:activator="{ on, attrs }">
               <v-btn
@@ -887,6 +894,12 @@
         </v-toolbar>
       </template>
 
+      <template v-slot:expanded-item="{ headers, item }">
+      <td :colspan="headers.length">
+        More info about {{ item.manufacturer }}
+      </td>
+    </template>
+
       <template v-slot:item.totalstocks="{ item }" class="text-center">
         <v-chip :color="getColor(item.totalstocks, item.reorderlevel)" dark>
           <v-icon left color="white">
@@ -912,6 +925,13 @@
 
       <template v-slot:item.retail="{ item }" class="text-center">
         ₱{{ item.retail }}/{{ item.stockunit }}
+      </template>
+
+      <template v-slot:item.unitcost="{ item }" class="text-center">
+        ₱{{ item.unitcost }}
+      </template>
+      <template v-slot:item.totalcost="{ item }" class="text-center">
+        ₱{{ item.totalcost }}
       </template>
 
 
@@ -1355,6 +1375,42 @@ export default {
           value: "totalstocks",
           align: 'center'
         },
+        {
+          text: "Manufacturer",
+          sortable: true,
+          value: "manufacturer",
+          align: ' d-none'
+        },
+        {
+          text: "Reorder Level",
+          sortable: true,
+          value: "reorderlevel",
+          align: ' d-none'
+        },
+        {
+          text: "Unit Cost",
+          sortable: true,
+          value: "unitcost",
+          align: ' d-none'
+        },
+        {
+          text: "Total Cost",
+          sortable: true,
+          value: "totalcost",
+          align: ' d-none'
+        },
+        {
+          text: "Expiry Date",
+          sortable: true,
+          value: "expiry",
+          align: ' d-none'
+        },
+        {
+          text: "Supplier",
+          sortable: true,
+          value: "supplier",
+          align: ' d-none'
+        },
 
       ];
 
@@ -1416,7 +1472,7 @@ export default {
         snapshot.forEach((doc) => {
           this.supplierData.push({
             label: doc.data().name,
-            value: doc.id,
+            value: doc.data().name,
           });
         });
       });
