@@ -413,7 +413,7 @@
               <v-btn
                 color="primary"
                 outlined
-                class="hidden-sm-and-down"
+                class=""
                 v-bind="attrs"
                 v-on="on"
                 v-if="isNonInventoryStaff"
@@ -653,7 +653,7 @@
                           </v-date-picker>
                         </v-menu>
 
-                        <v-text-field
+                        <!-- <v-text-field
                           v-model.number="dataItem.supplier"
                           label="Supplier"
                           clearable
@@ -661,7 +661,16 @@
                           dense
                           :rules="fieldRules"
                         >
-                        </v-text-field>
+                        </v-text-field> -->
+                        <v-select
+                          v-model="dataItem.supplier"
+                          dense
+                          outlined
+                          label="Supplier"
+                          :items="supplierData"
+                          item-text="label"
+                          item-value="value"
+                        ></v-select>
                       </v-col>
                     </v-row>
                     <div class="d-flex  justify-center align-center">
@@ -675,7 +684,7 @@
                           v-model="dataItem.inventory_id"
                           dense
                           outlined
-                          label="Custom Inventory"
+                          label="Inventory"
                           :items="inventoryItems"
                           item-text="label"
                           item-value="value"
@@ -716,7 +725,7 @@
             <v-icon>{{ barcodeIcon }}</v-icon>
           </v-btn>
 
-          <v-btn
+          <!-- <v-btn
             color="primary"
             elevation="2"
             class="ml-2 hidden-md-and-up"
@@ -727,7 +736,7 @@
             v-if="isNonInventoryStaff"
           >
             <v-icon>{{ newItemIcon }}</v-icon>
-          </v-btn>
+          </v-btn> -->
           <v-btn
             color="primary"
             elevation="2"
@@ -1067,6 +1076,7 @@ export default {
     imageBase64: null,
 
     inventoryItems: [],
+    supplierData: [],
     currentLocation: "Inventory List",
 
     loadingTable: true,
@@ -1422,6 +1432,17 @@ export default {
       let itemsContainer = [];
       const customInventoryFilterRef = collection(db, "custom-inventory");
 
+
+      const supplierColRef = collection(db, "supplier");
+      onSnapshot(supplierColRef, async (snapshot) => {
+        snapshot.forEach((doc) => {
+          this.supplierData.push({
+            label: doc.data().name,
+            value: doc.id,
+          });
+        });
+      });
+
       onSnapshot(customInventoryFilterRef, async (snapshot) => {
         snapshot.forEach((doc) => {
           this.inventoryItems.push({
@@ -1708,7 +1729,7 @@ export default {
     // close function for delete
     closeDelete() {
       this.dialogDelete = false;
-      this.resetForm();
+     // this.resetForm();
       this.$nextTick(() => {
         this.currentItem = Object.assign({}, this.defaultItem);
         this.itemIndex = -1;
