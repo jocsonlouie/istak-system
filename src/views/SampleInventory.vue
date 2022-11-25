@@ -894,11 +894,11 @@
         </v-toolbar>
       </template>
 
-      <template v-slot:expanded-item="{ headers, item }">
+      <!-- <template v-slot:expanded-item="{ headers, item }">
       <td :colspan="headers.length">
         More info about {{ item.manufacturer }}
       </td>
-    </template>
+    </template> -->
 
       <template v-slot:item.totalstocks="{ item }" class="text-center">
         <v-chip :color="getColor(item.totalstocks, item.reorderlevel)" dark>
@@ -927,12 +927,12 @@
         ₱{{ item.retail }}/{{ item.stockunit }}
       </template>
 
-      <template v-slot:item.unitcost="{ item }" class="text-center">
+      <!-- <template v-slot:item.unitcost="{ item }" class="text-center">
         ₱{{ item.unitcost }}
       </template>
       <template v-slot:item.totalcost="{ item }" class="text-center">
         ₱{{ item.totalcost }}
-      </template>
+      </template> -->
 
 
       <!-- Table Actions Buttons -->
