@@ -138,7 +138,7 @@
           </v-dialog>
 
           <!-- Scan View Modal -->
-          <v-dialog v-model="dialogScanView" max-width="550px">
+          <v-dialog v-model="dialogScanView" max-width="900">
             <v-card flat class="pa-3 mt-2">
               <v-chip
                 color="primary"
@@ -147,85 +147,214 @@
                 Scan Result
               </v-chip>
               <div v-if="scanStatus">
-                <v-card-text class="d-flex align-center">
-                  <v-avatar rounded size="120" class="me-6">
-                    <v-img :src="itemImage"></v-img>
-                  </v-avatar>
-                  <!-- upload photo -->
-                  <div class="align-center">
-                    <h1 class="headline mt-5">
-                      {{ scanItemName }}
-                    </h1>
-                    <p class="text-sm">
-                      {{ scanBarcode }}
-                    </p>
-                  </div>
-                </v-card-text>
                 <v-card-text>
-                  <v-form class="multi-col-validation mt-6">
-                    <v-row>
-                      <v-col md="6" cols="12">
-                        <v-text-field
-                          v-model="scanBarcode"
-                          :rules="inputRules"
-                          counter="14"
-                          label="Barcode"
-                          dense
-                          outlined
-                          readonly
-                        ></v-text-field>
+                <v-container>
+                  <v-form ref="form">
+                    <div class="d-flex  justify-center align-center">
+                      <p class="mr-3 text-subtitle-1">Item Information</p>
+                      <v-divider></v-divider>
+                    </div>
+
+                    <v-row no-gutters class="d-flex justify-center">
+                      <v-col cols="12" sm="3" class="ma-2 align-self-center">
+                        <v-card-text
+                          class="d-flex justify-center flex-column align-center mt-2"
+                        >
+                          <v-avatar rounded size="80" class="">
+                            <v-img :src="scanImage"></v-img>
+                          </v-avatar>
+                         
+                        </v-card-text>
                       </v-col>
-                      <v-col md="6" cols="12">
+
+                      <v-col cols="12" sm="4" class="ma-2 align-self-center">
                         <v-text-field
                           v-model="scanItemName"
-                          label="Item name"
-                          dense
-                          outlined
+                          label="Item Name"
                           readonly
-                        ></v-text-field>
-                      </v-col>
-                      <v-col cols="12" md="6">
+                          outlined
+                          dense
+                        >
+                        </v-text-field>
+
                         <v-text-field
-                          v-model="scanDisplayStocks"
-                          label="Display Stocks"
-                          dense
-                          outlined
+                          v-model="scanBarcode"
+                          label="Barcode"
+                          type="number"
                           readonly
+                          outlined
+                          dense
+                          :append-icon="barcodeIcon"
+                          @click:append="openDialogScanField"
+                        >
+                        </v-text-field>
+
+                        <v-text-field
+                          v-model="scanRetail"
+                          label="Retail Price"
+                          type="number"
+                          :prepend-inner-icon="phpIcon"
+                          readonly
+                          outlined
+                          dense
                         >
                         </v-text-field>
                       </v-col>
-                      <v-col cols="12" md="6">
+
+                      <v-col cols="12" sm="4" class="ma-2 align-self-center">
                         <v-text-field
-                          v-model="scanRetailPrice"
-                          dense
-                          label="Retail Price"
+                          v-model.number="scanStockUnit"
+                          label="Stock Unit"
+                          readonly
                           outlined
+                          dense
+                          hint="P100/(stock unit here) e.g. P100/bottle"
+                        >
+                        </v-text-field>
+
+                        <v-text-field
+                          v-model.number="scanReorder"
+                          label="Reorder Level"
+                          type="number"
+                          outlined
+                          dense
+                          hint="low stock indicator"
+                          readonly
+                        >
+                        </v-text-field>
+
+                        <v-text-field
+                          v-model.number="scanManufacturer"
+                          readonly
+                          label="Manufacturer"
+                          outlined
+                          dense
+                        >
+                        </v-text-field>
+                      </v-col>
+                    </v-row>
+
+                    <div class="d-flex  justify-center align-center">
+                      <p class="mr-3 text-subtitle-1">Stock Information</p>
+                      <v-divider></v-divider>
+                    </div>
+
+                    <v-row no-gutters class="d-flex justify-center">
+                      <v-col cols="12" sm="3" class="ma-2">
+                        <v-text-field
+                          v-model.number="scanDisplay"
+                          label="Quantity to Store"
+                          hint="excluding stocks on display"
+                          type="number"
+                          readonly
+                          outlined
+                          dense
+                        >
+                        </v-text-field>
+                        <v-text-field
+                          v-model.number="scanUnit"
+                          label="Unit Cost"
+                          type="number"
+                          outlined
+                          dense
+                          readonly
                           :prepend-inner-icon="phpIcon"
-                          readonly
-                        ></v-text-field>
+                        >
+                        </v-text-field>
                       </v-col>
-                      <v-col cols="12" md="6">
+                      <v-col cols="12" sm="3" class="ma-2">
                         <v-text-field
-                          v-model="scanAvailableStocks"
-                          dense
-                          label="Available Stocks"
+                          v-model.number="scanDisplay"
+                          label="Quantity to Display"
+                          type="number"
                           outlined
+                          dense
                           readonly
-                        ></v-text-field>
-                      </v-col>
-                      <v-col cols="12" md="6">
+                        >
+                        </v-text-field>
                         <v-text-field
-                          v-model="scanTotalStocks"
-                          dense
-                          label="Total Stocks"
+                          v-model.number="scanTotal"
+                          label="Total Cost"
                           outlined
+                          dense
+                          hint="total quantity x unit cost"
+                          type="number"
+                          readonly
+                          :prepend-inner-icon="phpIcon"
+                        >
+                        </v-text-field>
+                      </v-col>
+                      <v-col cols="12" sm="3" class="ma-2">
+                        <v-menu
+                          ref="menu"
+                          v-model="menu"
+                          :close-on-content-click="false"
+                          transition="scale-transition"
+                          offset-y
+                          max-width="290px"
+                          min-width="auto"
+                        >
+                          <template v-slot:activator="{ on, attrs }">
+                            <v-text-field
+                              v-model="scanExpiry"
+                              label="Expiry Date"
+                              required
+                              outlined
+                              dense
+                              :append-icon="dateIcon"
+                              hint="format: yyyy-mm-dd"
+                              v-bind="attrs"
+                              v-on="on"
+                              readonly
+                            >
+                            </v-text-field>
+                          </template>
+                          <v-date-picker
+                            v-model="dataItem.expiry"
+                            @input="menu = false"
+                          >
+                          </v-date-picker>
+                        </v-menu>
+
+                        <v-text-field
+                          v-model.number="scanSupplier"
+                          label="Supplier"
+                          outlined
+                          dense
                           readonly
                         >
                         </v-text-field>
                       </v-col>
                     </v-row>
+                    <div class="d-flex  justify-center align-center">
+                      <p class="mr-3 text-subtitle-1">Custom Inventory</p>
+                      <v-divider></v-divider>
+                    </div>
+
+                    <v-row no-gutters class="d-flex justify-center">
+                      <v-col cols="12" sm="12" class="ma-2">
+                        <v-select
+                          v-model="scanInventory"
+                          dense
+                          outlined
+                          label="Custom Inventory"
+                          :items="inventoryItems"
+                          item-text="label"
+                          item-value="value"
+                          readonly
+                        ></v-select>
+                      </v-col>
+                    </v-row>
                   </v-form>
-                </v-card-text>
+                </v-container>
+              </v-card-text>
+
+              <v-card-actions class="">
+                <v-spacer></v-spacer>
+                <v-btn color="primary" @click="dialogScanView = false;" class=""> Done</v-btn>
+                <v-spacer></v-spacer>
+              </v-card-actions>
+  
               </div>
 
               <!-- alert -->
@@ -283,7 +412,7 @@
               <v-btn
                 color="primary"
                 outlined
-                class=""
+                class="hidden-sm-and-down"
                 v-bind="attrs"
                 v-on="on"
                 v-if="isNonInventoryStaff"
@@ -577,7 +706,7 @@
           <v-btn
             color="white"
             elevation="2"
-            class="ml-2 primary hidden-sm-and-up"
+            class="ml-2 primary hidden-md-and-up"
             fab
             small
             outlined
@@ -589,7 +718,19 @@
           <v-btn
             color="primary"
             elevation="2"
-            class="ml-2 hidden-sm-and-down"
+            class="ml-2 hidden-md-and-up"
+            @click="generatePDF"
+            fab
+            small
+            outlined
+            v-if="isNonInventoryStaff"
+          >
+            <v-icon>{{ newItemIcon }}</v-icon>
+          </v-btn>
+          <v-btn
+            color="primary"
+            elevation="2"
+            class="ml-2"
             @click="generatePDF"
             fab
             small
@@ -763,6 +904,7 @@
         ₱{{ item.retail }}/{{ item.stockunit }}
       </template>
 
+
       <!-- Table Actions Buttons -->
       <template v-slot:item.actions="{ item }">
         <div class="d-flex flex-row align-center">
@@ -863,6 +1005,7 @@ import {
   mdiCalendarMonth,
   mdiCurrencyPhp,
   mdiArrowLeft,
+  mdiFolderPlus
 } from "@mdi/js";
 
 // crud imports
@@ -908,6 +1051,7 @@ const isNonInventoryStaff = ref(true);
 const YesNonStaff = ref(false);
 let auth;
 
+
 //pdf
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
@@ -941,6 +1085,7 @@ export default {
     phpIcon: mdiCurrencyPhp,
     barcodeIcon: mdiBarcodeScan,
     arrowLeft: mdiArrowLeft,
+    newItemIcon: mdiFolderPlus,
 
     // modal data
     dialog: false,
@@ -953,12 +1098,49 @@ export default {
     dialogConsume: false,
 
     // Scan Modal
-    scanItemName: "Sample Name",
-    scanBarcode: "12312312312",
-    scanStorebox: "686",
-    scanTotalStocks: "454",
-    scanDisplayStocks: "565",
+
+    scanImage:"",
+    scanItemName: "",
+    scanBarcode: "",
+    scanRetail: "",
+    scanStockUnit: "",
+    scanReorder: "",
+    scanManufacturer: "",
+    scanInventory: "",
+    scanAvailable: "",
+    scanUnit: "",
+    //scanTotalCost: "",
+    scanDisplay: "",
+    scanTotal: "",
+    scanExpiry: "",
+    scanSupplier: "",
     scanStatus: false,
+
+    // scanItemName: "Sample Name",
+    // scanBarcode: "12312312312",
+    // scanStorebox: "686",
+    // scanTotalStocks: "454",
+    // scanDisplayStocks: "565",
+    // scanStatus: false,
+    
+    // image: itemImage.value,
+    //   itemname: "",
+    //   barcode: "",
+    //   retail: "",
+    //   stockunit: "",
+    //   reorderlevel: "",
+    //   manufacturer: "",
+    //   inventory_id: "",
+
+    //   available: 0,
+    //   unitcost: 0,
+    //   display: 0,
+    //   totalstocks: 0,
+    //   totalcost: 0,
+    //   expiry: "",
+    //   supplier: "",
+    //   state: "open",
+    //   level: "info",
 
     //search and select data
     search: "",
@@ -966,49 +1148,7 @@ export default {
     expanded: [],
     singleExpand: false,
 
-    // table header data
-    // headers: [
-    //   {
-    //     text: "Barcode",
-    //     sortable: true,
-    //     value: "barcode",
-    //   },
-    //   {
-    //     text: "Image",
-    //     align: "start",
-    //     value: "image",
-    //   },
-    //   {
-    //     text: "Item Name",
-    //     value: "itemname",
-    //   },
-
-    //   {
-    //     text: "Retail Price",
-    //     sortable: true,
-    //     value: "retail",
-    //   },
-    //   {
-    //     text: "Available Stocks",
-    //     sortable: true,
-    //     value: "available",
-    //   },
-    //   {
-    //     text: "On Display",
-    //     sortable: true,
-    //     value: "display",
-    //   },
-    //   {
-    //     text: "Total Stocks",
-    //     sortable: true,
-    //     value: "totalstocks",
-    //   },
-    //   {
-    //     text: "Actions",
-    //     value: "actions",
-    //     sortable: true,
-    //   },
-    // ],
+   
     // table data
     items: [],
     itemIndex: -1,
@@ -1195,7 +1335,7 @@ export default {
         },
         {
           text: "Image",
-          align: "start",
+          align: "center",
           value: "image",
         },
         {
@@ -1207,22 +1347,27 @@ export default {
           text: "Retail Price",
           sortable: true,
           value: "retail",
+          align: 'center'
         },
         {
           text: "Available Stocks",
           sortable: true,
           value: "available",
+          align: 'center'
         },
         {
           text: "On Display",
           sortable: true,
           value: "display",
+          align: 'center'
         },
         {
           text: "Total Stocks",
           sortable: true,
           value: "totalstocks",
+          align: 'center'
         },
+
       ];
 
       //console.log(isNonInventoryStaff.value)
@@ -1686,14 +1831,31 @@ export default {
       } else {
         querySnapshot.forEach((doc) => {
           // doc.data() is never undefined for query doc snapshots
+          // this.scanStatus = true;
+          // this.scanItemName = "" + doc.data().itemname;
+          // this.scanBarcode = "" + doc.data().barcode;
+          // this.scanDisplayStocks = "" + doc.data().display;
+          // itemImage.value = doc.data().image;
+          // this.scanRetailPrice = "" + doc.data().retail;
+          // this.scanAvailableStocks = "" + doc.data().available;
+          // this.scanTotalStocks = "" + doc.data().totalstocks;
           this.scanStatus = true;
-          this.scanItemName = "" + doc.data().itemname;
-          this.scanBarcode = "" + doc.data().barcode;
-          this.scanDisplayStocks = "" + doc.data().display;
-          itemImage.value = doc.data().image;
-          this.scanRetailPrice = "" + doc.data().retail;
-          this.scanAvailableStocks = "" + doc.data().available;
-          this.scanTotalStocks = "" + doc.data().totalstocks;
+          this.scanImage = doc.data().image;
+          this.scanItemName = doc.data().itemname;
+          this.scanBarcode = doc.data().barcode;
+          this.scanRetail = doc.data().retail;
+          this.scanStockUnit = doc.data().stockunit;
+          this.scanReorder = doc.data().reorderlevel;
+          this.scanManufacturer = doc.data().manufacturer;
+          this.scanInventory = doc.data().inventory_id;
+          this.scanAvailable = doc.data().available;
+          this.scanUnit = doc.data().unitcost;
+          this.scanTotal = doc.data().totalcost;
+          this.scanDisplay = doc.data().display;
+          // this.scanTotal = doc.data().totalstocks;
+          this.scanExpiry = doc.data().expiry;
+          this.scanSupplier = doc.data().supplier;
+
         });
         this.dialogScan = false;
         this.dialogScanView = true;
@@ -1827,7 +1989,14 @@ export default {
       const itemDate = new Date(expired);
       const difTime = itemDate.getTime() - today.getTime();
       const difDays = difTime / (1000 * 3600 * 24);
-      return difDays + " Days Left Before Expiry";
+
+      if(difDays <= 0){
+        return "ITEM EXPIRED"
+      }
+      else{
+        return difDays + " Days Left Before Expiry";
+      }
+      
     },
     getExpiry(Xpired) {
       const currentDate = new Date().toISOString().slice(0, 10);
