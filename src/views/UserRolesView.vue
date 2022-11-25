@@ -333,18 +333,18 @@
           </v-btn>
 
           <!-- Delete Item Modal -->
-          <v-dialog v-model="dialogDelete" max-width="500px">
+          <v-dialog v-model="dialogDelete" max-width="550px">
             <v-card class="pa-5 d-flex flex-column justify-center">
               <v-chip
                 color="error"
                 class="d-flex justify-center font-weight-bold text-h6 pa-5"
                 >Delete User
               </v-chip>
-              <v-card-title class="d-flex justify-center text-h5 text-center"
+              <v-card-title class="-d-flex justify-center"
                 >Are you sure you want to delete this User?
               </v-card-title>
               <p class="text-center font-weight-bold text-h5">
-                {{ dataItem.itemname }}
+                {{ dataItem.name }}
               </p>
               <v-card-actions class="mb-n5">
                 <v-spacer></v-spacer>
@@ -858,11 +858,11 @@ export default {
     // close function for delete
     closeDelete() {
       this.dialogDelete = false;
-      this.resetForm();
-      this.$nextTick(() => {
-        this.currentItem = Object.assign({}, this.defaultItem);
-        this.itemIndex = -1;
-      });
+      // this.resetForm();
+      // this.$nextTick(() => {
+      //   this.currentItem = Object.assign({}, this.defaultItem);
+      //   this.itemIndex = -1;
+      // });
     },
 
     // close function for scan
