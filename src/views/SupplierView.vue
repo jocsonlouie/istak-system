@@ -237,7 +237,9 @@
               </p>
               <v-card-actions class="mb-n5">
                 <v-spacer></v-spacer>
-                <v-btn color="secondary" @click="dialogDelete = false">Cancel</v-btn>
+                <v-btn color="secondary" @click="dialogDelete = false"
+                  >Cancel</v-btn
+                >
                 <v-btn color="primary" @click="deleteItemConfirm">YES</v-btn>
                 <v-spacer></v-spacer>
               </v-card-actions>
@@ -634,7 +636,7 @@ export default {
     ],
 
     //emailrule
-    emailRules: [ v => /.+@.+/.test(v) || 'Invalid Email address' ],
+    emailRules: [(v) => /.+@.+/.test(v) || "Invalid Email address"],
 
     //namerules
     nameRules: [(v) => v.length >= 3 || "Minimum length is 3 characters"],
@@ -890,7 +892,6 @@ export default {
     },
 
     async deleteReceipt(id) {
-      console.log("helo " + id);
       await deleteDoc(doc(supplierReceiptRef, id));
       this.itemStatus = "Deleted";
       this.snackbar = true;
@@ -964,10 +965,10 @@ export default {
       this.items.splice(this.itemIndex, 1);
       await deleteDoc(this.docRef);
       this.closeDelete();
+      this.dialog = false;
       this.itemStatus = "Deleted";
       this.snackbar = true;
       this.resetForm();
-      this.dialog = false;
     },
 
     // close function for edit and add

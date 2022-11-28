@@ -112,7 +112,7 @@
           </v-dialog>
 
           <!-- dialog for viewing -->
-          <v-dialog v-model="viewDialog" max-width="900px">
+          <v-dialog v-model="viewDialog" max-width="900px" persistent>
             <v-card class="">
               <v-card-title class="d-flex justify-center ">
                 <v-chip
@@ -287,17 +287,15 @@
               </v-container>
               <v-card-actions>
                 <v-spacer></v-spacer>
-                <v-btn color="primary" @click="viewDialog = false">DONE</v-btn>
-                <v-btn color="secondary" @click="viewDialog = false"
-                  >CANCEL</v-btn
-                >
+                <v-btn color="primary" @click="closeViewDialog">DONE</v-btn>
+                <v-btn color="secondary" @click="closeViewDialog">CANCEL</v-btn>
                 <v-spacer></v-spacer>
               </v-card-actions>
             </v-card>
           </v-dialog>
 
           <!-- dialog for editing -->
-          <v-dialog v-model="editDialog" max-width="900px">
+          <v-dialog v-model="editDialog" max-width="900px" persistent>
             <v-card class="">
               <v-card-title class="d-flex justify-center ">
                 <v-chip
@@ -518,9 +516,7 @@
                 <v-btn color="primary" @click="editScanItem(dataItem.id)"
                   >SAVE</v-btn
                 >
-                <v-btn color="secondary" @click="editDialog = false"
-                  >CANCEL</v-btn
-                >
+                <v-btn color="secondary" @click="closeEditDialog">CANCEL</v-btn>
                 <v-spacer></v-spacer>
               </v-card-actions>
             </v-card>
@@ -528,7 +524,7 @@
 
           <!-- UI Consume -->
 
-          <v-dialog v-model="consumeDialog" max-width="700px">
+          <v-dialog v-model="consumeDialog" max-width="700px" persistent>
             <v-card class="pa-5 d-flex flex-column justify-center">
               <v-chip
                 color="primary"
@@ -597,10 +593,13 @@
               </div>
               <v-card-actions class="mb-n5">
                 <v-spacer></v-spacer>
-                <v-btn color="secondary" @click="consumeDialog = false"
+                <v-btn color="secondary" @click="closeConsumeDialog"
                   >Cancel</v-btn
                 >
-                <v-btn color="primary" @click="consumeStockScan(dataItem.id)"
+                <v-btn
+                  color="primary"
+                  :disabled="consumeBtn"
+                  @click="consumeStockScan(dataItem.id)"
                   >Consume</v-btn
                 >
                 <v-spacer></v-spacer>
@@ -609,7 +608,7 @@
           </v-dialog>
 
           <!-- Add Stocks -->
-          <v-dialog v-model="dialogAddStocks" max-width="700px">
+          <v-dialog v-model="dialogAddStocks" max-width="700px" persistent>
             <v-card class="pa-5 d-flex flex-column justify-center">
               <v-chip
                 color="primary"
@@ -673,7 +672,7 @@
               </div>
               <v-card-actions class="mb-n5">
                 <v-spacer></v-spacer>
-                <v-btn color="secondary" @click="dialogAddStocks = false"
+                <v-btn color="secondary" @click="closeDialogAddStocks"
                   >Cancel</v-btn
                 >
                 <v-btn color="primary" @click="addStockScan(dataItem.id)"
@@ -995,6 +994,7 @@ export default {
   },
   data: () => ({
     barcodeTransactionTable: [],
+    consumeBtn: true,
     base64: "",
     barcodeValue: "046872030134",
     alignments: ["start", "center", "end"],
@@ -1520,7 +1520,7 @@ export default {
     },
 
     async cancelBarcode() {
-      this.saveBarcodeLog("Barcode Generated Cancelled");
+      this.generateDialog = false;
     },
     async saveBarcode() {
       this.saveBarcodeLog("Barcode Generated Saved");
@@ -1576,6 +1576,102 @@ export default {
           });
         }
       );
+    },
+
+    closeViewDialog() {
+      this.viewDialog = false;
+      this.dataItem = {
+        image: "",
+        itemname: "",
+        barcode: "",
+        retail: "",
+        stockunit: "",
+        reorderlevel: "",
+        manufacturer: "",
+        inventory_id: "",
+
+        available: 0,
+        unitcost: 0,
+        display: 0,
+        totalstocks: 0,
+        totalcost: 0,
+        expiry: "",
+        supplier: "",
+        state: "open",
+        level: "info",
+      };
+    },
+
+    closeEditDialog() {
+      this.editDialog = false;
+      this.dataItem = {
+        image: "",
+        itemname: "",
+        barcode: "",
+        retail: "",
+        stockunit: "",
+        reorderlevel: "",
+        manufacturer: "",
+        inventory_id: "",
+
+        available: 0,
+        unitcost: 0,
+        display: 0,
+        totalstocks: 0,
+        totalcost: 0,
+        expiry: "",
+        supplier: "",
+        state: "open",
+        level: "info",
+      };
+    },
+
+    closeConsumeDialog() {
+      this.consumeDialog = false;
+      this.dataItem = {
+        image: "",
+        itemname: "",
+        barcode: "",
+        retail: "",
+        stockunit: "",
+        reorderlevel: "",
+        manufacturer: "",
+        inventory_id: "",
+
+        available: 0,
+        unitcost: 0,
+        display: 0,
+        totalstocks: 0,
+        totalcost: 0,
+        expiry: "",
+        supplier: "",
+        state: "open",
+        level: "info",
+      };
+    },
+
+    closeDialogAddStocks() {
+      this.dialogAddStocks = false;
+      this.dataItem = {
+        image: "",
+        itemname: "",
+        barcode: "",
+        retail: "",
+        stockunit: "",
+        reorderlevel: "",
+        manufacturer: "",
+        inventory_id: "",
+
+        available: 0,
+        unitcost: 0,
+        display: 0,
+        totalstocks: 0,
+        totalcost: 0,
+        expiry: "",
+        supplier: "",
+        state: "open",
+        level: "info",
+      };
     },
 
     deleteItem(item) {
@@ -1706,14 +1802,34 @@ export default {
           });
         });
         this.dataItem = Object.assign({}, consumeStockItem[0]);
-        this.text = "Item found: " + this.dataItem.itemname;
-        this.snackbar = true;
-        this.barcodeLog(
-          "Consume stocks scan for " + this.dataItem.itemname,
-          this.dataItem.barcode,
-          "Scan"
-        );
+        let isItemExpired = this.isExpired(this.dataItem.expiry);
+        if (isItemExpired <= 0) {
+          this.consumeBtn = true;
+          this.text = "Item expired: " + this.dataItem.itemname;
+          this.snackbar = true;
+          this.timeout = 10000;
+        } else {
+          this.consumeBtn = false;
+          this.text = "Item found: " + this.dataItem.itemname;
+          this.snackbar = true;
+          this.barcodeLog(
+            "Consume stocks scan for " + this.dataItem.itemname,
+            this.dataItem.barcode,
+            "Scan"
+          );
+        }
       }
+    },
+
+    isExpired(item) {
+      let dateExpiry = moment(item);
+      let todaysDate = moment();
+
+      let diff =
+        dateExpiry.diff(todaysDate, "days") === 0
+          ? dateExpiry.diff(todaysDate, "days")
+          : dateExpiry.diff(todaysDate, "days") + 1;
+      return diff;
     },
 
     async editScanItem(id) {

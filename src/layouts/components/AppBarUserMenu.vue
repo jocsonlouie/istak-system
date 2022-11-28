@@ -61,23 +61,6 @@
 
       <v-divider></v-divider>
 
-      <!-- Chat -->
-      <v-list-item link @click="goToRegister">
-        <v-list-item-icon class="me-2">
-          <v-icon size="22">
-            {{ icons.mdiAccountPlusOutline }}
-          </v-icon>
-        </v-list-item-icon>
-        <v-list-item-content>
-          <v-list-item-title>Register</v-list-item-title>
-        </v-list-item-content>
-
-        <!-- <v-list-item-action>
-          <v-badge inline color="error" content="2">
-          </v-badge>
-        </v-list-item-action> -->
-      </v-list-item>
-
       <!-- Settings -->
       <v-list-item link to="/account-settings">
         <v-list-item-icon class="me-2">

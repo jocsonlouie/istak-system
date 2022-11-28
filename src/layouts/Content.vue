@@ -65,8 +65,12 @@
             v-if="notification.isExpiry"
             @input="dismissAlert(notification.id)"
           >
-            The item "{{ notification.itemname }}" has only
-            <strong>{{ notification.expiry }} days </strong> left.
+            <div v-if="notification.expiry > 0">
+              The item "{{ notification.itemname }}" has only
+              <strong>{{ notification.expiry }} days </strong>
+              left.
+            </div>
+            <div v-else>EXPIRED ITEM: "{{ notification.itemname }}"</div>
           </v-alert>
         </v-list-item>
 

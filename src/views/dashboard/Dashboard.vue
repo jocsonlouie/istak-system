@@ -208,69 +208,31 @@ export default {
       this.loadingTable = false;
     } else {
       querySnapshot.forEach(async (doc) => {
-        if (
-          moment(doc.data().stateDate.toDate()).format("MMM Do, ddd") !=
-          moment(Timestamp.now().toDate()).format("MMM Do, ddd")
-        ) {
-          await setDoc(
-            docFB(db, "inventory", doc.id),
-            {
-              level:
-                parseInt(doc.data().totalstocks) <=
-                parseInt(doc.data().reorderlevel)
-                  ? "error"
-                  : "info",
-              state: "open",
-            },
-            { merge: true }
-          );
+        if (doc.data().stateDate != undefined) {
+          if (!Timestamp.now().isEqual(doc.data().stateDate)) {
+            try {
+              await setDoc(
+                docFB(db, "inventory", doc.id),
+                {
+                  level:
+                    parseInt(doc.data().totalstocks) <=
+                    parseInt(doc.data().reorderlevel)
+                      ? "error"
+                      : "info",
+                  state: "open",
+                },
+                { merge: true }
+              );
+            } catch (e) {
+              console.log(e);
+            }
+          }
         }
       });
     }
     // });
 
-    schedule.scheduleJob("05 10 * * *", async () => {
-      console.log("It's 10:30!");
-    });
-    // onSnapshot(inventoriesFilterRef, (snapshot) => {
-    //   if (snapshot.empty) {
-    //     this.items = items;
-    //     this.loadingTable = false;
-    //   } else {
-    //     snapshot.forEach(async (doc) => {
-    //       if (
-    //         moment(doc.data().stateDate.toDate()).format("MMM Do, ddd") ==
-    //         moment(Timestamp.now().toDate()).format("MMM Do, ddd")
-    //       ) {
-    //         await setDoc(
-    //           docFB(db, "inventory", doc.id),
-    //           {
-    //             level:
-    //               parseInt(doc.data().totalstocks) <=
-    //               parseInt(doc.data().reorderlevel)
-    //                 ? "error"
-    //                 : "info",
-    //             state: "open",
-    //             stateDate: Timestamp.now(),
-    //           },
-    //           { merge: true }
-    //         );
-    //       }
-    //     });
-    //   }
-    // });
-
     this.initialized();
-
-    // console.log(items);
-
-    // items.forEach(async (item) => {
-    //   await setDoc(doc(db, "notification", item.id), {
-    //     name: item.itemname,
-    //     available: item.available,
-    //     expiry: item.expiry,
-    //   });
-    // });
   },
 
   methods: {

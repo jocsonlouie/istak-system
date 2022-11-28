@@ -159,22 +159,45 @@
             <v-card class="pa-5 d-flex justify-center flex-column pa-md-10">
               <v-chip
                 color="error"
-                class="d-flex justify-center  font-weight-bold text-h5 pa-5"
+                class="d-flex justify-center  font-weight-bold text-h5 pa-5 mb-2"
                 >Delete Inventory
               </v-chip>
-              <v-card-title class="text-center"
+              <v-alert dense outlined type="error" border="left">
+                <span class="text-xs"
+                  >Deleting the inventory will also delete the inventory
+                  items.</span
+                >
+              </v-alert>
+              <v-card-title class="text-center text-break"
                 >Are you sure you want to delete this inventory?
               </v-card-title>
               <p class="text-center font-weight-bold text-h5">
                 {{ deleteInventoryName }}
               </p>
 
+              <v-text-field
+                color="error"
+                v-model="deleteTitleConfirm"
+                label="Enter Inventory title to confirm"
+                outlined
+                dense
+              >
+              </v-text-field>
+
               <v-card-actions class="mx-auto">
                 <v-spacer></v-spacer>
                 <v-btn color="secondary" @click="deleteDialog = false">
                   Cancel
                 </v-btn>
-                <v-btn color="error" @click="deleteInventory"> Delete</v-btn>
+                <v-btn
+                  color="error"
+                  :disabled="
+                    deleteInventoryName === deleteTitleConfirm ? false : true
+                  "
+                  @click="deleteInventory"
+                >
+                  Delete</v-btn
+                >
               </v-card-actions>
             </v-card>
           </v-dialog>
@@ -297,21 +320,6 @@
               </template>
 
               <v-list>
-                <v-list-item v-if="isInventoryStaff">
-                  <v-btn
-                    color="error"
-                    outlined
-                    small
-                    block
-                    class="me-2 mb-2"
-                    @click="
-                      deleteInventoryConfirm(inventory.id, inventory.name)
-                    "
-                  >
-                    <v-icon>{{ deleteIcon }}</v-icon>
-                    Delete
-                  </v-btn>
-                </v-list-item>
                 <v-list-item>
                   <v-btn
                     color="primary"
@@ -328,6 +336,21 @@
                   >
                     <v-icon>{{ editIcon }}</v-icon>
                     Edit
+                  </v-btn>
+                </v-list-item>
+                <v-list-item v-if="isInventoryStaff">
+                  <v-btn
+                    color="error"
+                    outlined
+                    small
+                    block
+                    class="me-2 mb-2"
+                    @click="
+                      deleteInventoryConfirm(inventory.id, inventory.name)
+                    "
+                  >
+                    <v-icon>{{ deleteIcon }}</v-icon>
+                    Delete
                   </v-btn>
                 </v-list-item>
               </v-list>
@@ -441,6 +464,7 @@ export default {
     snackbar: false,
     text: "",
     timeout: 3000,
+    deleteTitleConfirm: "",
     valid: true,
     fieldRules: [(v) => !!v || "This field is required"],
     itemImage:
@@ -581,60 +605,66 @@ export default {
           });
         });
         this.customInventories = itemsCInventory;
-      });
 
-      onSnapshot(mainInventoryColRef, (snapshot2) => {
-        stocks = [];
-        snapshot2.forEach((doc) => {
-          mainInventory.push({
-            name: doc.data().itemname,
-            id: doc.data().inventory_id,
-          });
-          itemsCInventory.forEach((item) => {
-            if (doc.data().inventory_id === item.id) {
-              stocks.push({
-                name: item.name,
-                stock: doc.data().totalstocks,
-                id: item.id,
-              });
-            }
+        onSnapshot(mainInventoryColRef, (snapshot2) => {
+          stocks = [];
+          // items = [];
+          // mainInventory = [];
+
+          snapshot2.forEach((doc) => {
+            mainInventory.push({
+              name: doc.data().itemname,
+              id: doc.data().inventory_id,
+            });
+            itemsCInventory.forEach((item) => {
+              if (doc.data().inventory_id === item.id) {
+                stocks.push({
+                  name: item.name,
+                  stock: doc.data().totalstocks,
+                  id: item.id,
+                });
+              }
+            });
+
+            itemsInventory.push({
+              name: doc.data().itemname,
+              id: doc.data().inventory_id,
+            });
           });
 
-          itemsInventory.push({
-            name: doc.data().itemname,
-            id: doc.data().inventory_id,
-          });
+          let res = stocks.reduce((ac, a) => {
+            let ind = ac.findIndex((x) => x.id === a.id);
+            ind === -1 ? ac.push(a) : (ac[ind].stock += a.stock);
+            return ac;
+          }, []);
+
+          let result = items.map((v) => ({
+            ...v,
+            ...res.find((sp) => sp.id === v.id),
+          }));
+          this.totalinvt = items.length;
+          items = [];
+
+          let itemResult = Object.entries(
+            mainInventory.reduce((acc, { id }) => {
+              acc[id] = (acc[id] || 0) + 1;
+
+              return acc;
+            }, {})
+          ).map(([k, v]) => ({ id: k, count: v }));
+
+          mainInventory = [];
+
+          let mergeAll = result.map((v) => ({
+            ...v,
+            ...itemResult.find((sp) => sp.id === v.id),
+          }));
+          result = [];
+
+          this.custom_inventories = mergeAll;
+          mergeAll = [];
+          //TOTAL INVENTORY
         });
-
-        let res = stocks.reduce((ac, a) => {
-          let ind = ac.findIndex((x) => x.id === a.id);
-          ind === -1 ? ac.push(a) : (ac[ind].stock += a.stock);
-          return ac;
-        }, []);
-
-        const result = items.map((v) => ({
-          ...v,
-          ...res.find((sp) => sp.id === v.id),
-        }));
-
-        const itemResult = Object.entries(
-          mainInventory.reduce((acc, { id }) => {
-            acc[id] = (acc[id] || 0) + 1;
-
-            return acc;
-          }, {})
-        ).map(([k, v]) => ({ id: k, count: v }));
-
-        mainInventory = [];
-
-        const mergeAll = result.map((v) => ({
-          ...v,
-          ...itemResult.find((sp) => sp.id === v.id),
-        }));
-
-        this.custom_inventories = mergeAll;
-        //TOTAL INVENTORY
-        this.totalinvt = items.length;
       });
 
       onSnapshot(mainInventoryColRef, (snapshot) => {
@@ -724,9 +754,21 @@ export default {
 
     async deleteInventory() {
       this.deleteDialog = false;
+      const q = query(
+        mainInventoryColRef,
+        where("inventory_id", "==", this.deleteInventoryId)
+      );
       await deleteDoc(doc(db, "custom-inventory", this.deleteInventoryId));
-      this.text = "Inventory has been deleted successfully.";
-      this.snackbar = true;
+      const querySnapshot = await getDocs(q);
+      if (!querySnapshot.empty) {
+        querySnapshot.forEach(async (docu) => {
+          // doc.data() is never undefined for query doc snapshots
+          await deleteDoc(doc(db, "inventory", docu.id));
+        });
+        this.text = "Inventory has been deleted successfully.";
+        this.snackbar = true;
+        this.initialize();
+      }
     },
 
     async editInventoryConfirm(id, name, image) {

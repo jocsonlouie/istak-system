@@ -1,7 +1,9 @@
 <template>
   <v-card style="height: 100%">
     <v-card-title class="align-start">
-      <span class="font-weight-semibold text-subtitle-1 text-md-h6">Items Expiring in 10 Days</span>
+      <span class="font-weight-semibold text-subtitle-1 text-md-h6"
+        >Items Expiring in 10 Days</span
+      >
 
       <!-- <v-spacer></v-spacer>
 
@@ -73,8 +75,8 @@ export default {
       ],
       chartOptions: {
         chart: {
-          toolbar:{
-            show:false,
+          toolbar: {
+            show: false,
           },
           id: "vuechart-example",
           offsetX: -15,
@@ -135,7 +137,7 @@ export default {
           if (diff <= 10) {
             mainInventory.push({
               name: doc.data().itemname,
-              expiry: diff,
+              expiry: diff <= 0 ? 0 : diff,
               id: doc.id,
             });
           }
