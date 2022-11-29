@@ -1286,6 +1286,7 @@ export default {
       });
       let today = moment();
       let lastWeek = today.subtract(1, "w");
+
       const q = query(
         barcodeTransactionRef,
         where("timestamp", ">=", lastWeek.toDate()),
@@ -1315,6 +1316,13 @@ export default {
 
         let update_header = [];
         let update_data = [];
+        snapshot.forEach((doc) => {
+          items.push({
+            action: doc.data().action,
+            id: doc.id,
+            date: moment(doc.data().timestamp.toDate()).format("MMM D"),
+          });
+        });
 
         snapshot.forEach((doc) => {
           items.push({
@@ -1362,6 +1370,23 @@ export default {
           }
         });
 
+        const result = Object.entries(
+          items.reduce((acc, { date }) => {
+            acc[date] = (acc[date] || 0) + 1;
+
+            return acc;
+          }, {})
+        ).map(([k, v]) => ({ id: k, count: v }));
+
+        const fixedDate = [];
+
+        result.forEach((item) => {
+          overall_header.push(item.id);
+          fixedDate.push({
+            id: item.id,
+          });
+        });
+
         const result_consume = Object.entries(
           consumeItems.reduce((acc, { date }) => {
             acc[date] = (acc[date] || 0) + 1;
@@ -1370,9 +1395,19 @@ export default {
           }, {})
         ).map(([k, v]) => ({ id: k, count: v }));
 
-        result_consume.forEach((item) => {
-          consume_data.push(item.count);
-          consume_header.push(item.id);
+        const a3 = fixedDate.map((t1) => ({
+          ...t1,
+          ...result_consume.find((t2) => t2.id === t1.id),
+        }));
+
+        a3.forEach((item) => {
+          if (item.count === undefined) {
+            consume_data.push(0);
+          } else {
+            consume_data.push(item.count);
+          }
+          // consume_data.push(item.count);
+          // consume_header.push(item.id);
         });
 
         const result_delete = Object.entries(
@@ -1383,9 +1418,22 @@ export default {
           }, {})
         ).map(([k, v]) => ({ id: k, count: v }));
 
-        result_delete.forEach((item) => {
-          delete_data.push(item.count);
-          delete_header.push(item.id);
+        // result_delete.forEach((item) => {
+        //   delete_data.push(item.count);
+        //   delete_header.push(item.id);
+        // });
+
+        const deleteMerged = fixedDate.map((t1) => ({
+          ...t1,
+          ...result_delete.find((t2) => t2.id === t1.id),
+        }));
+
+        deleteMerged.forEach((item) => {
+          if (item.count === undefined) {
+            delete_data.push(0);
+          } else {
+            delete_data.push(item.count);
+          }
         });
 
         const result_view = Object.entries(
@@ -1396,9 +1444,17 @@ export default {
           }, {})
         ).map(([k, v]) => ({ id: k, count: v }));
 
-        result_view.forEach((item) => {
-          view_data.push(item.count);
-          view_header.push(item.id);
+        const viewMerged = fixedDate.map((t1) => ({
+          ...t1,
+          ...result_view.find((t2) => t2.id === t1.id),
+        }));
+
+        viewMerged.forEach((item) => {
+          if (item.count === undefined) {
+            view_data.push(0);
+          } else {
+            view_data.push(item.count);
+          }
         });
 
         const result_add = Object.entries(
@@ -1409,9 +1465,17 @@ export default {
           }, {})
         ).map(([k, v]) => ({ id: k, count: v }));
 
-        result_add.forEach((item) => {
-          add_data.push(item.count);
-          add_header.push(item.id);
+        const addMerged = fixedDate.map((t1) => ({
+          ...t1,
+          ...result_add.find((t2) => t2.id === t1.id),
+        }));
+
+        addMerged.forEach((item) => {
+          if (item.count === undefined) {
+            add_data.push(0);
+          } else {
+            add_data.push(item.count);
+          }
         });
 
         const result_update = Object.entries(
@@ -1422,9 +1486,17 @@ export default {
           }, {})
         ).map(([k, v]) => ({ id: k, count: v }));
 
-        result_update.forEach((item) => {
-          update_data.push(item.count);
-          update_header.push(item.id);
+        const updateMerged = fixedDate.map((t1) => ({
+          ...t1,
+          ...result_update.find((t2) => t2.id === t1.id),
+        }));
+
+        updateMerged.forEach((item) => {
+          if (item.count === undefined) {
+            update_data.push(0);
+          } else {
+            update_data.push(item.count);
+          }
         });
 
         this.series = [
@@ -1450,18 +1522,6 @@ export default {
             data: update_data,
           },
         ];
-
-        const result = Object.entries(
-          items.reduce((acc, { date }) => {
-            acc[date] = (acc[date] || 0) + 1;
-
-            return acc;
-          }, {})
-        ).map(([k, v]) => ({ id: k, count: v }));
-
-        result.forEach((item) => {
-          overall_header.push(item.id);
-        });
 
         this.chartOptions = {
           ...this.chartOptions,
@@ -1855,7 +1915,7 @@ export default {
           level: this.dataItem.level,
         });
         this.editDialog = false;
-        this.text = this.dataItem.itemname + " item successfully deleted.";
+        this.text = this.dataItem.itemname + " item successfully updated.";
         this.snackbar = true;
       }
     },
