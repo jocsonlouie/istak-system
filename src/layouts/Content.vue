@@ -360,8 +360,8 @@ export default {
   data() {
     return {
       searchClient: algoliasearch(
-        "NDCGZS2QZA",
-        "314955d293e61fc8b1f7c19faa7d7e97"
+        process.env.VUE_APP_ALGOLIAID,
+        process.env.VUE_APP_ALGOLIAAPI
       ),
       drawer: null,
       isEmptyNotif: false,
