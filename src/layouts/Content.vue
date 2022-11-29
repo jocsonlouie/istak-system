@@ -424,24 +424,6 @@ export default {
       });
     },
     async initialize() {
-      // const notificationRef = collection(db, "inventory");
-      // const q = query(
-      //   notificationRef,
-      //   where("state", "==", "open"),
-      //   where("available", "<=", 50)
-      // );
-      // const notifSnapshot = await getDocs(q);
-      // if (notifSnapshot.empty) {
-      //   this.isEmptyNotif = true;
-      // } else {
-      //   notifSnapshot.forEach((doc) => {
-      //     this.notifications.push({
-      //       ...doc.data(),
-      //       id: doc.id,
-      //     });
-      //   });
-      // }
-
       const q = query(mainInventoryRef, where("state", "==", "open"));
       onSnapshot(q, (snapshot) => {
         this.notifications = [];
