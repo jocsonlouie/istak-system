@@ -6,8 +6,10 @@ import vuetify from './plugins/vuetify'
 import router from './router'
 import store from './store'
 import './registerServiceWorker'
+import InstantSearch from 'vue-instantsearch';
 
 Vue.config.productionTip = false
+Vue.use(InstantSearch)
 
 new Vue({
   router,

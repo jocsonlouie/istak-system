@@ -1798,10 +1798,10 @@ export default {
     closeDelete() {
       this.dialogDelete = false;
       // this.resetForm();
-      this.$nextTick(() => {
-        this.currentItem = Object.assign({}, this.defaultItem);
-        this.itemIndex = -1;
-      });
+      // this.$nextTick(() => {
+      //   this.currentItem = Object.assign({}, this.defaultItem);
+      //   this.itemIndex = -1;
+      // });
     },
 
     // close function for scan

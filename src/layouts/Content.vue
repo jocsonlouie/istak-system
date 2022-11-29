@@ -101,7 +101,8 @@
             dense
             outlined
             v-model="search"
-            v-on:keyup.enter="onEnter"
+            v-on:keyup="searchDialog = true"
+            placeholder="Search an item..."
             :prepend-inner-icon="icons.mdiMagnify"
             class="app-bar-search flex-grow-0 hidden-xs-only"
             hide-details
@@ -120,6 +121,94 @@
             :prepend-inner-icon="icons.mdiMagnify"
           ></v-autocomplete> -->
 
+          <!-- Search modal -->
+          <v-dialog v-model="searchDialog" max-width="550px">
+            <v-card class="pa-5 d-flex flex-column w-full">
+              <v-chip
+                color="primary"
+                class="d-flex justify-center rounded-pill font-weight-bold text-h6 pa-5 "
+                >Search Item
+              </v-chip>
+              <v-card-title
+                class="-d-flex w-full flex-column justify-center align-content-stretch  pa-0 rounded-lg my-3 overflow-hidden"
+                style="align-items: stretch;"
+              >
+                <ais-instant-search
+                  index-name="inventory"
+                  :search-client="searchClient"
+                  :query="search"
+                >
+                  <ais-search-box
+                    placeholder="Search an item..."
+                    v-model="search"
+                    :show-loading-indicator="true"
+                    v-show="false"
+                  />
+                  <v-text-field
+                    rounded
+                    dense
+                    outlined
+                    autofocus
+                    v-model="search"
+                    placeholder="Search an item..."
+                    :prepend-inner-icon="icons.mdiMagnify"
+                    class="app-bar-search flex-grow-0 hidden-xs-only"
+                    hide-details
+                  ></v-text-field>
+                  <!-- <ais-index index-name="inventory" :query="search"> </ais-index> -->
+
+                  <ais-hits
+                    style="max-height: 250px; width: 100%;"
+                    class="overflow-y-auto"
+                  >
+                    <template slot="item" slot-scope="{ item }">
+                      <v-list>
+                        <v-list-item :key="item.itemname">
+                          <v-list-item-avatar>
+                            <v-img :src="item.image"></v-img>
+                          </v-list-item-avatar>
+
+                          <v-list-item-content>
+                            <v-list-item-title>
+                              <ais-highlight :hit="item" attribute="itemname"
+                            /></v-list-item-title>
+
+                            <v-list-item-subtitle>
+                              <ais-highlight :hit="item" attribute="barcode" />
+                            </v-list-item-subtitle>
+                          </v-list-item-content>
+                          <v-btn
+                            class="primary mx-4"
+                            @click="
+                              gotoInventory(item.inventory_id, item.itemname)
+                            "
+                            color="white"
+                            elevation="2"
+                            fab
+                            small
+                            outlined
+                          >
+                            <v-icon>
+                              {{ mdiArrowRight }}
+                            </v-icon>
+                          </v-btn>
+                        </v-list-item>
+                      </v-list>
+                      <v-divider></v-divider>
+                    </template>
+                  </ais-hits>
+                </ais-instant-search>
+              </v-card-title>
+
+              <v-card-actions class="mb-n5">
+                <v-spacer></v-spacer>
+                <v-btn color="secondary" @click="searchDialog = false"
+                  >Cancel</v-btn
+                >
+                <v-spacer></v-spacer>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
           <v-spacer></v-spacer>
 
           <v-btn
@@ -230,6 +319,7 @@ import {
   mdiAlertCircle,
   mdiAlertOctagon,
   mdiBarcodeScan,
+  mdiArrowRight,
 } from "@mdi/js";
 import VerticalNavMenu from "./components/vertical-nav-menu/VerticalNavMenu.vue";
 import ThemeSwitcher from "./components/ThemeSwitcher.vue";
@@ -248,6 +338,11 @@ import {
 import db from "@/fb";
 import moment from "moment";
 import { _ } from "@/utils";
+import algoliasearch from "algoliasearch";
+import { AisAutocomplete } from "vue-instantsearch";
+import { AisInstantSearch } from "vue-instantsearch";
+import { AisIndex } from "vue-instantsearch";
+import { AisStateResults } from "vue-instantsearch";
 
 const mainInventoryRef = collection(db, "inventory");
 
@@ -256,17 +351,26 @@ export default {
     VerticalNavMenu,
     ThemeSwitcher,
     AppBarUserMenu,
+    AisAutocomplete,
+    AisInstantSearch,
+    AisIndex,
+    AisStateResults,
   },
 
   data() {
     return {
+      searchClient: algoliasearch(
+        "NDCGZS2QZA",
+        "314955d293e61fc8b1f7c19faa7d7e97"
+      ),
       drawer: null,
       isEmptyNotif: false,
       notifications: [],
+      searchDialog: false,
       barcodeIcon: mdiBarcodeScan,
       isLoading: false,
       searching: null,
-      search: null,
+      search: "",
       searchItems: ["Press enter to search item"],
       items: [
         { title: "Home", icon: "mdi-view-dashboard" },
@@ -282,6 +386,7 @@ export default {
       mdiBellOutline,
       mdiAlertCircle,
       mdiAlertOctagon,
+      mdiArrowRight,
       // Icons
       icons: {
         mdiMagnify,
@@ -296,6 +401,14 @@ export default {
     this.initialize();
   },
 
+  computed: {
+    itemsData() {
+      return Array.from({ length: this.length }, (k, v) => v + 1);
+    },
+    length() {
+      return 7000;
+    },
+  },
   methods: {
     onEnter: async function() {
       console.log(this.search);
@@ -366,6 +479,10 @@ export default {
         }
       });
     },
+    gotoInventory(id, name) {
+      this.$router.push("/inventory-list?filter=" + id + "&" + "name=" + name);
+      this.searchDialog = false;
+    },
 
     async dismissAlert(id) {
       console.log("im clicked! id:  " + id);
@@ -399,5 +516,13 @@ export default {
   max-width: 1440px;
   margin-left: auto;
   margin-right: auto;
+}
+</style>
+
+<style>
+ul,
+ol {
+  list-style: none;
+  padding-left: 0 !important;
 }
 </style>
