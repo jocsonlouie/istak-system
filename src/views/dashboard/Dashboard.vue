@@ -12,27 +12,6 @@
         <v-col cols="12" sm="12">
           <dashboard-small-card></dashboard-small-card>
         </v-col>
-        <!-- <v-col cols="12" sm="6">
-          <statistics-card-vertical
-            color="primary"
-            :icon="totalInventory.icon"
-            :statistics="totalInventory.value"
-            :stat-title="totalInventory.name"
-            :subtitle="totalInventory.footer"
-            change="+items"
-          ></statistics-card-vertical>
-        </v-col>
-
-        <v-col cols="12" sm="6">
-          <statistics-card-vertical
-            color="warning"
-            :icon="scanInventory.icon"
-            :statistics="scanInventory.value"
-            :stat-title="scanInventory.name"
-            :subtitle="scanInventory.footer"
-            change="+scans"
-          ></statistics-card-vertical>
-        </v-col> -->
       </v-row>
     </v-col>
 
