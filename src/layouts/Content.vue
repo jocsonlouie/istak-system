@@ -108,19 +108,6 @@
             hide-details
           ></v-text-field>
 
-          <!-- <v-autocomplete
-            v-model="search"
-            :items="searchItems"
-            :loading="isLoading"
-            dense
-            rounded
-            hide-details
-            filled
-            v-on:keyup.enter="onEnter"
-            outlined
-            :prepend-inner-icon="icons.mdiMagnify"
-          ></v-autocomplete> -->
-
           <!-- Search modal -->
           <v-dialog v-model="searchDialog" max-width="550px">
             <v-card class="pa-5 d-flex flex-column w-full">
@@ -255,32 +242,6 @@
             </v-btn>
           </v-badge>
 
-          <!-- <v-menu bottom offset-y left>
-            <template v-slot:activator="{ on, attrs }">
-              <v-badge color="error" bottom dot offset-x="10" offset-y="10">
-                <v-btn icon small v-bind="attrs" v-on="on" class="ms-3">
-                  <v-icon>
-                    {{ icons.mdiBellOutline }}
-                  </v-icon>
-                </v-btn>
-              </v-badge>
-            </template>
-
-            <v-list class="pt-6">
-              <v-list-item>
-                <v-alert dense border="left" type="warning">
-                  I'm a dense alert with the <strong>border</strong> prop and a
-                  <strong>type</strong> of warning
-                </v-alert>
-              </v-list-item>
-              <v-list-item>
-                <v-alert dense border="left" type="warning">
-                  I'm a dense alert with the <strong>border</strong> prop and a
-                  <strong>type</strong> of warning
-                </v-alert>
-              </v-list-item>
-            </v-list>
-          </v-menu> -->
           <app-bar-user-menu></app-bar-user-menu>
         </div>
       </div>
