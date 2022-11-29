@@ -485,7 +485,6 @@ export default {
     },
 
     async dismissAlert(id) {
-      console.log("im clicked! id:  " + id);
       await updateDoc(
         doc(db, "inventory", id),
         {

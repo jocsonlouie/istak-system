@@ -209,7 +209,10 @@ export default {
     } else {
       querySnapshot.forEach(async (doc) => {
         if (doc.data().stateDate != undefined) {
-          if (!Timestamp.now().isEqual(doc.data().stateDate)) {
+          if (
+            moment(Timestamp.now().toDate()).format("MMM Do, ddd") !=
+            moment(doc.data().stateDate.toDate()).format("MMM Do, ddd")
+          ) {
             try {
               await setDoc(
                 docFB(db, "inventory", doc.id),

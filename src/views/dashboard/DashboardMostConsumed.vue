@@ -1,7 +1,9 @@
 <template>
   <v-card style="height: 100%">
     <v-card-title class="align-start">
-      <span class="font-weight-semibold text-subtitle-1 text-md-h6">Top Inventory Items</span>
+      <span class="font-weight-semibold text-subtitle-1 text-md-h6"
+        >Top Inventory Items</span
+      >
 
       <!-- <v-spacer></v-spacer>
 
@@ -81,8 +83,8 @@ export default {
       ],
       chartOptions: {
         chart: {
-          toolbar:{
-            show:false,
+          toolbar: {
+            show: false,
           },
           height: 210,
           type: "line",
