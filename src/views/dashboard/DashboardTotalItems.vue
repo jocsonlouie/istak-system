@@ -14,9 +14,8 @@
     <div class="d-flex justify-center my-2">
       <!-- Chart -->
       <vue-apex-charts
-        class="w-100"
-        ref="myChart"
         type="pie"
+        :width="chartOptions.chart.width"
         :options="chartOptions"
         :series="series"
       ></vue-apex-charts>
@@ -69,18 +68,17 @@ export default {
       countNonStaff: 0,
       countStaff: 0,
       countBlock: 0,
-      chart_header: [
-        "Inventory Admin",
-        "Inventory Staff",
-        "Non-Inventory Staff",
-        "Can't Access",
-      ],
       series: [44, 55, 13, 43, 22, 22, 43],
       chartOptions: {
         chart: {
           width: 400,
           offsetX: -15,
           type: "pie",
+        },
+        theme: {
+          monochrome: {
+            enabled: false,
+          },
         },
         labels: ["Team A", "Team B", "Team C", "Team D", "Team E"],
         legend: {
@@ -170,15 +168,6 @@ export default {
           this.series = data;
         });
       });
-
-      // const querySnapshot2 = await getDocs(collection(db, "inventory"));
-      // querySnapshot2.forEach((doc) => {
-      //   // doc.data() is never undefined for query doc snapshots
-      //   mainInventory.push({
-      //     name: doc.data().itemname,
-      //     id: doc.data().inventory_id,
-      //   });
-      // });
     },
   },
   setup() {

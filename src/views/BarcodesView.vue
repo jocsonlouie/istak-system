@@ -875,7 +875,7 @@
             <v-icon class="mr-2">{{ searchIcon }}</v-icon>
             <v-text-field
               v-model="search"
-              label="Search Item..."
+              label="Search transaction..."
               single-line
               hide-details
             >
@@ -1085,7 +1085,6 @@ export default {
     //rules
     valid: true,
     fieldRules: [(v) => !!v || "This field is required"],
-
     //barcoderules
     inputRules: [
       (v) => !!v || "This field is required",
@@ -1301,21 +1300,12 @@ export default {
         let items = [];
 
         let overall_header = [];
-
-        let consume_header = [];
         let consume_data = [];
-
-        let delete_header = [];
         let delete_data = [];
-
-        let view_header = [];
         let view_data = [];
-
-        let add_header = [];
         let add_data = [];
-
-        let update_header = [];
         let update_data = [];
+
         snapshot.forEach((doc) => {
           items.push({
             action: doc.data().action,
@@ -1922,7 +1912,10 @@ export default {
 
     async consumeStockScan(id) {
       if (this.$refs.formConsumeStock.validate()) {
-        if (this.stkWhere == "Available Stocks") {
+        if (
+          this.stkWhere == "Available Stocks" &&
+          this.stkConsume <= this.dataItem.available
+        ) {
           await updateDoc(
             doc(inventoryColRef, id),
             {
@@ -1941,7 +1934,10 @@ export default {
             "Consumed",
             this.stkConsume
           );
-        } else {
+        } else if (
+          this.stkWhere == "On Display Stocks" &&
+          this.stkConsume <= this.dataItem.display
+        ) {
           await updateDoc(
             doc(inventoryColRef, id),
             {
@@ -1960,6 +1956,10 @@ export default {
             "Consumed",
             this.stkConsume
           );
+        } else {
+          this.text =
+            "Consumed amount must not be greater than the current amount.";
+          this.snackbar = true;
         }
       }
     },

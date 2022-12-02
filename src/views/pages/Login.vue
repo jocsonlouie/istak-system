@@ -205,16 +205,6 @@ const password = ref("");
 const errMsg = ref("");
 
 export default {
-  mounted() {
-    const auth = getAuth();
-    if (auth.currentUser !== null) {
-      this.$router.push("/dashboard");
-    }
-    if (this.$route.params.logout) {
-      this.text = "Logout Sucessfully!";
-      this.snackbar = true;
-    }
-  },
   data: () => ({
     snackbar: false,
     otpModal: false,
@@ -253,6 +243,13 @@ export default {
 
   mounted() {
     const auth = getAuth();
+    if (auth.currentUser !== null) {
+      this.$router.push("/dashboard");
+    }
+    if (this.$route.params.logout) {
+      this.text = "Logout Sucessfully!";
+      this.snackbar = true;
+    }
     this.recaptchaVerifier = window.recaptchaVerifier = new RecaptchaVerifier(
       "recaptcha-container",
       { size: "normal" },
@@ -265,7 +262,6 @@ export default {
 
   methods: {
     login() {
-      console.log("test");
       const auth = getAuth();
 
       if (this.$refs.form.validate()) {

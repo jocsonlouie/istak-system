@@ -1020,7 +1020,7 @@ export default {
       pdf.setFontSize(12).text(this.business, 2.4, 1.37);
       pdf.setFontSize(10).text(this.address, 1.4, 1.55);
       pdf.setFontSize(10).text(this.contact, 1.95, 1.75);
-      pdf.setFontSize(16).text(this.report, 3.2, 2.15);
+      pdf.setFontSize(16).text(this.report, 3.5, 2.15);
       pdf.setLineWidth(0.01).line(0.56, 2.35, 7.7, 2.35);
 
       autoTable(pdf, {
@@ -1035,11 +1035,23 @@ export default {
           lineColor: [0, 0, 0],
         },
         margin: {
-          top: 10,
+          top: 1,
         },
       });
 
-      pdf.save("UserRoleList.pdf");
+      //footer
+      const pageCount = pdf.internal.getNumberOfPages();
+      console.log(pageCount);
+      for (var i = 1; i <= pageCount; i++) {
+        pdf.setPage(i);
+        pdf.setLineWidth(0.01).line(0.56, 11, 7.7, 11);
+        const datez = new Date().toISOString().slice(0, 10);
+        pdf.setFontSize(8).text("Generated from ISTAK on " + datez, 0.55, 11.2);
+        pdf
+          .setFontSize(8)
+          .text("Page " + String(i) + " of " + String(pageCount), 7.05, 11.2);
+      }
+      pdf.save("UserList.pdf");
     },
 
     getColor(role) {

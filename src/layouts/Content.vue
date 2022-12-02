@@ -397,23 +397,26 @@ export default {
             dateExpiry.diff(todaysDate, "days") === 0
               ? dateExpiry.diff(todaysDate, "days")
               : dateExpiry.diff(todaysDate, "days") + 1;
-          if (
-            parseInt(doc.data().totalstocks) <=
-              parseInt(doc.data().reorderlevel) &&
-            moment(doc.data().stateDate.toDate()).format("MMM Do, ddd") !=
-              moment(Timestamp.now().toDate()).format("MMM Do, ddd")
-          ) {
-            this.notifications.push({
-              ...doc.data(),
-              id: doc.id,
-            });
-          } else if (diff <= 10) {
-            this.notifications.push({
-              ...doc.data(),
-              isExpiry: true,
-              expiry: diff,
-              id: doc.id,
-            });
+
+          if (doc.data().stateDate !== undefined) {
+            if (
+              parseInt(doc.data().totalstocks) <=
+                parseInt(doc.data().reorderlevel) &&
+              moment(doc.data().stateDate.toDate()).format("MMM Do, ddd") !=
+                moment(Timestamp.now().toDate()).format("MMM Do, ddd")
+            ) {
+              this.notifications.push({
+                ...doc.data(),
+                id: doc.id,
+              });
+            } else if (diff <= 10) {
+              this.notifications.push({
+                ...doc.data(),
+                isExpiry: true,
+                expiry: diff,
+                id: doc.id,
+              });
+            }
           }
         });
 

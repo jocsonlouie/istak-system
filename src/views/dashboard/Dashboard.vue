@@ -209,6 +209,24 @@ export default {
               console.log(e);
             }
           }
+        } else if (doc.data().stateDate === undefined) {
+          try {
+            await setDoc(
+              docFB(db, "inventory", doc.id),
+              {
+                level:
+                  parseInt(doc.data().totalstocks) <=
+                  parseInt(doc.data().reorderlevel)
+                    ? "error"
+                    : "info",
+                state: "open",
+                stateDate: Timestamp.now(),
+              },
+              { merge: true }
+            );
+          } catch (e) {
+            console.log(e);
+          }
         }
       });
     }

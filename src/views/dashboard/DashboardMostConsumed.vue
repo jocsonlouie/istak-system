@@ -64,7 +64,7 @@ export default {
 
   data: function() {
     return {
-      chart_data: [30, 40, 45],
+      chart_data: [30, 40, 45, 100],
       countAdmin: 0,
       countNonStaff: 0,
       countStaff: 0,
@@ -78,7 +78,7 @@ export default {
       series: [
         {
           name: "Consume Amount",
-          data: [4, 3, 10, 9, 29, 19, 22, 9, 12, 7, 19, 5, 13, 9, 17, 2, 7, 5],
+          data: [4, 3, 10, 9, 29, 19, 100, 9, 12, 7, 19, 5, 13, 9, 17, 2, 7, 5],
         },
       ],
       chartOptions: {
@@ -145,10 +145,6 @@ export default {
             opacityTo: 1,
             stops: [0, 100, 100, 100],
           },
-        },
-        yaxis: {
-          min: -10,
-          max: 40,
         },
       },
     };
