@@ -289,8 +289,8 @@ export default {
   methods: {
     uploadAvatar(e) {
       let file = e.target.files[0];
-      if (file.size > 1097152) {
-        this.text = "File size must be under 1MB";
+      if (file.size > 3097152) {
+        this.text = "File size must be under 3MB";
         this.snackbar = true;
       } else {
         const storage = getStorage();

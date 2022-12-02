@@ -835,8 +835,8 @@ export default {
       this.capturePhoto = false;
       var currentdate = new Date();
       let file = this.dataURLtoFile(picture, "receipt" + currentdate);
-      if (file.size > 1097152) {
-        this.text = "File size must be under 1MB";
+      if (file.size > 3097152) {
+        this.text = "File size must be under 3MB";
         this.snackbar = true;
       } else {
         const storage = getStorage();
