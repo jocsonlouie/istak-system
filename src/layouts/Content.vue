@@ -96,7 +96,17 @@
             class="d-block d-lg-none me-2"
             @click="isDrawerOpen = !isDrawerOpen"
           ></v-app-bar-nav-icon>
-          <v-text-field
+          <v-btn
+            class="primary mx-4 hidden-xs-only"
+            to="/barcode-management"
+            v-if="this.$route.name !== 'barcode-management'"
+          >
+            Barcode Scan
+            <v-icon right dark>
+              {{ barcodeIcon }}
+            </v-icon>
+          </v-btn>
+          <!-- <v-text-field
             rounded
             dense
             outlined
@@ -108,7 +118,7 @@
             hide-details
           ></v-text-field>
 
-          <!-- Search modal -->
+        
           <v-dialog v-model="searchDialog" max-width="550px">
             <v-card class="pa-5 d-flex flex-column w-full">
               <v-chip
@@ -142,7 +152,7 @@
                     class="app-bar-search flex-grow-0 hidden-xs-only"
                     hide-details
                   ></v-text-field>
-                  <!-- <ais-index index-name="inventory" :query="search"> </ais-index> -->
+                
 
                   <ais-hits
                     style="max-height: 250px; width: 100%;"
@@ -195,19 +205,8 @@
                 <v-spacer></v-spacer>
               </v-card-actions>
             </v-card>
-          </v-dialog>
+          </v-dialog> -->
           <v-spacer></v-spacer>
-
-          <v-btn
-            class="primary mx-4 hidden-xs-only"
-            to="/barcode-management"
-            v-if="this.$route.name !== 'barcode-management'"
-          >
-            Barcode Scan
-            <v-icon right dark>
-              {{ barcodeIcon }}
-            </v-icon>
-          </v-btn>
 
           <v-btn
             class="primary mx-4 hidden-sm-and-up"
