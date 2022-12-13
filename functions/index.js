@@ -1,8 +1,5 @@
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
-const accountSid = functions.config().twiliokeys.sid;
-const authToken = functions.config().twiliokeys.token;
-const client = require("twilio")(accountSid, authToken);
 const sgMail = require("@sendgrid/mail");
 sgMail.setApiKey(functions.config().sendgridapi.key);
 
@@ -73,14 +70,6 @@ exports.scheduledFunctionCrontab = functions.pubsub.schedule("0 7 * * *")
                 });
 
                 if (arrayR.length !== 0) {
-                    client.messages
-                        .create({
-                            body: "Reminder: Low stock and item expiry notification. From ISTAK IMS",
-                            messagingServiceSid: functions.config().twiliokeys.msgsid,
-                            to: "+639274665823"
-                        })
-                        .then((message) => console.log(message.sid))
-                        .done();
                     sgMail
                         .send(msg)
                         .then(() => {
